@@ -36,10 +36,34 @@
         -webkit-box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);
         -moz-box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);
     }
+    
+    .input-field:focus{
+        transition-duration: 300ms;
+        outline: #e9e9e9;
+        border: 1px solid rgb(255, 255, 255);
+    }
 
     .input-field::placeholder{
         color: #FFFFFF;
         font-size: 15px;
     }
 
+    .custom-btn{
+        border: 1px solid rgba(192, 192, 192, 0.425);
+        border-radius: 45px;
+        width: 270px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        background-color: #165193;
+        color: white;
+        
+        box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);
+        -webkit-box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);
+        -moz-box-shadow: 0px 0px 14px -2px rgba(0,0,0,0.75);
+    }
+
+    .custom-btn:hover{
+        transition-duration: 300ms;
+        background-color: #083364;
+    }
 }
