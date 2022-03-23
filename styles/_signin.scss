@@ -66,4 +66,16 @@
         transition-duration: 300ms;
         background-color: #083364;
     }
+    .forgot-ps{
+        float: right;
+    }
+    @media screen and (max-width: 480px) {
+        .forgot-ps{
+            float: none;
+            text-align: center;
+        }
+        .ps{
+            text-align: center;
+        }
+      }
 }
