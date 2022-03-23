@@ -1,0 +1,20 @@
+.signin_styles{
+
+    .box{
+        border: 1px solid #cfcdcd;
+    }
+    .bg{
+        background-image: linear-gradient( #003399b4, #2b4d91b4), url("../public/assets/images/login-bg.png");
+
+        /* Full height */
+        min-height: 100vh; 
+
+        /* Center and scale the image nicely */
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+    .login-icon{
+        font-size: 90px;
+    }
+}
