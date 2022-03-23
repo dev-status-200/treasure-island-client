@@ -1,0 +1,86 @@
+.mainLayout{
+    
+    @import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,700");
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Roboto, sans-serif;
+    }
+    body {
+        height: 100vh;
+        background: #242932;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    ul {
+        position: absolute;
+        left: 0px;
+        background: #1733E8;
+        padding: 20px 0 10px 10px;
+        border-right: 5px solid #FFFFFF;
+        width: 120px;
+        height: 100vh;
+        transition: 0.5s;
+        overflow: hidden;
+        width: 250px;
+    }
+
+    ul li {
+        
+        list-style: none;
+        padding: 15px;
+        padding-right: 0;
+        color: white;
+        font-size: 15px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        position: relative;
+        transition: 0.5s;
+        border-top-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+
+    }
+
+    ul li:hover {
+        transition: 0s;
+    }
+
+    ul li.active:before {
+        content: '';
+        position: absolute;
+        top:-20px;
+        right: 0px;
+        width: 20px;
+        height:20px;
+        background: transparent;
+        border-radius: 50%;
+        box-shadow: 10px 10px 0 #FFFFFF;
+    }
+
+    ul li.active:after {
+        content: '';
+        position: absolute;
+        bottom:-20px;
+        right: 0px;
+        width: 20px;
+        height:20px;
+        background: transparent;
+        border-radius: 50%;
+        box-shadow: 10px -10px 0 #FFFFFF;
+
+    }
+
+    ul li.active {
+        background: #FFFFFF;
+        color: black;
+    }
+
+    // ul:hover {
+    //     width: 300px
+    // }
+
+}
