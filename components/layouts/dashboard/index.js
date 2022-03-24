@@ -5,7 +5,7 @@ const Dashboard = () => {
 
   return (
     <div className='dashboard'>
-        Dashboard
+      Dashboard
     </div>
   )
 }

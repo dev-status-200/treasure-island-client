@@ -21,7 +21,7 @@
         left: 0px;
         background: #1733E8;
         padding: 20px 0 10px 10px;
-        border-right: 5px solid #FFFFFF;
+        border-right: 5px solid #EAEDF7;
         width: 120px;
         height: 100vh;
         transition: 0.5s;
@@ -32,14 +32,15 @@
     ul li {
         
         list-style: none;
-        padding: 15px;
+        padding: 10px;
         padding-right: 0;
         color: white;
+        background-color: #1733E8;
         font-size: 15px;
         margin-bottom: 10px;
         cursor: pointer;
         position: relative;
-        transition: 0.5s;
+        transition: 0.3s ease-in-out;
         border-top-left-radius: 20px;
         border-bottom-left-radius: 20px;
 
@@ -47,6 +48,7 @@
 
     ul li:hover {
         transition: 0s;
+        background-color: #0f208dad;
     }
 
     ul li.active:before {
@@ -58,7 +60,7 @@
         height:20px;
         background: transparent;
         border-radius: 50%;
-        box-shadow: 10px 10px 0 #FFFFFF;
+        box-shadow: 10px 10px 0 #EAEDF7;
     }
 
     ul li.active:after {
@@ -70,17 +72,57 @@
         height:20px;
         background: transparent;
         border-radius: 50%;
-        box-shadow: 10px -10px 0 #FFFFFF;
+        box-shadow: 10px -10px 0 #EAEDF7
 
     }
 
     ul li.active {
-        background: #FFFFFF;
+        background: #EAEDF7;
         color: black;
     }
-
-    // ul:hover {
-    //     width: 300px
-    // }
-
+    .item-icon{
+        position: relative;
+        bottom: 2px;
+        margin-right: 10px;
+    }
+    ul li.active > .item-icon{
+        transition-duration: 300ms;
+        background-color: #1733E8;
+        color: white !important;
+        border: 4px solid #1733E8;
+        border-radius: 35px;
+        padding-left: 4px;
+        padding-right: 4px;
+        padding-bottom: 3px;
+    }
+    ul:hover {
+    }
+    .top-bar{
+        height: 60px;
+        border-bottom: 1px solid #1733E8;
+        position: fixed;
+        background-color: white;
+        top: 0px;
+        left: 245px;
+    }
+    .user{
+        float: right;
+        margin-right: 230px;
+        padding-right: 20px;
+        padding-top: 10px;
+        font-size: 14px;
+        color: #1733E8;
+        font-weight: 600;
+        background-color: #EAEDF7;
+        border-left: 1px solid #1733E8;
+        padding-left: 20px;
+        height: 59px;
+    }
+    .user-type{
+        font-size: 11px;
+    }
+    .children{
+        background-color: #EAEDF7;
+        margin-top: 90px;
+    }
 }

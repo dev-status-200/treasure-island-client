@@ -1,6 +1,7 @@
 import React from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 import Image from 'next/image'
+import Router from 'next/router'
 
 const LoginLayout = () => {
 
@@ -25,7 +26,7 @@ const LoginLayout = () => {
             </Row>
             <Row className='justify-content-md-center text-center pt-4'>
               <Col md={12} xs={12} >
-                <button className='custom-btn'>SIGN IN</button>
+                <button className='custom-btn' onClick={()=>Router.push('/dashboard')}>SIGN IN</button>
               </Col>
             </Row>
             <Row className='justify-content-md-center  pt-4 f15'>
