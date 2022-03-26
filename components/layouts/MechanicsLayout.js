@@ -37,7 +37,7 @@ const MechanicsLayout = ({mechanics}) => {
         setLoad(true);
         e.preventDefault();
         console.log(f_name, l_name, password, email, ssn, shop_id, phone, gender, address);
-        axios.post('http://localhost:5000/users/addUser', {
+        axios.post('https://treasure-island-server.herokuapp.com/users/addUser', {
             f_name:f_name, l_name:l_name, password:password, gender:gender,
             email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
         }).then((x)=>{

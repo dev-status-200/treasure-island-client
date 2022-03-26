@@ -3,7 +3,7 @@ import axios from 'axios'
 import Cookies from 'cookies'
 import Router from 'next/router'
 
-const notifications = ({sessionData}) => {
+const Notifications = ({sessionData}) => {
     
   React.useEffect(() => {
     console.log(sessionData)
@@ -19,11 +19,12 @@ const notifications = ({sessionData}) => {
   )
 }
 
-export default notifications
+export default Notifications
+
 export async function getServerSideProps({req,res}) {
 
   const cookies = new Cookies(req, res)
-  const requestOne = await axios.get('http://localhost:5000/getUser',{
+  const requestOne = await axios.get('https://treasure-island-server.herokuapp.com/getUser',{
       headers:{
           "x-access-token":`${cookies.get('token')}`
       }

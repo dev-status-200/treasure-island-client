@@ -1,11 +1,11 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import axios from 'axios'
 import Cookies from 'cookies'
 import Router from 'next/router'
 
-const customers = ({sessionData}) => {
+const Customers = ({sessionData}) => {
 
-  React.useEffect(() => {
+  useEffect(() => {
     console.log(sessionData)
     if(sessionData.isLoggedIn==true){
         Router.push('/customers');
@@ -19,12 +19,12 @@ const customers = ({sessionData}) => {
   )
 }
 
-export default customers
+export default Customers
 
 export async function getServerSideProps({req,res}) {
 
   const cookies = new Cookies(req, res)
-  const requestOne = await axios.get('http://localhost:5000/getUser',{
+  const requestOne = await axios.get('https://treasure-island-server.herokuapp.com/getUser',{
       headers:{
           "x-access-token":`${cookies.get('token')}`
       }

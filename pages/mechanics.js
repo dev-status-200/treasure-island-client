@@ -4,7 +4,7 @@ import Cookies from 'cookies'
 import Router from 'next/router'
 import MechanicsLayout from '../components/layouts/MechanicsLayout'
 
-const mechanics = ({sessionData, mechanics}) => {
+const Mechanics = ({sessionData, mechanics}) => {
   
   React.useEffect(() => {
     console.log(mechanics)
@@ -20,11 +20,12 @@ const mechanics = ({sessionData, mechanics}) => {
   )
 }
 
-export default mechanics
+export default Mechanics
+
 export async function getServerSideProps({req,res}) {
 
   const cookies = new Cookies(req, res)
-  const requestOne = await axios.get('http://localhost:5000/getUser',{
+  const requestOne = await axios.get('https://treasure-island-server.herokuapp.com/getUser',{
       headers:{
           "x-access-token":`${cookies.get('token')}`
       }
@@ -32,7 +33,7 @@ export async function getServerSideProps({req,res}) {
   const dataone = await requestOne
 
   const config = {
-    method: 'get', headers: { 'Content-Type': 'application/json' }, url: `http://localhost:5000/users/getUsers`,
+    method: 'get', headers: { 'Content-Type': 'application/json' }, url: `https://treasure-island-server.herokuapp.com/users/getUsers`,
     data : {  }
 };
 const requestTwo = await axios(config);
