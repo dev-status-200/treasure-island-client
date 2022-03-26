@@ -17,7 +17,7 @@ const LoginLayout = () => {
     setLoading(true);
     e.preventDefault();
     console.log(email, pass);
-    axios.post('http://localhost:5000/login',{email:email, pass:pass}).then((x)=>{
+    axios.post('https://treasure-island-server.herokuapp.com/login',{email:email, pass:pass}).then((x)=>{
       console.log(x)
       if(x.data.message=="Success"){
           //console.log(jwt_decode(x.data.token).username)
