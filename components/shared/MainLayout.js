@@ -5,38 +5,58 @@ import { FiHome, FiBarChart, FiStar, FiUsers, FiFileText, FiBell, FiSettings, Fi
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { MdPayment } from "react-icons/md";
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
+import Cookies from 'js-cookie'
 
 const MainLayout = ({children}) => {
+
+    const router = useRouter();
+
     const [navItems, setNavItems] = useState([
-        {id:'0',  link:'/dashboard', name:'Dashboard', class:'active', logo:<FiHome/>},
+        {id:'0',  link:'/dashboard', name:'Dashboard', class:'', logo:<FiHome/>},
         {id:'1',  link:'/services', name:'Services', class:'', logo:<FiBarChart/>},
         {id:'2',  link:'/parts', name:'Parts', class:'', logo:<FiStar/>},
         {id:'3',  link:'/customers', name:'Customers', class:'', logo:<HiOutlineUserGroup/>},
         {id:'4',  link:'/tasks', name:'Tasks', class:'', logo:<FiFileText/>},
         {id:'5',  link:'/mechanics', name:'Mechanics', class:'', logo:<FiUsers/>},
-        {id:'6',  link:'/enquiries', name:'Exquiries', class:'', logo:<AiOutlineQuestionCircle/>},
+        {id:'6',  link:'/enquiries', name:'Enquiries', class:'', logo:<AiOutlineQuestionCircle/>},
         {id:'7',  link:'/invoices', name:'Invoices', class:'', logo:<MdPayment />},
         {id:'8',  link:'/notifications', name:'Notifications', class:'', logo:<FiBell/>},
         {id:'9',  link:'/settings', name:'Settings', class:'', logo:<FiSettings/>},
         {id:'10', link:'/',  name:'Logout', class:'', logo:<FiLogOut/>},
     ])
-    const changeNav = (nav) => {
+
+    useEffect(() => {
         let tempState = [...navItems];
-        tempState.filter((x)=>{
-            if(x.name ===nav.name){
-                x.class='active'
-            }else{
-                x.class=''
-            }
-        })
+        tempState.filter((x)=>{ if(x.link===router.pathname){ x.class='active' } else { x.class='' } })
         setNavItems(tempState);
+    }, [router.pathname])
+    
+    const changeNav = (nav) => {
+        if(nav.name=='Logout'){
+            Cookies.remove('token');
+            Cookies.remove('username');
+            Cookies.remove('role_id');
+            Cookies.remove('loginId');
+            Router.push('/');
+            
+        }else if(nav.name!='Logout'){
+            let tempState = [...navItems];
+            tempState.filter((x)=>{
+                if(x.name ===nav.name){
+                    x.class='active'
+                }else{
+                    x.class=''
+                }
+            })
+            setNavItems(tempState);
+            Router.push(nav.link)
+        }
     }
 
   return (
     <div className='mainLayout' style={{backgroundColor:'#EAEDF7'}}>
     <Container fluid>
-    
         <Row>
             <Col md={2}>
             <div className="">
@@ -45,11 +65,8 @@ const MainLayout = ({children}) => {
                 {
                     navItems.map((nav, index)=>{
                     return(
-                        <li
-                            key={nav.id}
-                            className={nav.class}
-                            onClick={()=>{changeNav(nav); Router.push(nav.link)}}
-                        >
+                        <li key={nav.id} className={nav.class}
+                            onClick={()=>{changeNav(nav)}} >
                         <span className='item-icon'>{nav.logo}</span>{nav.name}
                         </li>
                         )
@@ -62,8 +79,8 @@ const MainLayout = ({children}) => {
                 <Row>
                     <Col md={12} className="top-bar">
                         <div className='user'>
-                            Dominic Keller<br/>
-                            <span className='user-type'>Admin</span>
+                            {Cookies.get('username')}<br/>
+                            <span className='user-type'>{Cookies.get('role_id')}</span>
                         </div>
                     </Col>
                     <Col md={12}>
