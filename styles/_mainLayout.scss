@@ -20,7 +20,7 @@
         position: absolute;
         left: 0px;
         background: #1733E8;
-        padding: 20px 0 10px 10px;
+        padding: 2px 0px 10px 20px;
         border-right: 5px solid #EAEDF7;
         width: 120px;
         height: 100vh;
@@ -33,6 +33,7 @@
         
         list-style: none;
         padding: 10px;
+        padding-left: 12px;
         padding-right: 0;
         color: white;
         background-color: #1733E8;
@@ -82,18 +83,21 @@
     }
     .item-icon{
         position: relative;
-        bottom: 2px;
+        bottom: 1px;
         margin-right: 10px;
+    }
+    ul li.active > .title{
+        position: relative;
+        left: -6px;
     }
     ul li.active > .item-icon{
         transition-duration: 300ms;
         background-color: #1733E8;
         color: white !important;
-        border: 4px solid #1733E8;
-        border-radius: 35px;
-        padding-left: 4px;
-        padding-right: 4px;
-        padding-bottom: 3px;
+        border: 6px solid #1733E8;
+        border-radius: 90%;
+        padding: 0px 4px 3px 4px;
+        left: -8px;
     }
     ul:hover {
     }

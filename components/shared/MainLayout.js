@@ -33,24 +33,23 @@ const MainLayout = ({children}) => {
     }, [router.pathname])
     
     const changeNav = (nav) => {
-        if(nav.name=='Logout'){
-            Cookies.remove('token');
-            Cookies.remove('username');
-            Cookies.remove('role_id');
-            Cookies.remove('loginId');
-            Router.push('/');
-            
-        }else if(nav.name!='Logout'){
+        if(nav.name!='Logout'){
             let tempState = [...navItems];
             tempState.filter((x)=>{
-                if(x.name ===nav.name){
+                if(x.name===nav.name){
                     x.class='active'
+                    Router.push(nav.link)
                 }else{
                     x.class=''
                 }
             })
             setNavItems(tempState);
-            Router.push(nav.link)
+        }else if(nav.name=='Logout'){
+            Cookies.remove('token');
+            Cookies.remove('username');
+            Cookies.remove('role_id');
+            Cookies.remove('loginId');
+            Router.push('/');
         }
     }
 
@@ -62,12 +61,13 @@ const MainLayout = ({children}) => {
             <div className="">
                 <ul>
                 <Image src={'/assets/images/white png logo.png'} width={140} height={80} className="py-2" />
+                <div className='my-3'></div>
                 {
                     navItems.map((nav, index)=>{
                     return(
                         <li key={nav.id} className={nav.class}
                             onClick={()=>{changeNav(nav)}} >
-                        <span className='item-icon'>{nav.logo}</span>{nav.name}
+                        <span className='item-icon'>{nav.logo}</span><span className='title'>{nav.name}</span>
                         </li>
                         )
                     })

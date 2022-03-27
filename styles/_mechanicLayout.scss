@@ -18,4 +18,19 @@
     .red { color: crimson; }
     .blue { color: rgb(20, 102, 197); }
     .yellow { color: rgb(233, 171, 57); }
+
+
+}
+.mechanic-styles {
+    animation: fadeInAnimation ease 0.3s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
