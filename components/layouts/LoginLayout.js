@@ -31,19 +31,19 @@ const LoginLayout = () => {
           setDetailWarning(true)
       }
 })
-  }
+  } 
 
   return (
     <div className='signin_styles '>
         <Container className='bg' fluid>
             <form onSubmit={loginUser}>
               <Row className='justify-content-md-center  text-center pt-5'>
+              <Col md="auto">
               <div className='space'></div>
-                <Col md="auto">
-                  <Image src={'/assets/images/white png logo.png'} width={140} height={70} />
-                </Col>
+              <Image src={'/assets/images/white png logo.png'} width={140} height={70} />
+              </Col>
               </Row>
-              <Row className='justify-content-md-center text-center pt-4'>
+              <Row className='justify-content-md-center text-center mt-2 pt-4'>
                 <Col md={12} xs={12} >
                   <input placeholder='Username' type='email' required className='input-field' value={email} onChange={(e)=>setEmail(e.target.value)} />
                 </Col>

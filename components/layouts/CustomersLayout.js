@@ -5,12 +5,12 @@ import Cookies from 'js-cookie'
 import { AiFillDelete, AiFillEdit, AiFillEye } from "react-icons/ai";
 
 
-const MechanicsLayout = ({mechanics}) => {
+const CustomersLayout = ({customers}) => {
 
     const [MechanicList,setMechanicList] = useState([])
 
     useEffect(() => {
-        setMechanicList(mechanics)
+        setMechanicList(customers)
     }, [])
     
     const [show, setShow] = useState(false);
@@ -33,9 +33,7 @@ const MechanicsLayout = ({mechanics}) => {
     const [id      , setId        ] = useState('')
     const [f_name  , setF_name    ] = useState('');
     const [l_name  , setL_Name    ] = useState('');
-    const [password, setPassword  ] = useState('');
     const [email   , setEmail     ] = useState('');
-    const [ssn     , setSsn       ] = useState('');
     const [shop_id , setShop_id   ] = useState('');
     const [phone   , setPhone     ] = useState('');
     const [gender  , setGender    ] = useState('male');
@@ -49,9 +47,9 @@ const MechanicsLayout = ({mechanics}) => {
         setLoad(true);
         e.preventDefault();
         //console.log(f_name, l_name, password, email, ssn, shop_id, phone, gender, address);
-        axios.post('https://treasure-island-server.herokuapp.com/users/addUser', {
-            f_name:f_name, l_name:l_name, password:password, gender:gender,
-            email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
+        axios.post('http://localhost:8080/customers/addUser', {
+            f_name:f_name, l_name:l_name, gender:gender,
+            email:email,  shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
         }).then((x)=>{
             let tempState = [...MechanicList];
             console.log(x);
@@ -65,9 +63,7 @@ const MechanicsLayout = ({mechanics}) => {
         setId(values.id)
         setF_name(values.f_name);
         setL_Name(values.l_name);
-        setPassword(values.password);
         setEmail(values.email);
-        setSsn(values.ssn);
         setShop_id(values.shop_id);
         setPhone(values.phone);
         setGender(values.gender);
@@ -77,9 +73,9 @@ const MechanicsLayout = ({mechanics}) => {
         setLoad(true);
         e.preventDefault();
         //console.log(f_name, l_name, password, email, ssn, shop_id, phone, gender, address);
-        axios.put(process.env.NEXT_PUBLIC_TI_EDIT_MECHANICS, {
-            id:id,f_name:f_name, l_name:l_name, password:password, gender:gender,
-            email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
+        axios.put(process.env.NEXT_PUBLIC_TI_EDIT_CUSTOMERS, {
+            id:id,f_name:f_name, l_name:l_name, gender:gender,
+            email:email,  shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
         }).then((x)=>{
             if(x.data[0]=='1'){
                 let tempState = [...MechanicList];
@@ -87,10 +83,8 @@ const MechanicsLayout = ({mechanics}) => {
                     if (z.id==id) {
                         z.f_name=f_name;
                         z.l_name=l_name;
-                        z.password=password;
                         z.gender=gender;
                         z.email=email;
-                        z.ssn=ssn;
                         z.shop_id=shop_id;
                         z.phone=phone;
                         z.address=address;
@@ -104,7 +98,7 @@ const MechanicsLayout = ({mechanics}) => {
     }
     const deleteUser = () => {
         setLoad(true);
-        axios.post(process.env.NEXT_PUBLIC_TI_DELETE_MECHANICS,{id:id}).then((x)=>{
+        axios.post(process.env.NEXT_PUBLIC_TI_DELETE_CUSTOMERS,{id:id}).then((x)=>{
             if(x.data[0]=='1'){
                 let tempState = [...MechanicList];
                 tempState = tempState.filter((z)=>{
@@ -122,7 +116,7 @@ const MechanicsLayout = ({mechanics}) => {
     <div className='mechanic-styles'>
         <Container fluid>
             <Row className=''>
-               <Col><span style={{color:'grey'}}> Employees </span><button className='global-btn mx-2' onClick={handleShow}> Add new</button></Col>
+               <Col><span style={{color:'grey'}}> Customers </span><button className='global-btn mx-2' onClick={handleShow}> Add new</button></Col>
                <Col><FormControl style={{width:'300px', float:'right', backgroundColor:'#f4f6fd'}} type='text' placeholder='Search...' value={search} onChange={(e)=>setSearch(e.target.value)} /></Col>
             </Row>
             <Row className='mt-4'>
@@ -176,7 +170,7 @@ const MechanicsLayout = ({mechanics}) => {
         </Container>
         <Modal className='shadow' show={show} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{view?'Mechanic Profile':edit?'Edit Mechanic':'Add New Mechanic'}</Modal.Title>
+          <Modal.Title>{view?'Customer Profile':edit?'Edit Customer':'Add New Customer'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
     {!view?
@@ -203,20 +197,9 @@ const MechanicsLayout = ({mechanics}) => {
                         <Form.Control type="email" placeholder="email..." required value={email} onChange={(e)=>setEmail(e.target.value)} />
                     </Form.Group>
                 </Col>
-                <Col>
-                    <Form.Group className="mb-3" controlId="Password">
-                        <Form.Label>Password</Form.Label>
-                        <Form.Control type="text" placeholder="password..." required value={password} onChange={(e)=>setPassword(e.target.value)} />
-                    </Form.Group>                
-                </Col>
+
             </Row>
             <Row>
-                <Col>
-                    <Form.Group className="mb-3" controlId="SSN">
-                        <Form.Label>SSN</Form.Label>
-                        <Form.Control type="text" placeholder="ssn..." required value={ssn} onChange={(e)=>setSsn(e.target.value)} />
-                    </Form.Group>
-                </Col>
                 <Col>
                     <Form.Group className="mb-3" controlId="Shop ID">
                         <Form.Label>Shop ID</Form.Label>
@@ -258,26 +241,22 @@ const MechanicsLayout = ({mechanics}) => {
         <Col md={3}>
             <b>Name : </b> {f_name} {l_name}  
         </Col>
-        <Col md={3}>
-            <b>Password : </b> {password}  
-        </Col>
         <Col md={5}>
             <b>email : </b> {email}  
-        </Col>
-        <hr className='mt-2 px-5 w-90p' />
-        <Col md={3}>
-            <b>ssn : </b> {ssn}  
         </Col>
         <Col md={3}>
             <b>shop_id : </b> {shop_id}  
         </Col>
+        
+        <hr className='mt-2 px-5 w-90p'/>
         <Col md={5}>
             <b>phone : </b> {phone}  
         </Col>
-        <hr className='mt-2 px-5 w-90p'/>
         <Col md={3}>
             <b>gender : </b> {gender}  
         </Col>
+        
+        <hr className='mt-2 px-5 w-90p'/>
         <Col md={6}>
             <b>address : </b> {address}  
         </Col>
@@ -291,7 +270,7 @@ const MechanicsLayout = ({mechanics}) => {
       </Modal>
       <Modal className='shadow' show={deleteView} onHide={()=>setDeleteView(false)} size="md">
         <Modal.Header closeButton>
-          <Modal.Title>Delete Mechanic</Modal.Title>
+          <Modal.Title>Delete Customer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
         <span><h6>Sure You Want to Delete <span style={{color:'crimson'}}>{f_name} {l_name}</span> ?</h6></span>
@@ -305,4 +284,4 @@ const MechanicsLayout = ({mechanics}) => {
   )
 }
 
-export default MechanicsLayout
+export default CustomersLayout
