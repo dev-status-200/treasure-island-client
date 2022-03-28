@@ -168,7 +168,7 @@ const MechanicsLayout = ({mechanics}) => {
                     return x
                 }
             }).map((mech, index)=>{
-            return(<tr key={index} className='rec'>
+            return(<tr key={index} className=''>
                     <td>
                     <Row>
                         <Col md={2}>
