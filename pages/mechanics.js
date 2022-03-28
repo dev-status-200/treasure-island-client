@@ -33,7 +33,7 @@ export async function getServerSideProps({req,res}) {
   const dataone = await requestOne
 
   const config = {
-    method: 'get', headers: { 'Content-Type': 'application/json' }, url: `http://localhost:8080/users/getUsers`,
+    method: 'get', headers: { 'Content-Type': 'application/json' }, url: `http://treasure-island-server.herokuapp.com/users/getUsers`,
     data : {  }
 };
 const requestTwo = await axios(config);

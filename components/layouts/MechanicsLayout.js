@@ -3,22 +3,22 @@ import { Container, Row, Col, Table, Modal, Button, Form, Spinner, FormControl }
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import { AiFillDelete, AiFillEdit, AiFillEye } from "react-icons/ai";
-
+import { ImPhone, ImCreditCard } from "react-icons/im";
+import { MdMailOutline, MdLocationOn, MdOutlineMode } from "react-icons/md";
+import Router from 'next/router'
 
 const MechanicsLayout = ({mechanics}) => {
 
     const [MechanicList,setMechanicList] = useState([])
-
     useEffect(() => {
         setMechanicList(mechanics)
     }, [])
-    
     const [show, setShow] = useState(false);
     const [load, setLoad] = useState(false);
     const [edit, setEdit] = useState(false);
     const [view, setView] = useState(false);
     const [deleteView, setDeleteView] = useState(false);
-
+    const [change, setChange] = useState(false);
     const handleClose = () => {
         setShow(false);
         setEdit(false);
@@ -29,7 +29,6 @@ const MechanicsLayout = ({mechanics}) => {
         }, 500);
     };
     const handleShow = () => {setShow(true);};
-
     const [id      , setId        ] = useState('')
     const [f_name  , setF_name    ] = useState('');
     const [l_name  , setL_Name    ] = useState('');
@@ -40,17 +39,33 @@ const MechanicsLayout = ({mechanics}) => {
     const [phone   , setPhone     ] = useState('');
     const [gender  , setGender    ] = useState('male');
     const [address , setAddress   ] = useState('');
+    const [image   , setImage     ] = useState("");
+    const [deleteImageUrl, setDeleteImageUrl] = useState('');
+    const [search, setSearch] = useState('');
 
-    const [deleteImageUrl, setDeleteImageUrl] = useState('')
+    const [profileView, setProfileView] = useState(false)
 
-    const [search, setSearch] = useState('')
-
-    const addAgent = (e) => {
+    function uploadImage(){
+        let value = ''
+        const data = new FormData()
+        data.append("file", image)
+        data.append("upload_preset", "g4hjcqh7")
+        data.append("cloud_name", "abdullah7c")
+        value = fetch(`https://api.cloudinary.com/v1_1/abdullah7c/image/upload`, {
+            method: "post",
+            body: data
+        })
+            .then(resp => resp.json())
+            .then(data => data.url)
+            .catch(err => console.log(err));
+        setImage(value);
+        return value;
+    }
+    const addAgent = async(e) => {
         setLoad(true);
         e.preventDefault();
-        //console.log(f_name, l_name, password, email, ssn, shop_id, phone, gender, address);
-        axios.post('https://treasure-island-server.herokuapp.com/users/addUser', {
-            f_name:f_name, l_name:l_name, password:password, gender:gender,
+        axios.post(process.env.NEXT_PUBLIC_TI_ADD_MECHANICS, {
+            f_name:f_name, l_name:l_name, password:password, gender:gender, photo:await uploadImage(),
             email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
         }).then((x)=>{
             let tempState = [...MechanicList];
@@ -72,13 +87,14 @@ const MechanicsLayout = ({mechanics}) => {
         setPhone(values.phone);
         setGender(values.gender);
         setAddress(values.address);
+        setImage(values.profile_pic)
     }
-    const editMechanic = (e) => {
+    const editMechanic = async(e) => {
         setLoad(true);
         e.preventDefault();
         //console.log(f_name, l_name, password, email, ssn, shop_id, phone, gender, address);
         axios.put(process.env.NEXT_PUBLIC_TI_EDIT_MECHANICS, {
-            id:id,f_name:f_name, l_name:l_name, password:password, gender:gender,
+            id:id,f_name:f_name, l_name:l_name, password:password, gender:gender, photo:await uploadImage(),
             email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
         }).then((x)=>{
             if(x.data[0]=='1'){
@@ -94,9 +110,11 @@ const MechanicsLayout = ({mechanics}) => {
                         z.shop_id=shop_id;
                         z.phone=phone;
                         z.address=address;
+                        z.profile_pic=image
                     }
                 })
                 setMechanicList(tempState);
+                Router.push('/mechanics')
             }
             handleClose();
             setLoad(false);
@@ -120,6 +138,7 @@ const MechanicsLayout = ({mechanics}) => {
     }
   return (
     <div className='mechanic-styles'>
+        {!profileView &&
         <Container fluid>
             <Row className=''>
                <Col><span style={{color:'grey'}}> Employees </span><button className='global-btn mx-2' onClick={handleShow}> Add new</button></Col>
@@ -149,15 +168,17 @@ const MechanicsLayout = ({mechanics}) => {
                     return x
                 }
             }).map((mech, index)=>{
-            return(<tr key={index}>
+            return(<tr key={index} className='rec'>
                     <td>
-                        <div style={{display:'inline-block'}}>
-                            <img src={mech.profile_pic} className="image pb-3"/>
-                        </div>
-                        <div className='mx-2 mt-2' style={{display:'inline-block'}}>
-                            <div className='name'>{mech.f_name} {mech.l_name}</div>
+                    <Row>
+                        <Col md={2}>
+                            <img src={mech.profile_pic} className="image"/>
+                        </Col>
+                        <Col md={10}>
+                            <div className='name mt-2'>{mech.f_name} {mech.l_name}</div>
                             <div style={{display:'inline-block'}} className='email'>{mech.email}</div>
-                        </div>
+                        </Col>
+                    </Row>
                     </td>
                     <td className='phone py-4'>{mech.phone}</td>
                     <td className='phone py-4'>0</td>
@@ -165,7 +186,7 @@ const MechanicsLayout = ({mechanics}) => {
                     <td className='phone py-4'>
                         <AiFillDelete className='red icon-trans' onClick={()=>{ editFields(mech); setDeleteView(true);}} />
                         <AiFillEdit className='blue icon-trans' onClick={()=>{editFields(mech); setShow(true); setEdit(true);}} />
-                        <AiFillEye className='yellow icon-trans' onClick={()=>{editFields(mech); setView(true); setShow(true);}} /> </td>
+                        <AiFillEye className='yellow icon-trans' onClick={()=>{editFields(mech); setView(true); setProfileView(true);}} /> </td>
                 </tr>
             )})}  
             </tbody>
@@ -173,14 +194,72 @@ const MechanicsLayout = ({mechanics}) => {
             </div>
             </Col>
             </Row>
-        </Container>
+        </Container>}
+        {profileView &&
+            <div>
+                <span onClick={()=>setProfileView(false)}><b className='bact-btn'>{"<"} Back</b> </span>
+                <Row>
+                    <Col md={4}>
+                        <div className='pic-frame'>
+                            <img src={image} className="frame-image"/>
+                        </div>
+                    </Col>
+                    <Col md={8}>
+                        <div className='detail-bar'>
+                            <Row>
+                                <Col md={4} className="text-center">
+                                    <h5 className='my-2'> <b>{f_name} {l_name}</b> </h5>
+                                    <button  className='btn btn-light btn-sm mt-2 px-3' onClick={()=>{setShow(true); setEdit(true);}}><MdOutlineMode className='' style={{fontSize:'15px'}} /> Edit</button>
+                                </Col>
+                                <Col md={4} className="text-center">
+                                    <div className='my-2'> <ImPhone className='mx-1' /> {phone} </div>
+                                    <div className='border-btm'></div>
+                                    <div className='my-2'> <ImCreditCard className='mx-1' /> {ssn} </div>
+                                </Col>
+                                <Col md={4} className="text-center">
+                                    <div className='my-2'> <MdMailOutline className='mx-1' /> {email} </div>
+                                    <div className='border-btm'></div>
+                                    <div className='my-2'> <MdLocationOn className='mx-1' /> {address} </div>
+                                </Col>
+                            </Row>
+                        </div>
+                    </Col>
+                </Row>
+                <Row className='mt-4  p-3 box-two'>
+                <Table responsive>
+                <thead>
+                    <tr>
+                    <th>Services</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Milage</th>
+                    <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr className=''> 
+                        <td className='phone py-4'>Oil Change</td>
+                        <td className='phone py-4'>SAJID O</td>
+                        <td className='phone py-4'>On Hold</td>
+                        <td className='phone py-4'>03/11/2021</td>
+                        <td className='phone py-4'>10,000 </td>
+                        <td className='phone py-4'>
+                            <AiFillDelete className='red icon-trans' />
+                            <AiFillEdit className='blue icon-trans'  /> </td>
+                    </tr>
+
+                </tbody>
+                </Table>
+                </Row>
+            </div>
+        }
         <Modal className='shadow' show={show} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{view?'Mechanic Profile':edit?'Edit Mechanic':'Add New Mechanic'}</Modal.Title>
+          <Modal.Title>{edit?'Edit Mechanic':'Add New Mechanic'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-    {!view?
-        (
+    {!view &&
         <Form onSubmit={edit==true?editMechanic:addAgent}>
             <Row>
                 <Col>
@@ -240,6 +319,14 @@ const MechanicsLayout = ({mechanics}) => {
                     </Form.Select>
                 </Form.Group>             
                 </Col>
+                <Col>
+                <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                    <Form.Label>Photo</Form.Label><br/>
+                    {edit && <span><span><Form.Check type="checkbox" label="Change" onChange={()=>{setChange(!change)}} /></span>
+                        <span><input disabled={change?false:true} type="file" onChange={(e) => setImage(e.target.files[0])} required ></input></span></span>}
+                    {!edit && <input type="file" onChange={(e) => setImage(e.target.files[0])} required ></input>}
+                </Form.Group>        
+                </Col>
             </Row>
             <Row>
                 <Col>
@@ -253,39 +340,7 @@ const MechanicsLayout = ({mechanics}) => {
                     {load==true?<Spinner className='mx-4' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:(edit==true?"Update":'Create')}
                 </Button>
         </Form>
-        ):(
-        <Row className='justify-content-md-center text-center mt-2 pt-4'>
-        <Col md={3}>
-            <b>Name : </b> {f_name} {l_name}  
-        </Col>
-        <Col md={3}>
-            <b>Password : </b> {password}  
-        </Col>
-        <Col md={5}>
-            <b>email : </b> {email}  
-        </Col>
-        <hr className='mt-2 px-5 w-90p' />
-        <Col md={3}>
-            <b>ssn : </b> {ssn}  
-        </Col>
-        <Col md={3}>
-            <b>shop_id : </b> {shop_id}  
-        </Col>
-        <Col md={5}>
-            <b>phone : </b> {phone}  
-        </Col>
-        <hr className='mt-2 px-5 w-90p'/>
-        <Col md={3}>
-            <b>gender : </b> {gender}  
-        </Col>
-        <Col md={6}>
-            <b>address : </b> {address}  
-        </Col>
-        <Col md={12}>
-            <div className='my-4'></div>
-        </Col>
-        </Row>
-        )
+
     }
         </Modal.Body>
       </Modal>
