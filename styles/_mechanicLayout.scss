@@ -20,9 +20,13 @@
         width:  190px;
         border-radius: 95px;
         margin-left: 80px;
-        border: 10px solid #1A73E8;
+        border: 6px solid #1A73E8;
         position: relative;
+        bottom: 26px;
         z-index: 1;
+        box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
+        -webkit-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
+        -moz-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
     }
     .bact-btn:hover{
         cursor: pointer;
@@ -32,20 +36,78 @@
         background-color: #1A73E8;
         position: relative;
         right: 220px;
-        top:29px;
+        width: 1000px;
+        top:5px;
         z-index: 0;
         min-height: 10px;
         color: white;
         padding-left: 0px;
         padding-top: 20px;
         padding-bottom: 20px;
-        border-radius: 20px 20px 20px 20px;
+        border-radius: 15px;
     }
     .border-btm{
         border-bottom: 1px solid white;
         margin-left: 40px;
         margin-right: 40px;
     }
+    @media screen and (min-width: 1299px) {
+        .detail-bar{
+            background-color: #1A73E8;
+            right: 130px;
+            width: 760px;
+        }
+        .box-two{
+            margin-right: 10px;
+        }
+      }
+    @media screen and (min-width: 1400px) {
+        .detail-bar{
+            background-color: #1A73E8;
+            right: 190px;
+            width: 900px;
+        }
+        .box-two{
+            margin-right: 10px;
+        }
+      }
+    @media screen and (min-width: 1600px) {
+        .detail-bar{
+            background-color: #1A73E8;
+            right: 220px;
+            width: 1000px;
+        }
+        .box-two{
+            margin-right: 10px;
+        }
+      }
+    @media screen and (min-width: 1700px) {
+        .detail-bar{
+            background-color: #1A73E8;
+            right: 240px;
+        }
+        .box-two{
+            margin-right: 100px;
+        }
+      }
+    @media screen and (min-width: 1800px) {
+        .detail-bar{
+            background-color: #1A73E8;
+            right: 270px;
+        }
+        .box-two{
+            margin-right: 150px;
+        }
+      }
+    @media screen and (min-width: 1900px) {
+        .detail-bar{
+            background-color: #1A73E8;
+            right: 305px;
+        }
+        .box-two{
+            margin-right: 200px;
+        }
+      }
     .name{
         font-weight: 500;
         font-size: 15px;
@@ -72,6 +134,37 @@
         font-size: 18px;
         margin-bottom: 0px;
     }
+
+    .img1{
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+    .img2{
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+        border: 2px solid white;
+        position: relative;
+        z-index: 1;
+        left: -5px;
+    }
+    .img3{
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+        border: 2px solid white;
+        position: relative;
+        z-index: 1;
+        left: -10px;
+    }
+    .profile-view{
+        animation: fadeInAnimation ease 0.3s;
+        animation-iteration-count: 1;
+        animation-fill-mode: forwards;
+    }
+
 
 }
 .rec:hover{

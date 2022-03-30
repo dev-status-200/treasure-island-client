@@ -38,7 +38,7 @@ const MainLayout = ({children}) => {
             tempState.filter((x)=>{
                 if(x.name===nav.name){
                     x.class='active'
-                    Router.push(nav.link)
+                    Router.push({pathname:`${nav.link}`})
                 }else{
                     x.class=''
                 }
