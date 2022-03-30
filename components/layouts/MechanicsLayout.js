@@ -178,15 +178,15 @@ const MechanicsLayout = ({mechanics}) => {
                         <img src={mech.profile_pic} className="image"/>
                     </Col>
                     <Col md={10}>
-                        <div className='name mt-2'>{mech.f_name} {mech.l_name}</div>
+                        <div className='name pt-2'>{mech.f_name} {mech.l_name}</div>
                         <div style={{display:'inline-block'}} className='email'>{mech.email}</div>
                     </Col>
                 </Row>
                 </td>
-                <td className='phone py-4'>{mech.phone}</td>
-                <td className='phone py-4 px-5'>0</td>
-                <td className='phone py-4 px-5'>0</td>
-                <td className='phone py-4'>
+                <td className='phone py-3'>{mech.phone}</td>
+                <td className='phone py-3 px-5'>0</td>
+                <td className='phone py-3 px-5'>0</td>
+                <td className='phone py-3'>
                     <AiFillDelete className='red icon-trans' />
                     <AiFillEdit className='blue icon-trans' onClick={()=>editFields(mech)} />
                     <AiFillEye className='yellow icon-trans' onClick={()=>viewMechanic(mech)} />
@@ -246,96 +246,27 @@ const MechanicsLayout = ({mechanics}) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr className=''> 
-                        <td className='phone pt-3'>#123</td>
-                        <td className='phone pt-3'>Oil Change</td>
-                        <td className='phone pt-3'>SAJID O</td>
-                        <td className='phone pt-3'>
+                {Array.from({ length: 6 }).map((_, index) => (
+                    <tr className='' key={index}> 
+                        <td className='phone py-2'>#123</td>
+                        <td className='phone py-2'>Oil Change</td>
+                        <td className='phone py-2'>SAJID O</td>
+                        <td className='phone py-2'>
                             <img src={'/img1.jpg'} className="img1" />
                             <img src={'/img2.jpg'} className="img2" />
                             <img src={'/img3.jpg'} className="img3" />
                         </td>
-                        <td className='phone pt-3'>On Hold</td>
-                        <td className='phone pt-3'>03/11/2021</td>
-                        <td className='phone pt-3'>10,000 </td>
-                        <td className='phone pt-3'>
+                        <td className='phone py-2'>On Hold</td>
+                        <td className='phone py-2'>03/11/2021</td>
+                        <td className='phone py-2'>10,000 </td>
+                        <td className='phone py-2'>
                             <AiFillDelete className='red icon-trans' />
                             <AiFillEdit className='blue icon-trans'  />
                             <AiFillEye className='yellow icon-trans'  />
                         </td>
                     </tr>
-                    <tr className=''> 
-                        <td className='phone pt-3'>#123</td>
-                        <td className='phone pt-3'>Oil Change</td>
-                        <td className='phone pt-3'>SAJID O</td>
-                        <td className='phone pt-3'>
-                            <img src={'/img1.jpg'} className="img1" />
-                            <img src={'/img2.jpg'} className="img2" />
-                            <img src={'/img3.jpg'} className="img3" />
-                        </td>
-                        <td className='phone pt-3'>On Hold</td>
-                        <td className='phone pt-3'>03/11/2021</td>
-                        <td className='phone pt-3'>10,000 </td>
-                        <td className='phone pt-3'>
-                            <AiFillDelete className='red icon-trans' />
-                            <AiFillEdit className='blue icon-trans'  />
-                            <AiFillEye className='yellow icon-trans'  />
-                        </td>
-                    </tr>
-                    <tr className=''> 
-                        <td className='phone pt-3'>#123</td>
-                        <td className='phone pt-3'>Oil Change</td>
-                        <td className='phone pt-3'>SAJID O</td>
-                        <td className='phone pt-3'>
-                            <img src={'/img1.jpg'} className="img1" />
-                            <img src={'/img2.jpg'} className="img2" />
-                            <img src={'/img3.jpg'} className="img3" />
-                        </td>
-                        <td className='phone pt-3'>On Hold</td>
-                        <td className='phone pt-3'>03/11/2021</td>
-                        <td className='phone pt-3'>10,000 </td>
-                        <td className='phone pt-3'>
-                            <AiFillDelete className='red icon-trans' />
-                            <AiFillEdit className='blue icon-trans'  />
-                            <AiFillEye className='yellow icon-trans'  />
-                        </td>
-                    </tr>
-                    <tr className=''> 
-                        <td className='phone pt-3'>#123</td>
-                        <td className='phone pt-3'>Oil Change</td>
-                        <td className='phone pt-3'>SAJID O</td>
-                        <td className='phone pt-3'>
-                            <img src={'/img1.jpg'} className="img1" />
-                            <img src={'/img2.jpg'} className="img2" />
-                            <img src={'/img3.jpg'} className="img3" />
-                        </td>
-                        <td className='phone pt-3'>On Hold</td>
-                        <td className='phone pt-3'>03/11/2021</td>
-                        <td className='phone pt-3'>10,000 </td>
-                        <td className='phone pt-3'>
-                            <AiFillDelete className='red icon-trans' />
-                            <AiFillEdit className='blue icon-trans'  />
-                            <AiFillEye className='yellow icon-trans'  />
-                        </td>
-                    </tr>
-                    <tr className=''> 
-                        <td className='phone pt-3'>#123</td>
-                        <td className='phone pt-3'>Oil Change</td>
-                        <td className='phone pt-3'>SAJID O</td>
-                        <td className='phone pt-3'>
-                            <img src={'/img1.jpg'} className="img1" />
-                            <img src={'/img2.jpg'} className="img2" />
-                            <img src={'/img3.jpg'} className="img3" />
-                        </td>
-                        <td className='phone pt-3'>On Hold</td>
-                        <td className='phone pt-3'>03/11/2021</td>
-                        <td className='phone pt-3'>10,000 </td>
-                        <td className='phone pt-3'>
-                            <AiFillDelete className='red icon-trans' />
-                            <AiFillEdit className='blue icon-trans'  />
-                            <AiFillEye className='yellow icon-trans'  />
-                        </td>
-                    </tr>
+                  ))}
+                    
                 </tbody>
                 </Table>
                 </Row>
