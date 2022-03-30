@@ -14,6 +14,8 @@
         background-color: white;
         border-radius: 15px;
         margin: 45px;
+        -webkit-box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.44); 
+        box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.44);
     }
     .frame-image{
         height: 190px;
@@ -28,9 +30,21 @@
         -webkit-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
         -moz-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
     }
-    .bact-btn:hover{
+    .bact-btn{
         cursor: pointer;
-        color: #1A73E8;
+        color: white;
+        background-color: #1A73E8;
+        padding: 7px;
+        font-size: 13px;
+        border-radius: 5px;
+        margin-left: 45px;
+        box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
+        -webkit-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
+        -moz-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
+    }
+    .bact-btn:hover{
+        transition-duration: 250ms;
+        padding: 9px;
     }
     .detail-bar{
         background-color: #1A73E8;

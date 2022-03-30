@@ -200,8 +200,7 @@ const MechanicsLayout = ({mechanics}) => {
             </Row>
         </Container>}
         {profileView &&
-            <div className='profile-view'>
-                <span onClick={()=>setProfileView(false)}><b className='bact-btn'>{"<"} Back</b> </span>
+            <div className='profile-view  pt-2'>
                 <Row>
                     <Col md={4}>
                         <div className='pic-frame'>
@@ -231,7 +230,8 @@ const MechanicsLayout = ({mechanics}) => {
                         </div>
                     </Col>
                 </Row>
-                <Row className='mt-4  p-3 box-two'>
+                <span onClick={()=>setProfileView(false)}><b className='bact-btn'>{"<"} Mechanics</b> </span>
+                <Row className='mt-4 p-3 box-two'>
                 <Table responsive>
                 <thead>
                     <tr>
