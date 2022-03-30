@@ -35,7 +35,7 @@ const MechanicsLayout = ({mechanics}) => {
         setSsn("");     
         setShop_id(""); 
         setPhone("");   
-        setGender("");  
+        setGender("male");  
         setAddress(""); 
         setImage("");   
     }
@@ -93,7 +93,7 @@ const MechanicsLayout = ({mechanics}) => {
     const addAgent = async(e) => {
         setLoad(true);
         e.preventDefault();
-        axios.post(process.env.NEXT_PUBLIC_TI_ADD_MECHANICS, {
+        await axios.post(process.env.NEXT_PUBLIC_TI_ADD_MECHANICS, {
             f_name:f_name, l_name:l_name, password:password, gender:gender, photo:await uploadImage(),
             email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
         }).then((x)=>{
@@ -184,8 +184,8 @@ const MechanicsLayout = ({mechanics}) => {
                 </Row>
                 </td>
                 <td className='phone py-4'>{mech.phone}</td>
-                <td className='phone py-4'>0</td>
-                <td className='phone py-4'>0</td>
+                <td className='phone py-4 px-5'>0</td>
+                <td className='phone py-4 px-5'>0</td>
                 <td className='phone py-4'>
                     <AiFillDelete className='red icon-trans' />
                     <AiFillEdit className='blue icon-trans' onClick={()=>editFields(mech)} />
