@@ -5,6 +5,7 @@ import Router from 'next/router'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import jwt_decode from "jwt-decode";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 const LoginLayout = () => {
 
@@ -12,6 +13,8 @@ const LoginLayout = () => {
   const [pass, setPass] = useState('');
   const [detailWarning, setDetailWarning] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [showPass, setShowPass] = useState(false);
 
   const loginUser = (e) => {
     setLoading(true);
@@ -50,10 +53,18 @@ const LoginLayout = () => {
               </Row>
               <Row className='justify-content-md-center text-center pt-4'>
                 <Col md={12} xs={12} >
-                  <input placeholder='Password' type='password' required className='input-field' value={pass} onChange={(e)=>setPass(e.target.value)} />
-                </Col>
+                  <input placeholder='Password' type={showPass?"text":'password'} required className='input-field' value={pass} onChange={(e)=>setPass(e.target.value)} />
+                  </Col>
+                  <span>
+                  {
+                    !showPass?(<AiFillEye style={{position:'relative', cursor:'pointer', left:'110px', top:'-35px',color:'white'}} onClick={()=>setShowPass(!showPass)}/>)
+                    :
+                    (<AiFillEyeInvisible  style={{position:'relative', cursor:'pointer', left:'110px', top:'-35px',color:'white'}} onClick={()=>setShowPass(!showPass)}/>)
+                  }
+                    
+                  </span>
               </Row>
-              <Row className='justify-content-md-center text-center pt-4'>
+              <Row className='justify-content-md-center text-center pt-1'>
                 <Col md={12} xs={12} >
                   <button className='custom-btn' type='submit'>{loading==true?<Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:'SIGN IN'}</button>
                 </Col>
