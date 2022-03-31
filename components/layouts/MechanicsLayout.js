@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { Container, Row, Col, Table, Modal, Button, Form, Spinner, FormControl } from 'react-bootstrap'
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import { AiFillDelete, AiFillEdit, AiFillEye } from "react-icons/ai";
+import { AiFillDelete, AiFillEdit, AiFillEye ,AiOutlineSearch, AiFillEyeInvisible } from "react-icons/ai";
 import { ImPhone, ImCreditCard } from "react-icons/im";
 import { MdMailOutline, MdLocationOn, MdOutlineMode } from "react-icons/md";
+import { RiSortDesc } from "react-icons/ri";
+import NumberFormat from "react-number-format";
 import Router from 'next/router'
 
 const MechanicsLayout = ({mechanics}) => {
@@ -19,6 +21,9 @@ const MechanicsLayout = ({mechanics}) => {
     
     const [edit, setEdit] = useState(false);
     const [load, setLoad] = useState(false);
+    const [deleteView, setDeleteView] = useState(false);
+
+    const [showPass, setShowPass] = useState(true);
 
     const [MechanicList,setMechanicList] = useState([]);
 
@@ -63,28 +68,32 @@ const MechanicsLayout = ({mechanics}) => {
     const [gender  , setGender    ] = useState('male');
     const [address , setAddress   ] = useState('');
     const [image   , setImage     ] = useState("");
+
     const [search, setSearch] = useState('');
-    
-    const [prevImg, setprevImg] = useState('');
+    const [numSearch, setNumSearch] = useState(false);
 
     const [profileView, setProfileView] = useState(false)
 
     async function uploadImage(){
         let value = '';
         if(change==true){
-            const data = new FormData()
-            data.append("file", image)
-            data.append("upload_preset", "g4hjcqh7")
-            data.append("cloud_name", "abdullah7c")
-            value = await fetch(`https://api.cloudinary.com/v1_1/abdullah7c/image/upload`, {
-                method: "post",
-                body: data
-            })
-                .then(resp => resp.json())
-                .then(data => data.url)
-                .catch(err => console.log(err));
-            setImage(value);
-            console.log(value)
+            if(image!=""){
+                const data = new FormData()
+                data.append("file", image)
+                data.append("upload_preset", "g4hjcqh7")
+                data.append("cloud_name", "abdullah7c")
+                value = await fetch(`https://api.cloudinary.com/v1_1/abdullah7c/image/upload`, {
+                    method: "post",
+                    body: data
+                })
+                    .then(resp => resp.json())
+                    .then(data => data.url)
+                    .catch(err => console.log(err));
+                setImage(value);
+                console.log(value)
+            }else {
+                value="https://res.cloudinary.com/abdullah7c/image/upload/v1643040095/images_djois2.png"
+            }
         }else{
             value=image;
         }
@@ -138,14 +147,58 @@ const MechanicsLayout = ({mechanics}) => {
             setLoad(false);
         })
     }
+    const deleteUser = () => {
+        setLoad(true);
+        axios.post(process.env.NEXT_PUBLIC_TI_DELETE_MECHANICS,{id:id}).then((x)=>{
+            if(x.data[0]=='1'){
+                let tempState = [...MechanicList];
+                tempState = tempState.filter((z)=>{
+                    if(z.id!=id){
+                      return x
+                    }
+                  })
+                  setMechanicList(tempState);
+                  setDeleteView(false);
+                  setLoad(false);
+            }
+        })
+    }
+    const [items, setItems] = useState([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState((mechanics.length/3));
+    const [startIndex, setStartIndex] = useState(0)
+
+    const [increment, setIncrement] = useState(false);
     
+    useEffect(() => {
+        console.log(startIndex)
+        if(page===1){
+            setStartIndex(0);
+        }else if(page>1){
+            increment==true?setStartIndex(startIndex+3):setStartIndex(startIndex-3)
+        }
+    }, [page])
+    
+
   return (
     <div className='mechanic-styles'>
         {!profileView &&
         <Container className='profile-view' fluid>
             <Row className=''>
                <Col><span style={{color:'grey'}}> Employees </span><button className='global-btn mx-2' onClick={handleShow}> Add new</button></Col>
-               <Col><FormControl style={{width:'300px', float:'right', backgroundColor:'#f4f6fd'}} type='text' placeholder='Search...' value={search} onChange={(e)=>setSearch(e.target.value)} /></Col>
+               <Col>
+               <span>
+                    <button className='filter-btn' style={{ float:'right'}} onClick={()=>setNumSearch(!numSearch)}><RiSortDesc/></button>
+               </span>
+               <span>
+               <FormControl 
+                    style={{width:'300px', float:'right', backgroundColor:'#f4f6fd', paddingLeft:'35px', border:'none', borderRadius:'0px'}} 
+                    type='text' placeholder={numSearch?"Search Number":"Search Name"} value={search} onChange={(e)=>{setSearch(e.target.value)}}
+                    
+                />
+               </span>
+               <span><AiOutlineSearch style={{float:'right',position:'relative', left:'28px', top:'10px',color:'grey'}} /></span>
+               </Col>
             </Row>
             <Row className='mt-4'>
             <Col md={12}>
@@ -165,8 +218,8 @@ const MechanicsLayout = ({mechanics}) => {
                 if(search==""){
                     return x
                 }else if(
-                    x.f_name.toLowerCase().includes(search.toLowerCase()) || 
-                    x.l_name.toLowerCase().includes(search.toLowerCase())
+                    numSearch?x.phone.includes(search):x.f_name.toLowerCase().includes(search.toLowerCase()) || 
+                    numSearch?x.phone.includes(search):x.l_name.toLowerCase().includes(search.toLowerCase())
                 ){
                     return x
                 }
@@ -187,14 +240,36 @@ const MechanicsLayout = ({mechanics}) => {
                 <td className='phone py-3 px-5'>0</td>
                 <td className='phone py-3 px-5'>0</td>
                 <td className='phone py-3'>
-                    <AiFillDelete className='red icon-trans' />
-                    <AiFillEdit className='blue icon-trans' onClick={()=>editFields(mech)} />
-                    <AiFillEye className='yellow icon-trans' onClick={()=>viewMechanic(mech)} />
+                    <AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />
+                    <AiFillEdit className='yellow icon-trans' onClick={()=>editFields(mech)} />
+                    <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
                 </td>
                 </tr>
             )})}  
             </tbody>
             </Table>
+                {/*<div>
+                    <span>
+                        <button className='paginate-btn' 
+                            onClick={()=>{
+                                
+                                //page>1?setPage(page-1):null;
+                                if(page>1){
+                                    setIncrement(false);
+                                    setPage(page-1)
+                                }                         
+                            }}
+                        >{"<"} PREV</button>
+                    </span>
+                    <span> | {page}  | </span>
+                    <span><button className='paginate-btn' onClick={()=>{
+                        setIncrement(false);
+                        if(page<totalPages){
+                            setIncrement(true);
+                            setPage(page+1)
+                        }                          
+                    }}> NEXT {">"}</button> </span>
+                </div>*/}
             </div>
             </Col>
             </Row>
@@ -256,7 +331,7 @@ const MechanicsLayout = ({mechanics}) => {
                             <img src={'/img2.jpg'} className="img2" />
                             <img src={'/img3.jpg'} className="img3" />
                         </td>
-                        <td className='phone py-2'>On Hold</td>
+                        <td className='phone py-2' style={{color:'#F62323'}}>On Hold</td>
                         <td className='phone py-2'>03/11/2021</td>
                         <td className='phone py-2'>10,000 </td>
                         <td className='phone py-2'>
@@ -282,13 +357,19 @@ const MechanicsLayout = ({mechanics}) => {
             <Col>
                 <Form.Group className="mb-3" controlId="First Name">
                     <Form.Label>First Name</Form.Label>
-                    <Form.Control type="text" placeholder="first Name..." required value={f_name} onChange={(e)=>setF_name(e.target.value)} />
+                    <input 
+                        type="text" placeholder="first Name..." required value={f_name} onChange={(e)=>setF_name(e.target.value)} 
+                        style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                    />
                 </Form.Group>
             </Col>
             <Col>
                 <Form.Group className="mb-3" controlId="Last Name">
                     <Form.Label>Last Name</Form.Label>
-                    <Form.Control type="text" placeholder="last Name..." required value={l_name} onChange={(e)=>setL_Name(e.target.value)} />
+                    <input 
+                        style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                        type="text" placeholder="last Name..." required value={l_name} onChange={(e)=>setL_Name(e.target.value)}
+                    />
                 </Form.Group>                
             </Col>
         </Row>      
@@ -296,13 +377,20 @@ const MechanicsLayout = ({mechanics}) => {
             <Col>
                 <Form.Group className="mb-3" controlId="Email">
                     <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" placeholder="email..." required value={email} onChange={(e)=>setEmail(e.target.value)} />
+                    <input
+                    style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                    type="email" placeholder="email..." required value={email} onChange={(e)=>setEmail(e.target.value)} />
                 </Form.Group>
             </Col>
             <Col>
                 <Form.Group className="mb-3" controlId="Password">
                     <Form.Label>Password</Form.Label>
-                    <Form.Control type="text" placeholder="password..." required value={password} onChange={(e)=>setPassword(e.target.value)} />
+                    <input
+                        style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                        type={showPass?"password":"text"} placeholder="password..." required value={password} onChange={(e)=>setPassword(e.target.value)} />
+                        {showPass?(<AiFillEyeInvisible style={{float:'right', cursor:"pointer", position:'relative', bottom:'28px', right:'10px'}} onClick={()=>setShowPass(!showPass)} />):(<AiFillEye style={{float:'right', cursor:"pointer", position:'relative', bottom:'28px', right:'10px'}} onClick={()=>setShowPass(!showPass)} />)}
+                        
+                        
                 </Form.Group>                
             </Col>
         </Row>
@@ -310,13 +398,25 @@ const MechanicsLayout = ({mechanics}) => {
             <Col>
                 <Form.Group className="mb-3" controlId="SSN">
                     <Form.Label>SSN</Form.Label>
-                    <Form.Control type="text" placeholder="ssn..." required value={ssn} onChange={(e)=>setSsn(e.target.value)} />
+                    <div>
+                    <NumberFormat
+                        className="custom-inp"
+                        style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                        format="###-###-####"
+                        mask="_"
+                        allowEmptyFormatting={true}
+                        required value={ssn} onChange={(e)=>setSsn(e.target.value)}
+                    />
+                    </div>
                 </Form.Group>
             </Col>
             <Col>
                 <Form.Group className="mb-3" controlId="Shop ID">
                     <Form.Label>Shop ID</Form.Label>
-                    <Form.Control type="text" placeholder="shop id..." required value={shop_id} onChange={(e)=>setShop_id(e.target.value)} />
+                    <input 
+                        type="text" style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                        placeholder="shop id..." required value={shop_id} onChange={(e)=>setShop_id(e.target.value)}
+                     />
                 </Form.Group>                
             </Col>
         </Row>
@@ -324,24 +424,32 @@ const MechanicsLayout = ({mechanics}) => {
             <Col>
                 <Form.Group className="mb-3" controlId="Phone">
                     <Form.Label>Phone</Form.Label>
-                    <Form.Control type="text" placeholder="phone..." required value={phone} onChange={(e)=>setPhone(e.target.value)} />
+                    <NumberFormat
+                            format="(+# ) ###-###-####"
+                            style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                            mask="_"
+                            allowEmptyFormatting={true}
+                            required value={phone} onChange={(e)=>setPhone(e.target.value)}
+                        />
                 </Form.Group>
             </Col>
             <Col>
             <Form.Group className="mb-3" controlId="Gender">
             <Form.Label>Gender</Form.Label>
-                <Form.Select aria-label="Default select example" required value={gender} onChange={(e)=>setGender(e.target.value)}>
+                <select aria-label="Default select example" required value={gender} onChange={(e)=>setGender(e.target.value)}
+                style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'5px'}}
+                >
                     <option value="male">Male</option>
                     <option value="female">Female</option>
-                </Form.Select>
+                </select>
             </Form.Group>             
             </Col>
             <Col>
             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                 <Form.Label>Photo</Form.Label><br/>
                 {edit && <span><span><Form.Check type="checkbox" label="Change" onChange={()=>{setChange(!change)}} /></span>
-                    <span><input disabled={change?false:true} type="file" onChange={(e) => setImage(e.target.files[0])} required ></input></span></span>}
-                {!edit && <input type="file" onChange={(e) => setImage(e.target.files[0])} required ></input>}
+                    <span><input disabled={change?false:true} type="file" onChange={(e) => setImage(e.target.files[0])} required></input></span></span>}
+                {!edit && <input type="file" onChange={(e) => setImage(e.target.files[0])} ></input>}
             </Form.Group>        
             </Col>
         </Row>
@@ -349,14 +457,28 @@ const MechanicsLayout = ({mechanics}) => {
             <Col>
                 <Form.Group className="mb-3" controlId="Address">
                     <Form.Label>Detailed Address</Form.Label>
-                    <Form.Control type="text" placeholder="address..." required value={address} onChange={(e)=>setAddress(e.target.value)}/>
+                    <input
+                    style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                    type="text" placeholder="address..." required value={address} onChange={(e)=>setAddress(e.target.value)}/>
                 </Form.Group>
             </Col>
         </Row>
             <Button variant="primary" type="submit">
                 {load==true?<Spinner className='mx-4' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:(edit==true?"Update":'Create')}
             </Button>
-    </Form>
+        </Form>
+        </Modal.Body>
+      </Modal>
+      <Modal className='shadow' show={deleteView} onHide={()=>setDeleteView(false)} size="md">
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Mechanic</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        <span><h6>Sure You Want to Delete <span style={{color:'crimson'}}>{f_name} {l_name}</span> ?</h6></span>
+            <Button className='px-4 mt-2' variant="danger" size="sm" onClick={deleteUser}>
+                {load==true?<Spinner className='' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:"Yes"}
+            </Button>
+            <Button className='px-4 mx-2 mt-2' variant="success" size="sm" onClick={()=>setDeleteView(false)}>No</Button>
         </Modal.Body>
       </Modal>
     </div>
