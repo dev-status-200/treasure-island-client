@@ -8,16 +8,19 @@ import { MdMailOutline, MdLocationOn, MdOutlineMode } from "react-icons/md";
 import { RiSortDesc } from "react-icons/ri";
 import NumberFormat from "react-number-format";
 import Router from 'next/router'
+import { FaIdCard, FaEnvelope } from "react-icons/fa";
 
 const MechanicsLayout = ({mechanics}) => {
 
     const [show, setShow] = useState(false);
     const [change, setChange] = useState(false);
 
-    const handleClose = () => {setShow(false); setEdit(false); setChange(false); clearFields();}
-    const handleShow = () => {setShow(true); setChange(true);}
+    const [mailList, setMailList] = useState([]);
 
-    const handleEditShow = () => { setEdit(true); setShow(true);}
+    const handleClose = () => { setShow(false); setEdit(false); setChange(false); clearFields(); setMailWarn(false); setPassWarn(false); setShowPass(true);}
+    const handleShow = () => { getMail(); setShow(true); setChange(true); }
+
+    const handleEditShow = () => { setEdit(true); setShow(true); }
     
     const [edit, setEdit] = useState(false);
     const [load, setLoad] = useState(false);
@@ -25,12 +28,21 @@ const MechanicsLayout = ({mechanics}) => {
 
     const [showPass, setShowPass] = useState(true);
 
+    const [mailWarn, setMailWarn] = useState(false);
+    const [passWarn, setPassWarn] = useState(false);
+    const [ssnWarn, setSsWarn] = useState(false);
+    const [phoneWarn, setPhoneWarn] = useState(false);
+
     const [MechanicList,setMechanicList] = useState([]);
 
     useEffect(() => {
         setMechanicList(mechanics)
     }, [])
-
+    const getMail = async() => {
+        let res = await axios.get(process.env.NEXT_PUBLIC_TI_MECHANIC_EMAILS).then((x)=>(x.data));
+        console.log(res)
+        setMailList(res);
+    }
     const clearFields = () => {
         setId(""); 
         setF_name("");  
@@ -56,7 +68,6 @@ const MechanicsLayout = ({mechanics}) => {
         setShop_id(values.shop_id); setPhone(values.phone); setGender(values.gender);
         setAddress(values.address); setImage(values.profile_pic); setProfileView(true);
     }
-
     const [id      , setId        ] = useState('')
     const [f_name  , setF_name    ] = useState('');
     const [l_name  , setL_Name    ] = useState('');
@@ -100,19 +111,46 @@ const MechanicsLayout = ({mechanics}) => {
         return value;
     }
     const addAgent = async(e) => {
-        setLoad(true);
         e.preventDefault();
-        await axios.post(process.env.NEXT_PUBLIC_TI_ADD_MECHANICS, {
-            f_name:f_name, l_name:l_name, password:password, gender:gender, photo:await uploadImage(),
-            email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
-        }).then((x)=>{
-            let tempState = [...MechanicList];
-            console.log(x);
-            tempState.push(x.data);
-            setMechanicList(tempState);
-            handleClose();
-            setLoad(false);
+        let mailWarning = false;
+        let passWarning = false;
+        let ssnWarning = false;
+        let phoneWarning = false;
+        mailList.forEach((x)=>{
+            if(x.email==email){
+                mailWarning = true;
+            }
+            if(x.ssn==ssn){
+                ssnWarning = true;
+            }
+            if(x.phone==phone){
+                phoneWarning = true;
+            }
         })
+
+        password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$/)==null?passWarning=true:passWarning=false
+
+        if(mailWarning==true || passWarning == true || ssnWarning==true || phoneWarning == true){
+            
+            mailWarning==true?setMailWarn(true):setMailWarn(false);
+            passWarning==true?setPassWarn(true):setPassWarn(false);
+            ssnWarning==true?setSsWarn(true):setSsWarn(false);
+            phoneWarning==true?setPhoneWarn(true):setPhoneWarn(false);
+
+        }else{
+            setLoad(true);
+            setMailWarn(false);
+            await axios.post(process.env.NEXT_PUBLIC_TI_ADD_MECHANICS, {
+                f_name:f_name, l_name:l_name, password:password, gender:gender, photo:await uploadImage(),
+                email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
+            }).then((x)=>{
+                let tempState = [...MechanicList];
+                tempState.push(x.data);
+                setMechanicList(tempState);
+                handleClose();
+                setLoad(false);
+            })
+        }
     }
     const editMechanic = async(e) => {
         setLoad(true);
@@ -169,7 +207,7 @@ const MechanicsLayout = ({mechanics}) => {
     const [startIndex, setStartIndex] = useState(0)
 
     const [increment, setIncrement] = useState(false);
-    
+
     useEffect(() => {
         console.log(startIndex)
         if(page===1){
@@ -178,8 +216,6 @@ const MechanicsLayout = ({mechanics}) => {
             increment==true?setStartIndex(startIndex+3):setStartIndex(startIndex-3)
         }
     }, [page])
-    
-
   return (
     <div className='mechanic-styles'>
         {!profileView &&
@@ -241,7 +277,7 @@ const MechanicsLayout = ({mechanics}) => {
                 <td className='phone py-3 px-5'>0</td>
                 <td className='phone py-3'>
                     <AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />
-                    <AiFillEdit className='yellow icon-trans' onClick={()=>editFields(mech)} />
+                    <AiFillEdit className='yellow icon-trans' onClick={()=>{editFields(mech);}} />
                     <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
                 </td>
                 </tr>
@@ -292,14 +328,14 @@ const MechanicsLayout = ({mechanics}) => {
                                     </button>
                                 </Col>
                                 <Col md={4} className="text-center">
-                                    <div className='my-2'> <ImPhone className='mx-1' /> {phone} </div>
-                                    <div className='border-btm'></div>
-                                    <div className='my-2'> <ImCreditCard className='mx-1' /> {ssn} </div>
+                                    <div className='my-2'> <ImPhone className='mx-3 mb-1' /> {phone} </div>
+                                    <div className='border-btm' style={{width:"65%", marginLeft:'20%'}}></div>
+                                    <div className='my-2'> <FaIdCard className='mx-3' /> {ssn} </div>
                                 </Col>
                                 <Col md={4} className="text-center">
-                                    <div className='my-2'> <MdMailOutline className='mx-1' /> {email} </div>
-                                    <div className='border-btm'></div>
-                                    <div className='my-2'> <MdLocationOn className='mx-1' /> {address} </div>
+                                    <div className='my-2'> <FaEnvelope className='mx-3' /> {email} </div>
+                                    <div className='border-btm' style={{width:"65%", marginLeft:'18%'}}></div>
+                                    <div className='my-2'> <MdLocationOn className='mx-3' /> {address} </div>
                                 </Col>
                             </Row>
                         </div>
@@ -310,7 +346,6 @@ const MechanicsLayout = ({mechanics}) => {
                 <Table responsive>
                 <thead>
                     <tr>
-                    <th>#ID</th>
                     <th>Services</th>
                     <th>Customer</th>
                     <th>Assigned To</th>
@@ -323,7 +358,6 @@ const MechanicsLayout = ({mechanics}) => {
                 <tbody>
                 {Array.from({ length: 6 }).map((_, index) => (
                     <tr className='' key={index}> 
-                        <td className='phone py-2'>#123</td>
                         <td className='phone py-2'>Oil Change</td>
                         <td className='phone py-2'>SAJID O</td>
                         <td className='phone py-2'>
@@ -331,7 +365,7 @@ const MechanicsLayout = ({mechanics}) => {
                             <img src={'/img2.jpg'} className="img2" />
                             <img src={'/img3.jpg'} className="img3" />
                         </td>
-                        <td className='phone py-2' style={{color:'#F62323'}}>On Hold</td>
+                        <td className='py-2'><span className='status'>On Hold</span></td>
                         <td className='phone py-2'>03/11/2021</td>
                         <td className='phone py-2'>10,000 </td>
                         <td className='phone py-2'>
@@ -380,15 +414,17 @@ const MechanicsLayout = ({mechanics}) => {
                     <input
                     style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
                     type="email" placeholder="email..." required value={email} onChange={(e)=>setEmail(e.target.value)} />
-                </Form.Group>
-            </Col>
-            <Col>
-                <Form.Group className="mb-3" controlId="Password">
+                    {mailWarn==true && <Form.Text style={{color:'crimson'}}> Email Not Unique  </Form.Text>}
+                    </Form.Group>
+                    </Col>
+                    <Col>
+                    <Form.Group className="mb-3" controlId="Password">
                     <Form.Label>Password</Form.Label>
                     <input
                         style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
                         type={showPass?"password":"text"} placeholder="password..." required value={password} onChange={(e)=>setPassword(e.target.value)} />
                         {showPass?(<AiFillEyeInvisible style={{float:'right', cursor:"pointer", position:'relative', bottom:'28px', right:'10px'}} onClick={()=>setShowPass(!showPass)} />):(<AiFillEye style={{float:'right', cursor:"pointer", position:'relative', bottom:'28px', right:'10px'}} onClick={()=>setShowPass(!showPass)} />)}
+                        {passWarn==true && <Form.Text style={{color:'crimson'}}> Must be {"(8-20)"} letters, with special & numeric character.  </Form.Text>}
                         
                         
                 </Form.Group>                
@@ -408,6 +444,7 @@ const MechanicsLayout = ({mechanics}) => {
                         required value={ssn} onChange={(e)=>setSsn(e.target.value)}
                     />
                     </div>
+                    {ssnWarn==true && <Form.Text style={{color:'crimson'}}> SSN Already Exists </Form.Text>}
                 </Form.Group>
             </Col>
             <Col>
@@ -431,6 +468,7 @@ const MechanicsLayout = ({mechanics}) => {
                             allowEmptyFormatting={true}
                             required value={phone} onChange={(e)=>setPhone(e.target.value)}
                         />
+                        {phoneWarn==true && <Form.Text style={{color:'crimson'}}> Phone Already Exists </Form.Text>}
                 </Form.Group>
             </Col>
             <Col>
