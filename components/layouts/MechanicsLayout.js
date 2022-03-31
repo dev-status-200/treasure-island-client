@@ -193,7 +193,7 @@ const MechanicsLayout = ({mechanics}) => {
                <span>
                <FormControl 
                     style={{width:'300px', float:'right', backgroundColor:'#f4f6fd', paddingLeft:'35px', border:'none', borderRadius:'0px'}} 
-                    type='text' placeholder={numSearch?"Search Number":"Search Name"} value={search} onChange={(e)=>{setSearch(e.target.value)}}
+                    type='text' placeholder={numSearch?"Search By Number...":"Search By Name..."} value={search} onChange={(e)=>{setSearch(e.target.value)}}
                     
                 />
                </span>
@@ -335,9 +335,9 @@ const MechanicsLayout = ({mechanics}) => {
                         <td className='phone py-2'>03/11/2021</td>
                         <td className='phone py-2'>10,000 </td>
                         <td className='phone py-2'>
-                            <AiFillDelete className='red icon-trans' />
-                            <AiFillEdit className='blue icon-trans'  />
-                            <AiFillEye className='yellow icon-trans'  />
+                        <AiFillEye className='blue icon-trans'  />
+                        <AiFillEdit className='yellow icon-trans'  />
+                        <AiFillDelete className='red icon-trans' />
                         </td>
                     </tr>
                   ))}
