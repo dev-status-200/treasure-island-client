@@ -81,6 +81,7 @@ const MainLayout = ({children}) => {
                     <div className="location">
                         <MdLocationOn className='select-icon' />
                         <select onChange={(e)=>Cookies.set('location',e.target.value)}>
+                            <option disabled>Select Location</option>
                             <option value={'location-1'}>Location 1</option>
                             <option value={'location-2'}>Location 2</option>
                         </select>

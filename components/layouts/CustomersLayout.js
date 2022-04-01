@@ -10,14 +10,14 @@ import NumberFormat from "react-number-format";
 import Router from 'next/router'
 import { FaIdCard, FaEnvelope } from "react-icons/fa";
 
-const CustomersLayout = ({mechanics}) => {
+const CustomersLayout = ({customers}) => {
 
     const [show, setShow] = useState(false);
     const [change, setChange] = useState(false);
 
     const [mailList, setMailList] = useState([]);
 
-    const handleClose = () => { setShow(false); setEdit(false); setChange(false); clearFields(); setMailWarn(false); setSsWarn(false); setPassWarn(false); setPhoneWarn(false); setShowPass(true);}
+    const handleClose = () => { setShow(false); setEdit(false); setChange(false); clearFields(); setMailWarn(false); setPhoneWarn(false);}
     const handleShow = () => { getMail(); setShow(true); setChange(true); }
 
     const handleEditShow = () => { setEdit(true); setShow(true); }
@@ -26,25 +26,22 @@ const CustomersLayout = ({mechanics}) => {
     const [load, setLoad] = useState(false);
     const [deleteView, setDeleteView] = useState(false);
 
-    const [showPass, setShowPass] = useState(true);
 
     const [mailWarn, setMailWarn] = useState(false);
-    const [passWarn, setPassWarn] = useState(false);
-    const [ssnWarn, setSsWarn] = useState(false);
     const [phoneWarn, setPhoneWarn] = useState(false);
 
     const [MechanicList,setMechanicList] = useState([]);
 
     useEffect(() => {
-        setMechanicList(mechanics)
+        setMechanicList(customers)
     }, [])
     const getMail = async() => {
-        let res = await axios.get(process.env.NEXT_PUBLIC_TI_MECHANIC_EMAILS).then((x)=>(x.data));
+        let res = await axios.get(process.env.NEXT_PUBLIC_TI_CUSTOMERS_EMAILS).then((x)=>(x.data));
         console.log(res)
         setMailList(res);
     }
     const getMailEdit = async(ids) => {
-        let res = await axios.get(process.env.NEXT_PUBLIC_TI_MECHANIC_EMAILS_EDIT,{
+        let res = await axios.get(process.env.NEXT_PUBLIC_TI_CUSTOMERS_EMAILS_EDIT,{
             headers:{
                 "id":`${ids}`
             }
@@ -55,22 +52,18 @@ const CustomersLayout = ({mechanics}) => {
     const clearFields = () => {
         setId(""); 
         setF_name("");  
-        setL_Name("");  
-        setPassword("");
-        setEmail("");   
-        setSsn("");     
+        setL_Name("");
+        setEmail("");
         setShop_id(""); 
-        setPhone("");   
-        setGender("male");  
-        setAddress(""); 
-        setImage("");   
+        setPhone("");
+        setAddress("");
     }
     const editFields = (values) => {
         getMailEdit(values.id)
         setId(values.id); setF_name(values.f_name); setL_Name(values.l_name);
-        setPassword(values.password); setEmail(values.email); setSsn(values.ssn);
-        setShop_id(values.shop_id); setPhone(values.phone); setGender(values.gender);
-        setAddress(values.address); setImage(values.profile_pic); handleEditShow()
+         setEmail(values.email);
+        setShop_id(values.shop_id); setPhone(values.phone); 
+        setAddress(values.address);  handleEditShow()
     }
     const viewMechanic = (values) => {
         setId(values.id); setF_name(values.f_name); setL_Name(values.l_name);
@@ -95,63 +88,26 @@ const CustomersLayout = ({mechanics}) => {
 
     const [profileView, setProfileView] = useState(false)
 
-    async function uploadImage(){
-        let value = '';
-        if(change==true){
-            if(image!=""){
-                const data = new FormData()
-                data.append("file", image)
-                data.append("upload_preset", "g4hjcqh7")
-                data.append("cloud_name", "abdullah7c")
-                value = await fetch(`https://api.cloudinary.com/v1_1/abdullah7c/image/upload`, {
-                    method: "post",
-                    body: data
-                })
-                    .then(resp => resp.json())
-                    .then(data => data.url)
-                    .catch(err => console.log(err));
-                setImage(value);
-                console.log(value)
-            }else {
-                value="https://res.cloudinary.com/abdullah7c/image/upload/v1643040095/images_djois2.png"
-            }
-        }else{
-            value=image;
-        }
-        return value;
-    }
     const addAgent = async(e) => {
         e.preventDefault();
         let mailWarning = false;
-        let passWarning = false;
-        let ssnWarning = false;
         let phoneWarning = false;
         mailList.forEach((x)=>{
             if(x.email==email){
                 mailWarning = true;
             }
-            if(x.ssn==ssn){
-                ssnWarning = true;
-            }
             if(x.phone==phone){
                 phoneWarning = true;
             }
         })
-
-        password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$/)==null?passWarning=true:passWarning=false
-
-        if(mailWarning==true || passWarning == true || ssnWarning==true || phoneWarning == true){
-            
+        if(mailWarning==true || phoneWarning == true){
             mailWarning==true?setMailWarn(true):setMailWarn(false);
-            passWarning==true?setPassWarn(true):setPassWarn(false);
-            ssnWarning==true?setSsWarn(true):setSsWarn(false);
             phoneWarning==true?setPhoneWarn(true):setPhoneWarn(false);
 
         }else{
             setLoad(true);
-            setMailWarn(false);
-            await axios.post(process.env.NEXT_PUBLIC_TI_ADD_MECHANICS, {
-                f_name:f_name, l_name:l_name, password:password, gender:gender, photo:await uploadImage(),
+            await axios.post(process.env.NEXT_PUBLIC_TI_ADD_CUSTOMERS, {
+                f_name:f_name, l_name:l_name, password:password, gender:gender, photo:"https://res.cloudinary.com/abdullah7c/image/upload/v1643040095/images_djois2.png",
                 email:email, ssn:ssn, shop_id:Cookies.get('location'), phone:phone, address:address, loginId:Cookies.get('loginId')
             }).then((x)=>{
                 let tempState = [...MechanicList];
@@ -166,37 +122,24 @@ const CustomersLayout = ({mechanics}) => {
         e.preventDefault();
 
         let mailWarning = false;
-        let passWarning = false;
-        let ssnWarning = false;
         let phoneWarning = false;
         mailList.forEach((x)=>{
             if(x.email==email){
-                if(x.email!='-'){
-                    mailWarning = true;
-                }
-            }
-            if(x.ssn==ssn){
-                ssnWarning = true;
+                mailWarning = true;
             }
             if(x.phone==phone){
                 phoneWarning = true;
             }
         })
 
-        password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$/)==null?passWarning=true:passWarning=false
-
-        if(mailWarning==true || passWarning == true || ssnWarning==true || phoneWarning == true){
+        if(mailWarning==true || phoneWarning == true){
             mailWarning==true?setMailWarn(true):setMailWarn(false);
-            passWarning==true?setPassWarn(true):setPassWarn(false);
-            ssnWarning==true?setSsWarn(true):setSsWarn(false);
             phoneWarning==true?setPhoneWarn(true):setPhoneWarn(false);
         } else {
             setLoad(true);
-            let imageVal = '';
-            imageVal =await uploadImage()
-            axios.put(process.env.NEXT_PUBLIC_TI_EDIT_MECHANICS, {
-                id:id,f_name:f_name, l_name:l_name, password:password, gender:gender, photo:imageVal,
-                email:email, ssn:ssn, shop_id:Cookies.get('location'), phone:phone, address:address, loginId:Cookies.get('loginId')
+            axios.put(process.env.NEXT_PUBLIC_TI_EDIT_CUSTOMERS, {
+                id:id,f_name:f_name, l_name:l_name, phone:phone, address:address,
+                email:email, shop_id:Cookies.get('location'), loginId:Cookies.get('loginId')
             }).then((x)=>{
                 if(x.data[0]=='1'){
                         let tempState = [...MechanicList];
@@ -204,24 +147,17 @@ const CustomersLayout = ({mechanics}) => {
                             if (z.id==id) {
                                 z.f_name=f_name;
                                 z.l_name=l_name;
-                                z.password=password;
-                                z.gender=gender;
                                 z.email=email;
-                                z.ssn=ssn;
                                 z.shop_id=shop_id;
                                 z.phone=phone;
                                 z.address=address;
-                                z.profile_pic=imageVal
                             }
                         })
                         setMechanicList(tempState);
                         setChange(false);
-                        //Router.push('/mechanics')
                 }
                 setShow(false)
                 setLoad(false);
-                setPassWarn(false);
-                setSsWarn(false);
                 setMailWarn(false);
                 setPhoneWarn(false);
             })
@@ -231,7 +167,7 @@ const CustomersLayout = ({mechanics}) => {
     }
     const deleteUser = () => {
         setLoad(true);
-        axios.post(process.env.NEXT_PUBLIC_TI_DELETE_MECHANICS,{id:id}).then((x)=>{
+        axios.post(process.env.NEXT_PUBLIC_TI_DELETE_CUSTOMERS,{id:id}).then((x)=>{
             if(x.data[0]=='1'){
                 let tempState = [...MechanicList];
                 tempState = tempState.filter((z)=>{
@@ -245,7 +181,6 @@ const CustomersLayout = ({mechanics}) => {
             }
         })
     }
-    const [items, setItems] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState((MechanicList.length/5));
     const [startIndex, setStartIndex] = useState(0)
@@ -256,7 +191,6 @@ const CustomersLayout = ({mechanics}) => {
         setTotalPages(MechanicList.length/8);
     }, [MechanicList])
     
-
     useEffect(() => {
         console.log(startIndex)
         if(page===1){
@@ -270,7 +204,7 @@ const CustomersLayout = ({mechanics}) => {
         {!profileView &&
         <Container className='profile-view' fluid>
             <Row className=''>
-               <Col><span style={{color:'grey'}}> Employees </span><button className='global-btn mx-2' onClick={handleShow}> Add new</button></Col>
+               <Col><span style={{color:'grey'}}> Customers </span><button className='global-btn mx-2' onClick={handleShow}> Add new</button></Col>
                <Col>
                <span>
                     <button className='filter-btn' style={{ float:'right'}} onClick={()=>setNumSearch(!numSearch)}><RiSortDesc/></button>
@@ -328,7 +262,7 @@ const CustomersLayout = ({mechanics}) => {
                     <td className='phone py-3 px-5'>0</td>
                     <td className='phone py-3 px-5'>0</td>
                     <td className='phone py-3'>
-                        <AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />
+                        {/*<AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />*/}
                         <AiFillEdit className='yellow icon-trans' onClick={()=>{editFields(mech);}} />
                         <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
                     </td>
@@ -341,7 +275,6 @@ const CustomersLayout = ({mechanics}) => {
             <span>
                 <button className='paginate-btn' 
                     onClick={()=>{
-                        //page>1?setPage(page-1):null;
                         if(page>1){
                             setIncrement(false);
                             setPage(page-1);
@@ -394,52 +327,11 @@ const CustomersLayout = ({mechanics}) => {
                     </Col>
                 </Row>
                 <span onClick={()=>{setProfileView(false); handleClose();}}><b className='bact-btn'>{"<"} Mechanics</b> </span>
-                <Row className='mt-0 p-3 box-two'>
-                
-                    <div className='mb-2 recent-text'>Recent Orders</div>
-                    <div><hr className='' /></div>
-                
-                <Table className='mt-2' responsive>
-                <thead>
-                    <tr>
-                    <th>Services</th>
-                    <th>Customer</th>
-                    <th>Assigned To</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Milage</th>
-                    <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {Array.from({ length: 6 }).map((_, index) => (
-                    <tr className='' key={index}> 
-                        <td className='phone '>Oil Change</td>
-                        <td className='phone '>SAJID O</td>
-                        <td className='phone '>
-                            <img src={'/img1.jpg'} className="img1" />
-                            <img src={'/img2.jpg'} className="img2" />
-                            <img src={'/img3.jpg'} className="img3" />
-                        </td>
-                        <td className='py-2'><span className='status'>On Hold</span></td>
-                        <td className='phone '>03/11/2021</td>
-                        <td className='phone '>10,000 </td>
-                        <td className='phone '>
-                        <AiFillEye className='blue icon-trans'  />
-                        <AiFillEdit className='yellow icon-trans'  />
-                        <AiFillDelete className='red icon-trans' />
-                        </td>
-                    </tr>
-                  ))}
-                    
-                </tbody>
-                </Table>
-                </Row>
             </div>
         }
         <Modal show={show} onHide={profileView?()=>setShow(false):handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{edit==true?"Update Mechanic":"Add New Mechanic"}</Modal.Title>
+          <Modal.Title>{edit==true?"Update Customer":"Add New Customer"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
         <Form onSubmit={edit==true?editMechanic:addAgent}>
@@ -469,50 +361,25 @@ const CustomersLayout = ({mechanics}) => {
                     <Form.Label>Email</Form.Label>
                     <input
                     style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
-                    type="text" placeholder="email..." value={email} onChange={(e)=>setEmail(e.target.value)} />
+                    type="email" required placeholder="email..." value={email} onChange={(e)=>setEmail(e.target.value)} />
                     {mailWarn==true && <Form.Text style={{color:'crimson'}}> Email Not Unique  </Form.Text>}
                     </Form.Group>
                     </Col>
                     <Col>
-                    <Form.Group className="mb-3" controlId="Password">
-                    <Form.Label>Password</Form.Label>
-                    <input
-                        style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
-                        type={showPass?"password":"text"} placeholder="password..." required value={password} onChange={(e)=>setPassword(e.target.value)} />
-                        {showPass?(<AiFillEyeInvisible style={{float:'right', cursor:"pointer", position:'relative', bottom:'28px', right:'10px'}} onClick={()=>setShowPass(!showPass)} />):(<AiFillEye style={{float:'right', cursor:"pointer", position:'relative', bottom:'28px', right:'10px'}} onClick={()=>setShowPass(!showPass)} />)}
-                        {passWarn==true && <Form.Text style={{color:'crimson'}}> Must be {"(8-20)"} letters, with special & numeric character.  </Form.Text>}
-                </Form.Group>                
-            </Col>
+                    <Form.Group className="mb-3" controlId="Shop ID">
+                        <Form.Label>Shop ID</Form.Label>
+                        <input 
+                            type="text" style={{border:'1px solid silver', borderRadius:'5px', width:"100%", color:'grey',height:'39px', paddingLeft:'15px'}}
+                            placeholder="shop id..." required value={Cookies.get('location')} 
+                         />
+                    </Form.Group>                
+                </Col>
         </Row>
         <Row>
-            <Col>
-                <Form.Group className="mb-3" controlId="SSN">
-                    <Form.Label>SSN</Form.Label>
-                    <div>
-                    <NumberFormat
-                        className="custom-inp"
-                        style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
-                        format="###-###-####"
-                        mask="_"
-                        allowEmptyFormatting={true}
-                        required value={ssn} onChange={(e)=>setSsn(e.target.value)}
-                    />
-                    </div>
-                    {ssnWarn==true && <Form.Text style={{color:'crimson'}}> SSN Already Exists </Form.Text>}
-                </Form.Group>
-            </Col>
-            <Col>
-                <Form.Group className="mb-3" controlId="Shop ID">
-                    <Form.Label>Shop ID</Form.Label>
-                    <input 
-                        type="text" style={{border:'1px solid silver', borderRadius:'5px', width:"100%", color:'grey',height:'39px', paddingLeft:'15px'}}
-                        placeholder="shop id..." required value={Cookies.get('location')} 
-                     />
-                </Form.Group>                
-            </Col>
+
         </Row>
         <Row>
-            <Col>
+            <Col md={6}>
                 <Form.Group className="mb-3" controlId="Phone">
                     <Form.Label>Phone</Form.Label>
                     <NumberFormat
@@ -524,25 +391,6 @@ const CustomersLayout = ({mechanics}) => {
                         />
                         {phoneWarn==true && <Form.Text style={{color:'crimson'}}> Phone Already Exists </Form.Text>}
                 </Form.Group>
-            </Col>
-            <Col>
-            <Form.Group className="mb-3" controlId="Gender">
-            <Form.Label>Gender</Form.Label>
-                <select aria-label="Default select example" required value={gender} onChange={(e)=>setGender(e.target.value)}
-                style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'5px'}}
-                >
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
-            </Form.Group>             
-            </Col>
-            <Col>
-            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                <Form.Label>Photo</Form.Label><br/>
-                {edit && <span><span><Form.Check type="checkbox" label="Change" onChange={()=>{setChange(!change)}} /></span>
-                    <span><input disabled={change?false:true} type="file" onChange={(e) => setImage(e.target.files[0])} required></input></span></span>}
-                {!edit && <input type="file" onChange={(e) => setImage(e.target.files[0])} ></input>}
-            </Form.Group>        
             </Col>
         </Row>
         <Row>
@@ -563,7 +411,7 @@ const CustomersLayout = ({mechanics}) => {
         </Modal>
       <Modal className='shadow' show={deleteView} onHide={()=>setDeleteView(false)} size="md">
         <Modal.Header closeButton>
-          <Modal.Title>Delete Mechanic</Modal.Title>
+          <Modal.Title>Delete Customer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
         <span><h6>Sure You Want to Delete <span style={{color:'crimson'}}>{f_name} {l_name}</span> ?</h6></span>
