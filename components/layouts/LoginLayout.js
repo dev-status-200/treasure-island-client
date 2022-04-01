@@ -48,7 +48,7 @@ const LoginLayout = () => {
               </Row>
               <Row className='justify-content-md-center text-center mt-2 pt-4'>
                 <Col md={12} xs={12} >
-                  <input placeholder='Username' type='text' required className='input-field' value={email} onChange={(e)=>setEmail(e.target.value)} />
+                  <input placeholder='Email or SSN' type='text' required className='input-field' value={email} onChange={(e)=>setEmail(e.target.value)} />
                 </Col>
               </Row>
               <Row className='justify-content-md-center text-center pt-4'>
