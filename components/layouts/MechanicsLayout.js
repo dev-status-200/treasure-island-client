@@ -17,7 +17,7 @@ const MechanicsLayout = ({mechanics}) => {
 
     const [mailList, setMailList] = useState([]);
 
-    const handleClose = () => { setShow(false); setEdit(false); setChange(false); clearFields(); setMailWarn(false); setPassWarn(false); setShowPass(true);}
+    const handleClose = () => { setShow(false); setEdit(false); setChange(false); clearFields(); setMailWarn(false); setSsWarn(false); setPassWarn(false); setShowPass(true);}
     const handleShow = () => { getMail(); setShow(true); setChange(true); }
 
     const handleEditShow = () => { setEdit(true); setShow(true); }
@@ -43,6 +43,15 @@ const MechanicsLayout = ({mechanics}) => {
         console.log(res)
         setMailList(res);
     }
+    const getMailEdit = async(ids) => {
+        let res = await axios.get(process.env.NEXT_PUBLIC_TI_MECHANIC_EMAILS_EDIT,{
+            headers:{
+                "id":`${ids}`
+            }
+        }).then((x)=>(x.data));
+        console.log(res)
+        setMailList(res);
+    }
     const clearFields = () => {
         setId(""); 
         setF_name("");  
@@ -57,6 +66,7 @@ const MechanicsLayout = ({mechanics}) => {
         setImage("");   
     }
     const editFields = (values) => {
+        getMailEdit(values.id)
         setId(values.id); setF_name(values.f_name); setL_Name(values.l_name);
         setPassword(values.password); setEmail(values.email); setSsn(values.ssn);
         setShop_id(values.shop_id); setPhone(values.phone); setGender(values.gender);
@@ -153,37 +163,67 @@ const MechanicsLayout = ({mechanics}) => {
         }
     }
     const editMechanic = async(e) => {
-        setLoad(true);
         e.preventDefault();
-        let imageVal = '';
-        imageVal =await uploadImage()
-        axios.put(process.env.NEXT_PUBLIC_TI_EDIT_MECHANICS, {
-            id:id,f_name:f_name, l_name:l_name, password:password, gender:gender, photo:imageVal,
-            email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
-        }).then((x)=>{
-            if(x.data[0]=='1'){
-                    let tempState = [...MechanicList];
-                    tempState.forEach((z)=>{
-                        if (z.id==id) {
-                            z.f_name=f_name;
-                            z.l_name=l_name;
-                            z.password=password;
-                            z.gender=gender;
-                            z.email=email;
-                            z.ssn=ssn;
-                            z.shop_id=shop_id;
-                            z.phone=phone;
-                            z.address=address;
-                            z.profile_pic=imageVal
-                        }
-                    })
-                    setMechanicList(tempState);
-                    setChange(false);
-                    //Router.push('/mechanics')
+
+        let mailWarning = false;
+        let passWarning = false;
+        let ssnWarning = false;
+        let phoneWarning = false;
+        mailList.forEach((x)=>{
+            if(x.email==email){
+                if(x.email!='-'){
+                    mailWarning = true;
+                }
             }
-            setShow(false);
-            setLoad(false);
+            if(x.ssn==ssn){
+                ssnWarning = true;
+            }
+            if(x.phone==phone){
+                phoneWarning = true;
+            }
         })
+
+        password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$/)==null?passWarning=true:passWarning=false
+
+        if(mailWarning==true || passWarning == true || ssnWarning==true || phoneWarning == true){
+            mailWarning==true?setMailWarn(true):setMailWarn(false);
+            passWarning==true?setPassWarn(true):setPassWarn(false);
+            ssnWarning==true?setSsWarn(true):setSsWarn(false);
+            phoneWarning==true?setPhoneWarn(true):setPhoneWarn(false);
+        } else {
+            setLoad(true);
+            let imageVal = '';
+            imageVal =await uploadImage()
+            axios.put(process.env.NEXT_PUBLIC_TI_EDIT_MECHANICS, {
+                id:id,f_name:f_name, l_name:l_name, password:password, gender:gender, photo:imageVal,
+                email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
+            }).then((x)=>{
+                if(x.data[0]=='1'){
+                        let tempState = [...MechanicList];
+                        tempState.forEach((z)=>{
+                            if (z.id==id) {
+                                z.f_name=f_name;
+                                z.l_name=l_name;
+                                z.password=password;
+                                z.gender=gender;
+                                z.email=email;
+                                z.ssn=ssn;
+                                z.shop_id=shop_id;
+                                z.phone=phone;
+                                z.address=address;
+                                z.profile_pic=imageVal
+                            }
+                        })
+                        setMechanicList(tempState);
+                        setChange(false);
+                        //Router.push('/mechanics')
+                }
+                handleClose(false);
+                setLoad(false);
+            })
+        }
+
+
     }
     const deleteUser = () => {
         setLoad(true);
@@ -229,8 +269,8 @@ const MechanicsLayout = ({mechanics}) => {
                <span>
                <FormControl 
                     style={{width:'300px', float:'right', backgroundColor:'#f4f6fd', paddingLeft:'35px', border:'none', borderRadius:'0px'}} 
-                    type='text' placeholder={numSearch?"Search By Number...":"Search By Name..."} value={search} onChange={(e)=>{setSearch(e.target.value)}}
-                    
+                    type='text' placeholder={numSearch?"Search By Number...":"Search By Name..."} value={search}
+                    onChange={(e)=>{setSearch(e.target.value)}}
                 />
                </span>
                <span><AiOutlineSearch style={{float:'right',position:'relative', left:'28px', top:'10px',color:'grey'}} /></span>
@@ -254,8 +294,11 @@ const MechanicsLayout = ({mechanics}) => {
                 if(search==""){
                     return x
                 }else if(
-                    numSearch?x.phone.includes(search):x.f_name.toLowerCase().includes(search.toLowerCase()) || 
-                    numSearch?x.phone.includes(search):x.l_name.toLowerCase().includes(search.toLowerCase())
+                    //numSearch
+                    !numSearch?(x.f_name.toLowerCase().includes(search.toLowerCase()) || 
+                    x.l_name.toLowerCase().includes(search.toLowerCase()) || 
+                    (x.f_name + " " +x.l_name).toLowerCase().includes(search.toLowerCase())):
+                    (x.phone.toLowerCase().includes(search.toLowerCase()))
                 ){
                     return x
                 }
@@ -311,7 +354,7 @@ const MechanicsLayout = ({mechanics}) => {
             </Row>
         </Container>}
         {profileView &&
-            <div className='profile-view  pt-2'>
+            <div className='profile-view  pt-1'>
                 <Row>
                     <Col md={4}>
                         <div className='pic-frame'>
@@ -327,14 +370,14 @@ const MechanicsLayout = ({mechanics}) => {
                                         <MdOutlineMode className='' style={{fontSize:'15px', color:'blue'}} /> Edit Profile
                                     </button>
                                 </Col>
-                                <Col md={4} className="text-center">
+                                <Col md={4} className="">
                                     <div className='my-2'> <ImPhone className='mx-3 mb-1' /> {phone} </div>
-                                    <div className='border-btm' style={{width:"65%", marginLeft:'20%'}}></div>
+                                    <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
                                     <div className='my-2'> <FaIdCard className='mx-3' /> {ssn} </div>
                                 </Col>
-                                <Col md={4} className="text-center">
+                                <Col md={4} className="">
                                     <div className='my-2'> <FaEnvelope className='mx-3' /> {email} </div>
-                                    <div className='border-btm' style={{width:"65%", marginLeft:'18%'}}></div>
+                                    <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
                                     <div className='my-2'> <MdLocationOn className='mx-3' /> {address} </div>
                                 </Col>
                             </Row>
@@ -342,8 +385,12 @@ const MechanicsLayout = ({mechanics}) => {
                     </Col>
                 </Row>
                 <span onClick={()=>setProfileView(false)}><b className='bact-btn'>{"<"} Mechanics</b> </span>
-                <Row className='mt-4 p-3 box-two'>
-                <Table responsive>
+                <Row className='mt-0 p-3 box-two'>
+                
+                    <div className='mb-2 recent-text'>Recent Orders</div>
+                    <div><hr className='' /></div>
+                
+                <Table className='mt-2' responsive>
                 <thead>
                     <tr>
                     <th>Services</th>
@@ -358,17 +405,17 @@ const MechanicsLayout = ({mechanics}) => {
                 <tbody>
                 {Array.from({ length: 6 }).map((_, index) => (
                     <tr className='' key={index}> 
-                        <td className='phone py-2'>Oil Change</td>
-                        <td className='phone py-2'>SAJID O</td>
-                        <td className='phone py-2'>
+                        <td className='phone '>Oil Change</td>
+                        <td className='phone '>SAJID O</td>
+                        <td className='phone '>
                             <img src={'/img1.jpg'} className="img1" />
                             <img src={'/img2.jpg'} className="img2" />
                             <img src={'/img3.jpg'} className="img3" />
                         </td>
                         <td className='py-2'><span className='status'>On Hold</span></td>
-                        <td className='phone py-2'>03/11/2021</td>
-                        <td className='phone py-2'>10,000 </td>
-                        <td className='phone py-2'>
+                        <td className='phone '>03/11/2021</td>
+                        <td className='phone '>10,000 </td>
+                        <td className='phone '>
                         <AiFillEye className='blue icon-trans'  />
                         <AiFillEdit className='yellow icon-trans'  />
                         <AiFillDelete className='red icon-trans' />
@@ -413,7 +460,7 @@ const MechanicsLayout = ({mechanics}) => {
                     <Form.Label>Email</Form.Label>
                     <input
                     style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
-                    type="email" placeholder="email..." required value={email} onChange={(e)=>setEmail(e.target.value)} />
+                    type="text" placeholder="email..." value={email} onChange={(e)=>setEmail(e.target.value)} />
                     {mailWarn==true && <Form.Text style={{color:'crimson'}}> Email Not Unique  </Form.Text>}
                     </Form.Group>
                     </Col>
@@ -425,8 +472,6 @@ const MechanicsLayout = ({mechanics}) => {
                         type={showPass?"password":"text"} placeholder="password..." required value={password} onChange={(e)=>setPassword(e.target.value)} />
                         {showPass?(<AiFillEyeInvisible style={{float:'right', cursor:"pointer", position:'relative', bottom:'28px', right:'10px'}} onClick={()=>setShowPass(!showPass)} />):(<AiFillEye style={{float:'right', cursor:"pointer", position:'relative', bottom:'28px', right:'10px'}} onClick={()=>setShowPass(!showPass)} />)}
                         {passWarn==true && <Form.Text style={{color:'crimson'}}> Must be {"(8-20)"} letters, with special & numeric character.  </Form.Text>}
-                        
-                        
                 </Form.Group>                
             </Col>
         </Row>
@@ -462,7 +507,7 @@ const MechanicsLayout = ({mechanics}) => {
                 <Form.Group className="mb-3" controlId="Phone">
                     <Form.Label>Phone</Form.Label>
                     <NumberFormat
-                            format="(+# ) ###-###-####"
+                            format="(+#)###-###-####"
                             style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
                             mask="_"
                             allowEmptyFormatting={true}

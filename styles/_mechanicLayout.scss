@@ -34,6 +34,8 @@
     .bact-btn{
         cursor: pointer;
         color: white;
+        position: relative;
+        bottom: 15px;
         background-color: #1A73E8;
         padding: 7px;
         font-size: 13px;
@@ -131,6 +133,8 @@
     .phone{
         color: gray;
         font-size: 14px;
+        padding-bottom: 0px;
+        margin-bottom: 0px;
     }
     
     .status{
@@ -189,6 +193,11 @@
         animation-iteration-count: 1;
         animation-fill-mode: forwards;
     }
+    .recent-text{
+        font-weight: bolder;
+        font-size: 20px;
+    }
+
     .paginate-btn{
         cursor: pointer;
         color: silver;

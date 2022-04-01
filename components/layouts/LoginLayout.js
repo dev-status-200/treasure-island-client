@@ -20,7 +20,7 @@ const LoginLayout = () => {
     setLoading(true);
     e.preventDefault();
     console.log(email, pass);
-    axios.post('https://treasure-island-server.herokuapp.com/login',{email:email, pass:pass}).then((x)=>{
+    axios.post(process.env.NEXT_PUBLIC_TI_LOGIN,{email:email, pass:pass}).then((x)=>{
       console.log(x)
       if(x.data.message=="Success"){
           //console.log(jwt_decode(x.data.token).username)
@@ -48,7 +48,7 @@ const LoginLayout = () => {
               </Row>
               <Row className='justify-content-md-center text-center mt-2 pt-4'>
                 <Col md={12} xs={12} >
-                  <input placeholder='Username' type='email' required className='input-field' value={email} onChange={(e)=>setEmail(e.target.value)} />
+                  <input placeholder='Username' type='text' required className='input-field' value={email} onChange={(e)=>setEmail(e.target.value)} />
                 </Col>
               </Row>
               <Row className='justify-content-md-center text-center pt-4'>
