@@ -4,12 +4,11 @@ import Image from 'next/image'
 import { FiHome, FiBarChart, FiStar, FiUsers, FiFileText, FiBell, FiSettings, FiLogOut } from "react-icons/fi";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { HiOutlineUserGroup } from "react-icons/hi";
-import { MdPayment } from "react-icons/md";
+import { MdPayment, MdLocationOn } from "react-icons/md";
 import Router, { useRouter } from 'next/router'
 import Cookies from 'js-cookie'
 
 const MainLayout = ({children}) => {
-
     const router = useRouter();
 
     const [navItems, setNavItems] = useState([
@@ -25,13 +24,11 @@ const MainLayout = ({children}) => {
         {id:'9',  link:'/settings', name:'Settings', class:'', logo:<FiSettings/>},
         {id:'10', link:'/',  name:'Logout', class:'', logo:<FiLogOut/>},
     ])
-
     useEffect(() => {
         let tempState = [...navItems];
         tempState.filter((x)=>{ if(x.link===router.pathname){ x.class='active' } else { x.class='' } })
         setNavItems(tempState);
     }, [router.pathname])
-    
     const changeNav = (nav) => {
         if(nav.name!='Logout'){
             let tempState = [...navItems];
@@ -52,7 +49,6 @@ const MainLayout = ({children}) => {
             Router.push('/');
         }
     }
-
   return (
     <div className='mainLayout' style={{backgroundColor:'#EAEDF7'}}>
     <Container fluid>
@@ -78,10 +74,17 @@ const MainLayout = ({children}) => {
             <Col>
                 <Row>
                     <Col md={12} className="top-bar">
-                        <div className='user'>
-                            {Cookies.get('username')}<br/>
-                            <span className='user-type'>{Cookies.get('role_id')}</span>
-                        </div>
+                    <div className='user'>
+                        {Cookies.get('username')}<br/>
+                        <span className='user-type'>{Cookies.get('role_id')}</span>
+                    </div>
+                    <div className="location">
+                        <MdLocationOn className='select-icon' />
+                        <select onChange={(e)=>Cookies.set('location',e.target.value)}>
+                            <option value={'location-1'}>Location 1</option>
+                            <option value={'location-2'}>Location 2</option>
+                        </select>
+                    </div>
                     </Col>
                     <Col md={12}>
                         <div className="children">

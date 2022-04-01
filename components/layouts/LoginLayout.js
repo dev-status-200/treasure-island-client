@@ -33,9 +33,8 @@ const LoginLayout = () => {
           setLoading(false)
           setDetailWarning(true)
       }
-})
+    })
   } 
-
   return (
     <div className='signin_styles '>
         <Container className='bg' fluid>
@@ -61,7 +60,6 @@ const LoginLayout = () => {
                     :
                     (<AiFillEyeInvisible  style={{position:'relative', cursor:'pointer', left:'110px', top:'-35px',color:'white'}} onClick={()=>setShowPass(!showPass)}/>)
                   }
-                    
                   </span>
               </Row>
               <Row className='justify-content-md-center text-center pt-1'>

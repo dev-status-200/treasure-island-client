@@ -103,7 +103,7 @@
     }
     .top-bar{
         height: 60px;
-        border-bottom: 1px solid #1733E8;
+        border-bottom: 1px solid #1A73EB;
         position: fixed;
         background-color: white;
         top: 0px;
@@ -115,15 +115,39 @@
         padding-right: 20px;
         padding-top: 10px;
         font-size: 14px;
-        color: #1733E8;
+        color: #1A73EB;
         font-weight: 600;
         background-color: #EAEDF7;
-        border-left: 1px solid #1733E8;
+        border-left: 1px solid #1A73EB;
         padding-left: 20px;
         height: 59px;
     }
     .user-type{
         font-size: 11px;
+    }
+    .location{
+        float: right;
+        margin-right: 20px;
+        border: none;
+        margin-top: 15px;
+    }
+    select{
+        background-color: #EAEDF7;
+        border: 1px solid white;
+        border-radius: 5px;
+        padding: 6px 25px 6px 35px;
+        color: #1A73EB;
+        font-size: 13px;
+    }
+    select:focus{
+        outline: none
+    }
+    
+    .select-icon{
+        position: relative;
+        left: 25px;
+        color: #1A73EB;
+        bottom: 2px;
     }
     .children{
         background-color: #EAEDF7;

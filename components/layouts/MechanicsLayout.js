@@ -17,7 +17,7 @@ const MechanicsLayout = ({mechanics}) => {
 
     const [mailList, setMailList] = useState([]);
 
-    const handleClose = () => { setShow(false); setEdit(false); setChange(false); clearFields(); setMailWarn(false); setSsWarn(false); setPassWarn(false); setShowPass(true);}
+    const handleClose = () => { setShow(false); setEdit(false); setChange(false); clearFields(); setMailWarn(false); setSsWarn(false); setPassWarn(false); setPhoneWarn(false); setShowPass(true);}
     const handleShow = () => { getMail(); setShow(true); setChange(true); }
 
     const handleEditShow = () => { setEdit(true); setShow(true); }
@@ -152,7 +152,7 @@ const MechanicsLayout = ({mechanics}) => {
             setMailWarn(false);
             await axios.post(process.env.NEXT_PUBLIC_TI_ADD_MECHANICS, {
                 f_name:f_name, l_name:l_name, password:password, gender:gender, photo:await uploadImage(),
-                email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
+                email:email, ssn:ssn, shop_id:Cookies.get('location'), phone:phone, address:address, loginId:Cookies.get('loginId')
             }).then((x)=>{
                 let tempState = [...MechanicList];
                 tempState.push(x.data);
@@ -196,7 +196,7 @@ const MechanicsLayout = ({mechanics}) => {
             imageVal =await uploadImage()
             axios.put(process.env.NEXT_PUBLIC_TI_EDIT_MECHANICS, {
                 id:id,f_name:f_name, l_name:l_name, password:password, gender:gender, photo:imageVal,
-                email:email, ssn:ssn, shop_id:shop_id, phone:phone, address:address, loginId:Cookies.get('loginId')
+                email:email, ssn:ssn, shop_id:Cookies.get('location'), phone:phone, address:address, loginId:Cookies.get('loginId')
             }).then((x)=>{
                 if(x.data[0]=='1'){
                         let tempState = [...MechanicList];
@@ -218,8 +218,12 @@ const MechanicsLayout = ({mechanics}) => {
                         setChange(false);
                         //Router.push('/mechanics')
                 }
-                handleClose(false);
+                setShow(false)
                 setLoad(false);
+                setPassWarn(false);
+                setSsWarn(false);
+                setMailWarn(false);
+                setPhoneWarn(false);
             })
         }
 
@@ -243,17 +247,22 @@ const MechanicsLayout = ({mechanics}) => {
     }
     const [items, setItems] = useState([]);
     const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState((mechanics.length/3));
+    const [totalPages, setTotalPages] = useState((MechanicList.length/5));
     const [startIndex, setStartIndex] = useState(0)
 
     const [increment, setIncrement] = useState(false);
+
+    useEffect(() => {
+        setTotalPages(MechanicList.length/8);
+    }, [MechanicList])
+    
 
     useEffect(() => {
         console.log(startIndex)
         if(page===1){
             setStartIndex(0);
         }else if(page>1){
-            increment==true?setStartIndex(startIndex+3):setStartIndex(startIndex-3)
+            increment==true?setStartIndex(startIndex+8):setStartIndex(startIndex-8)
         }
     }, [page])
   return (
@@ -270,7 +279,7 @@ const MechanicsLayout = ({mechanics}) => {
                <FormControl 
                     style={{width:'300px', float:'right', backgroundColor:'#f4f6fd', paddingLeft:'35px', border:'none', borderRadius:'0px'}} 
                     type='text' placeholder={numSearch?"Search By Number...":"Search By Name..."} value={search}
-                    onChange={(e)=>{setSearch(e.target.value)}}
+                    onChange={(e)=>{setSearch(e.target.value); setPage(1)}}
                 />
                </span>
                <span><AiOutlineSearch style={{float:'right',position:'relative', left:'28px', top:'10px',color:'grey'}} /></span>
@@ -278,77 +287,77 @@ const MechanicsLayout = ({mechanics}) => {
             </Row>
             <Row className='mt-4'>
             <Col md={12}>
-            <div className='box'>
-            <Table responsive>
-            <thead>
-                <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Completed Task</th>
-                <th>Active Task</th>
-                <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            {MechanicList.filter((x)=>{
-                if(search==""){
-                    return x
-                }else if(
-                    //numSearch
-                    !numSearch?(x.f_name.toLowerCase().includes(search.toLowerCase()) || 
-                    x.l_name.toLowerCase().includes(search.toLowerCase()) || 
-                    (x.f_name + " " +x.l_name).toLowerCase().includes(search.toLowerCase())):
-                    (x.phone.toLowerCase().includes(search.toLowerCase()))
-                ){
-                    return x
+            <div className='box' >
+            <div style={{minHeight:'542px'}}>
+                <Table responsive >
+                <thead>
+                    <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Completed Task</th>
+                    <th>Active Task</th>
+                    <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody >
+                {MechanicList.filter((x)=>{
+                    if(search==""){
+                        return x
+                    }else if(
+                        !numSearch?(x.f_name.toLowerCase().includes(search.toLowerCase()) || 
+                        x.l_name.toLowerCase().includes(search.toLowerCase()) || 
+                        (x.f_name + " " +x.l_name).toLowerCase().includes(search.toLowerCase())):
+                        (x.phone.toLowerCase().includes(search.toLowerCase()))
+                    ){
+                        return x
+                    }   
+                }).slice(startIndex, startIndex+8).map((mech, index)=>{
+                return(<tr key={index} className=''>
+                    <td>
+                    <Row>
+                        <Col md={2}>
+                            <img src={mech.profile_pic} className="image"/>
+                        </Col>
+                        <Col md={10}>
+                            <div className='name pt-2'>{mech.f_name} {mech.l_name}</div>
+                            <div style={{display:'inline-block'}} className='email'>{mech.email}</div>
+                        </Col>
+                    </Row>
+                    </td>
+                    <td className='phone py-3'>{mech.phone}</td>
+                    <td className='phone py-3 px-5'>0</td>
+                    <td className='phone py-3 px-5'>0</td>
+                    <td className='phone py-3'>
+                        <AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />
+                        <AiFillEdit className='yellow icon-trans' onClick={()=>{editFields(mech);}} />
+                        <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
+                    </td>
+                    </tr>
+                )})}  
+                </tbody>
+                </Table>
+            </div>
+            <div>
+            <span>
+                <button className='paginate-btn' 
+                    onClick={()=>{
+                        //page>1?setPage(page-1):null;
+                        if(page>1){
+                            setIncrement(false);
+                            setPage(page-1);
+                        }
+                    }}
+                >{"<"} PREV</button>
+            </span>
+            <span> | {page}  | </span>
+            <span><button className='paginate-btn' onClick={()=>{
+                setIncrement(false);
+                if(page<totalPages){
+                    setIncrement(true);
+                    setPage(page+1);
                 }
-            }).map((mech, index)=>{
-            return(<tr key={index} className=''>
-                <td>
-                <Row>
-                    <Col md={2}>
-                        <img src={mech.profile_pic} className="image"/>
-                    </Col>
-                    <Col md={10}>
-                        <div className='name pt-2'>{mech.f_name} {mech.l_name}</div>
-                        <div style={{display:'inline-block'}} className='email'>{mech.email}</div>
-                    </Col>
-                </Row>
-                </td>
-                <td className='phone py-3'>{mech.phone}</td>
-                <td className='phone py-3 px-5'>0</td>
-                <td className='phone py-3 px-5'>0</td>
-                <td className='phone py-3'>
-                    <AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />
-                    <AiFillEdit className='yellow icon-trans' onClick={()=>{editFields(mech);}} />
-                    <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
-                </td>
-                </tr>
-            )})}  
-            </tbody>
-            </Table>
-                {/*<div>
-                    <span>
-                        <button className='paginate-btn' 
-                            onClick={()=>{
-                                
-                                //page>1?setPage(page-1):null;
-                                if(page>1){
-                                    setIncrement(false);
-                                    setPage(page-1)
-                                }                         
-                            }}
-                        >{"<"} PREV</button>
-                    </span>
-                    <span> | {page}  | </span>
-                    <span><button className='paginate-btn' onClick={()=>{
-                        setIncrement(false);
-                        if(page<totalPages){
-                            setIncrement(true);
-                            setPage(page+1)
-                        }                          
-                    }}> NEXT {">"}</button> </span>
-                </div>*/}
+            }}> NEXT {">"}</button> </span>
+            </div>
             </div>
             </Col>
             </Row>
@@ -376,7 +385,7 @@ const MechanicsLayout = ({mechanics}) => {
                                     <div className='my-2'> <FaIdCard className='mx-3' /> {ssn} </div>
                                 </Col>
                                 <Col md={4} className="">
-                                    <div className='my-2'> <FaEnvelope className='mx-3' /> {email} </div>
+                                    <div className='my-2'> <FaEnvelope className='mx-3' /> {email=='-'?'Not Registered':email==''?'Not Registered':email} </div>
                                     <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
                                     <div className='my-2'> <MdLocationOn className='mx-3' /> {address} </div>
                                 </Col>
@@ -384,7 +393,7 @@ const MechanicsLayout = ({mechanics}) => {
                         </div>
                     </Col>
                 </Row>
-                <span onClick={()=>setProfileView(false)}><b className='bact-btn'>{"<"} Mechanics</b> </span>
+                <span onClick={()=>{setProfileView(false); handleClose();}}><b className='bact-btn'>{"<"} Mechanics</b> </span>
                 <Row className='mt-0 p-3 box-two'>
                 
                     <div className='mb-2 recent-text'>Recent Orders</div>
@@ -496,8 +505,8 @@ const MechanicsLayout = ({mechanics}) => {
                 <Form.Group className="mb-3" controlId="Shop ID">
                     <Form.Label>Shop ID</Form.Label>
                     <input 
-                        type="text" style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
-                        placeholder="shop id..." required value={shop_id} onChange={(e)=>setShop_id(e.target.value)}
+                        type="text" style={{border:'1px solid silver', borderRadius:'5px', width:"100%", color:'grey',height:'39px', paddingLeft:'15px'}}
+                        placeholder="shop id..." required value={Cookies.get('location')} 
                      />
                 </Form.Group>                
             </Col>
@@ -551,7 +560,7 @@ const MechanicsLayout = ({mechanics}) => {
             </Button>
         </Form>
         </Modal.Body>
-      </Modal>
+        </Modal>
       <Modal className='shadow' show={deleteView} onHide={()=>setDeleteView(false)} size="md">
         <Modal.Header closeButton>
           <Modal.Title>Delete Mechanic</Modal.Title>
