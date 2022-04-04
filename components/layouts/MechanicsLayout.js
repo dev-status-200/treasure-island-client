@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Container, Row, Col, Table, Modal, Button, Form, Spinner, FormControl } from 'react-bootstrap'
+import { useSelector, useDispatch } from 'react-redux'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import { AiFillDelete, AiFillEdit, AiFillEye ,AiOutlineSearch, AiFillEyeInvisible } from "react-icons/ai";
@@ -12,12 +13,17 @@ import { FaIdCard, FaEnvelope } from "react-icons/fa";
 
 const MechanicsLayout = ({mechanics}) => {
 
+    const location = useSelector((state) => state.location.value)
+
     const [show, setShow] = useState(false);
     const [change, setChange] = useState(false);
 
     const [mailList, setMailList] = useState([]);
 
-    const handleClose = () => { setShow(false); setEdit(false); setChange(false); clearFields(); setMailWarn(false); setSsWarn(false); setPassWarn(false); setPhoneWarn(false); setShowPass(true);}
+    const handleClose = () => { 
+        setShow(false); setEdit(false); setChange(false); clearFields(); setMailWarn(false);
+        setSsWarn(false); setPassWarn(false); setPhoneWarn(false); setShowPass(true);
+    }
     const handleShow = () => { getMail(); setShow(true); setChange(true); }
 
     const handleEditShow = () => { setEdit(true); setShow(true); }
@@ -70,7 +76,7 @@ const MechanicsLayout = ({mechanics}) => {
         setId(values.id); setF_name(values.f_name); setL_Name(values.l_name);
         setPassword(values.password); setEmail(values.email); setSsn(values.ssn);
         setShop_id(values.shop_id); setPhone(values.phone); setGender(values.gender);
-        setAddress(values.address); setImage(values.profile_pic); handleEditShow()
+        setAddress(values.address); setImage(values.profile_pic); setEdit(true); handleEditShow()
     }
     const viewMechanic = (values) => {
         setId(values.id); setF_name(values.f_name); setL_Name(values.l_name);
@@ -152,7 +158,7 @@ const MechanicsLayout = ({mechanics}) => {
             setMailWarn(false);
             await axios.post(process.env.NEXT_PUBLIC_TI_ADD_MECHANICS, {
                 f_name:f_name, l_name:l_name, password:password, gender:gender, photo:await uploadImage(),
-                email:email, ssn:ssn, shop_id:Cookies.get('location'), phone:phone, address:address, loginId:Cookies.get('loginId')
+                email:email, ssn:ssn, shop_id:location, phone:phone, address:address, loginId:Cookies.get('loginId')
             }).then((x)=>{
                 let tempState = [...MechanicList];
                 tempState.push(x.data);
@@ -196,7 +202,7 @@ const MechanicsLayout = ({mechanics}) => {
             imageVal =await uploadImage()
             axios.put(process.env.NEXT_PUBLIC_TI_EDIT_MECHANICS, {
                 id:id,f_name:f_name, l_name:l_name, password:password, gender:gender, photo:imageVal,
-                email:email, ssn:ssn, shop_id:Cookies.get('location'), phone:phone, address:address, loginId:Cookies.get('loginId')
+                email:email, ssn:ssn, shop_id:location, phone:phone, address:address, loginId:Cookies.get('loginId')
             }).then((x)=>{
                 if(x.data[0]=='1'){
                         let tempState = [...MechanicList];
@@ -224,6 +230,7 @@ const MechanicsLayout = ({mechanics}) => {
                 setSsWarn(false);
                 setMailWarn(false);
                 setPhoneWarn(false);
+                setEdit(false);
             })
         }
 
@@ -255,16 +262,21 @@ const MechanicsLayout = ({mechanics}) => {
     useEffect(() => {
         setTotalPages(MechanicList.length/8);
     }, [MechanicList])
-    
 
     useEffect(() => {
-        console.log(startIndex)
+        //console.log(startIndex)
         if(page===1){
             setStartIndex(0);
         }else if(page>1){
             increment==true?setStartIndex(startIndex+8):setStartIndex(startIndex-8)
         }
     }, [page])
+
+    useEffect(() => {
+        setPage(1);
+    }, [location])
+    
+
   return (
     <div className='mechanic-styles'>
         {!profileView &&
@@ -290,51 +302,55 @@ const MechanicsLayout = ({mechanics}) => {
             <div className='box' >
             <div style={{minHeight:'542px'}}>
                 <Table responsive >
-                <thead>
-                    <tr>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Completed Task</th>
-                    <th>Active Task</th>
-                    <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody >
-                {MechanicList.filter((x)=>{
-                    if(search==""){
-                        return x
-                    }else if(
-                        !numSearch?(x.f_name.toLowerCase().includes(search.toLowerCase()) || 
-                        x.l_name.toLowerCase().includes(search.toLowerCase()) || 
-                        (x.f_name + " " +x.l_name).toLowerCase().includes(search.toLowerCase())):
-                        (x.phone.toLowerCase().includes(search.toLowerCase()))
-                    ){
-                        return x
-                    }   
-                }).slice(startIndex, startIndex+8).map((mech, index)=>{
-                return(<tr key={index} className=''>
-                    <td>
-                    <Row>
-                        <Col md={2}>
-                            <img src={mech.profile_pic} className="image"/>
-                        </Col>
-                        <Col md={10}>
-                            <div className='name pt-2'>{mech.f_name} {mech.l_name}</div>
-                            <div style={{display:'inline-block'}} className='email'>{mech.email}</div>
-                        </Col>
-                    </Row>
-                    </td>
-                    <td className='phone py-3'>{mech.phone}</td>
-                    <td className='phone py-3 px-5'>0</td>
-                    <td className='phone py-3 px-5'>0</td>
-                    <td className='phone py-3'>
-                        <AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />
-                        <AiFillEdit className='yellow icon-trans' onClick={()=>{editFields(mech);}} />
-                        <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
-                    </td>
-                    </tr>
-                )})}  
-                </tbody>
+                    <thead>
+                        <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Completed Task</th>
+                        <th>Active Task</th>
+                        <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {MechanicList.filter((y)=>{
+                        if(y.shop_id==location){
+                            return y
+                        }
+                    }).filter((x)=>{
+                        if(search==""){
+                            return x
+                        }else if(
+                            !numSearch?(x.f_name.toLowerCase().includes(search.toLowerCase()) || 
+                            x.l_name.toLowerCase().includes(search.toLowerCase()) || 
+                            (x.f_name + " " +x.l_name).toLowerCase().includes(search.toLowerCase())):
+                            (x.phone.toLowerCase().includes(search.toLowerCase()))
+                        ){
+                            return x
+                        }   
+                    }).slice(startIndex, startIndex+8).map((mech, index)=>{
+                    return(<tr key={index} className=''>
+                        <td>
+                        <Row>
+                            <Col md={2}>
+                                <img src={mech.profile_pic} className="image"/>
+                            </Col>
+                            <Col md={10}>
+                                <div className='name pt-2'><span>{mech.f_name}</span> <span>{mech.l_name}</span></div>
+                                <div style={{display:'inline-block'}} className='email'>{mech.email}</div>
+                            </Col>
+                        </Row>
+                        </td>
+                        <td className='phone py-3'>{mech.phone}</td>
+                        <td className='phone py-3 px-5'>0</td>
+                        <td className='phone py-3 px-5'>0</td>
+                        <td className='phone py-3'>
+                            <AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />
+                            <AiFillEdit className='yellow icon-trans' onClick={()=>{editFields(mech);}} />
+                            <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
+                        </td>
+                        </tr>
+                    )})}  
+                    </tbody>
                 </Table>
             </div>
             <div>
@@ -375,7 +391,7 @@ const MechanicsLayout = ({mechanics}) => {
                             <Row>
                                 <Col md={4} className="text-center">
                                     <h5 className='my-2'> <b>{f_name} {l_name}</b> </h5>
-                                    <button  className='btn btn-light btn-sm mt-2 px-3' onClick={handleEditShow}>
+                                    <button  className='btn btn-light btn-sm mt-2 px-3' onClick={()=>{ setEdit(true); handleEditShow() }}>
                                         <MdOutlineMode className='' style={{fontSize:'15px', color:'blue'}} /> Edit Profile
                                     </button>
                                 </Col>
@@ -506,7 +522,7 @@ const MechanicsLayout = ({mechanics}) => {
                     <Form.Label>Shop ID</Form.Label>
                     <input 
                         type="text" style={{border:'1px solid silver', borderRadius:'5px', width:"100%", color:'grey',height:'39px', paddingLeft:'15px'}}
-                        placeholder="shop id..." required value={Cookies.get('location')} 
+                        placeholder="shop id..." required value={location} 
                      />
                 </Form.Group>                
             </Col>

@@ -3,6 +3,7 @@ import axios from 'axios'
 import Cookies from 'cookies'
 import Router from 'next/router'
 import MechanicsLayout from '../components/layouts/MechanicsLayout'
+import cookies from 'js-cookie'
 
 const Mechanics = ({sessionData, mechanics}) => {
   
@@ -16,7 +17,7 @@ const Mechanics = ({sessionData, mechanics}) => {
   }, [])
 
   return (
-    <div><MechanicsLayout mechanics={mechanics} /></div>
+    <div>{cookies.get('role_id')=="Admin" && <MechanicsLayout mechanics={mechanics} />}</div>
   )
 }
 
@@ -33,7 +34,7 @@ export async function getServerSideProps({req,res}) {
   const dataone = await requestOne
 
   const config = {
-    method: 'get', headers: { 'Content-Type': 'application/json' }, url: `http://treasure-island-server.herokuapp.com/users/getUsers`,
+    method: 'get', headers: { 'Content-Type': 'application/json' }, url: `${process.env.NEXT_PUBLIC_TI_GET_MECHANICS}`,
     data : {  }
 };
 const requestTwo = await axios(config);

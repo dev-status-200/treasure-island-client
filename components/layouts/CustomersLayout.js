@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Container, Row, Col, Table, Modal, Button, Form, Spinner, FormControl } from 'react-bootstrap'
+import { useSelector, useDispatch } from 'react-redux'
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import { AiFillDelete, AiFillEdit, AiFillEye ,AiOutlineSearch, AiFillEyeInvisible } from "react-icons/ai";
@@ -11,6 +12,8 @@ import Router from 'next/router'
 import { FaIdCard, FaEnvelope } from "react-icons/fa";
 
 const CustomersLayout = ({customers}) => {
+
+    const location = useSelector((state) => state.location.value);
 
     const [show, setShow] = useState(false);
     const [change, setChange] = useState(false);
@@ -108,7 +111,7 @@ const CustomersLayout = ({customers}) => {
             setLoad(true);
             await axios.post(process.env.NEXT_PUBLIC_TI_ADD_CUSTOMERS, {
                 f_name:f_name, l_name:l_name, password:password, gender:gender, photo:"https://res.cloudinary.com/abdullah7c/image/upload/v1643040095/images_djois2.png",
-                email:email, ssn:ssn, shop_id:Cookies.get('location'), phone:phone, address:address, loginId:Cookies.get('loginId')
+                email:email, ssn:ssn, shop_id:location, phone:phone, address:address, loginId:Cookies.get('loginId')
             }).then((x)=>{
                 let tempState = [...MechanicList];
                 tempState.push(x.data);
@@ -139,7 +142,7 @@ const CustomersLayout = ({customers}) => {
             setLoad(true);
             axios.put(process.env.NEXT_PUBLIC_TI_EDIT_CUSTOMERS, {
                 id:id,f_name:f_name, l_name:l_name, phone:phone, address:address,
-                email:email, shop_id:Cookies.get('location'), loginId:Cookies.get('loginId')
+                email:email, shop_id:location, loginId:Cookies.get('loginId')
             }).then((x)=>{
                 if(x.data[0]=='1'){
                         let tempState = [...MechanicList];
@@ -199,6 +202,10 @@ const CustomersLayout = ({customers}) => {
             increment==true?setStartIndex(startIndex+8):setStartIndex(startIndex-8)
         }
     }, [page])
+
+    useEffect(() => {
+        setPage(1);
+    }, [location])
   return (
     <div className='mechanic-styles'>
         {!profileView &&
@@ -234,7 +241,11 @@ const CustomersLayout = ({customers}) => {
                     </tr>
                 </thead>
                 <tbody >
-                {MechanicList.filter((x)=>{
+                {MechanicList.filter((y)=>{
+                    if(y.shop_id==location){
+                        return y
+                    }
+                }).filter((x)=>{
                     if(search==""){
                         return x
                     }else if(
@@ -370,7 +381,7 @@ const CustomersLayout = ({customers}) => {
                         <Form.Label>Shop ID</Form.Label>
                         <input 
                             type="text" style={{border:'1px solid silver', borderRadius:'5px', width:"100%", color:'grey',height:'39px', paddingLeft:'15px'}}
-                            placeholder="shop id..." required value={Cookies.get('location')} 
+                            placeholder="shop id..." required value={location} 
                          />
                     </Form.Group>                
                 </Col>

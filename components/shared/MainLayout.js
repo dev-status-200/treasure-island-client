@@ -7,11 +7,16 @@ import { HiOutlineUserGroup } from "react-icons/hi";
 import { MdPayment, MdLocationOn } from "react-icons/md";
 import Router, { useRouter } from 'next/router'
 import Cookies from 'js-cookie'
+import { useSelector, useDispatch } from 'react-redux'
+import { locationOne, locationTwo } from '../../redux/Actions&Reducers/locationSlice';
 
 const MainLayout = ({children}) => {
-    const router = useRouter();
 
-    const [navItems, setNavItems] = useState([
+    const location = useSelector((state) => state.location.value)
+    const dispatch = useDispatch();
+    const router = useRouter();
+    const adminMenu =
+    [
         {id:'0',  link:'/dashboard', name:'Dashboard', class:'', logo:<FiHome/>},
         {id:'1',  link:'/services', name:'Services', class:'', logo:<FiBarChart/>},
         {id:'2',  link:'/parts', name:'Parts', class:'', logo:<FiStar/>},
@@ -22,13 +27,28 @@ const MainLayout = ({children}) => {
         {id:'7',  link:'/invoices', name:'Invoices', class:'', logo:<MdPayment />},
         {id:'8',  link:'/notifications', name:'Notifications', class:'', logo:<FiBell/>},
         {id:'9',  link:'/settings', name:'Settings', class:'', logo:<FiSettings/>},
-        {id:'10', link:'/',  name:'Logout', class:'', logo:<FiLogOut/>},
-    ])
+        {id:'10', link:'/',  name:'Logout', class:'', logo:<FiLogOut/>}
+    ];
+    const mechanicMenu =
+    [
+        {id:'0',  link:'/dashboard', name:'Dashboard', class:'', logo:<FiHome/>},
+        {id:'1',  link:'/parts', name:'Parts', class:'', logo:<FiStar/>},
+        {id:'2',  link:'/customers', name:'Customers', class:'', logo:<HiOutlineUserGroup/>},
+        {id:'3',  link:'/tasks', name:'Tasks', class:'', logo:<FiFileText/>},
+        {id:'4',  link:'/enquiries', name:'Enquiries', class:'', logo:<AiOutlineQuestionCircle/>},
+        {id:'5',  link:'/invoices', name:'Invoices', class:'', logo:<MdPayment />},
+        {id:'6',  link:'/notifications', name:'Notifications', class:'', logo:<FiBell/>},
+        {id:'7', link:'/',  name:'Logout', class:'', logo:<FiLogOut/>}
+    ];
+
+    const [navItems, setNavItems] = useState(Cookies.get('role_id')=="Mechanic"?mechanicMenu:adminMenu);
+
     useEffect(() => {
         let tempState = [...navItems];
         tempState.filter((x)=>{ if(x.link===router.pathname){ x.class='active' } else { x.class='' } })
         setNavItems(tempState);
     }, [router.pathname])
+
     const changeNav = (nav) => {
         if(nav.name!='Logout'){
             let tempState = [...navItems];
@@ -47,6 +67,14 @@ const MainLayout = ({children}) => {
             Cookies.remove('role_id');
             Cookies.remove('loginId');
             Router.push('/');
+        }
+    }
+    const setLocation = (value) =>{
+        console.log(value)
+        if(value=='location-1'){
+            dispatch(locationOne())
+        }else if(value=='location-2'){
+            dispatch(locationTwo())
         }
     }
   return (
@@ -80,9 +108,8 @@ const MainLayout = ({children}) => {
                     </div>
                     <div className="location">
                         <MdLocationOn className='select-icon' />
-                        <select onChange={(e)=>Cookies.set('location',e.target.value)}>
-                            <option disabled>Select Location</option>
-                            <option value={'location-1'}>Location 1</option>
+                        <select onChange={(e)=>setLocation(e.target.value)}>
+                            <option value={'location-1'} >Location 1</option>
                             <option value={'location-2'}>Location 2</option>
                         </select>
                     </div>
