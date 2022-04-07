@@ -2,7 +2,7 @@ import React,{useState, useEffect} from 'react'
 import {Row, Col, Container} from 'react-bootstrap'
 import Image from 'next/image'
 import { FiHome, FiBarChart, FiStar, FiUsers, FiFileText, FiBell, FiSettings, FiLogOut } from "react-icons/fi";
-import { AiOutlineQuestionCircle } from "react-icons/ai";
+import { AiOutlineQuestionCircle, AiFillBell } from "react-icons/ai";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { MdPayment, MdLocationOn } from "react-icons/md";
 import Router, { useRouter } from 'next/router'
@@ -106,6 +106,7 @@ const MainLayout = ({children}) => {
                         {Cookies.get('username')}<br/>
                         <span className='user-type'>{Cookies.get('role_id')}</span>
                     </div>
+                    <div className='notification-bell'><AiFillBell/></div>
                     <div className="location">
                         <MdLocationOn className='select-icon' />
                         <select onChange={(e)=>setLocation(e.target.value)}>

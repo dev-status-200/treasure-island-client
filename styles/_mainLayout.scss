@@ -142,7 +142,14 @@
     select:focus{
         outline: none
     }
-    
+    .notification-bell{
+        color: #1A73EB;
+        float: right;
+        position: relative;
+        top:15px;
+        right:10px;
+        cursor: pointer;
+    }
     .select-icon{
         position: relative;
         left: 25px;

@@ -2,8 +2,9 @@ import React from 'react'
 import axios from 'axios'
 import Cookies from 'cookies'
 import Router from 'next/router'
+import SettingsLayout from '../components/layouts/SettingsLayout'
 
-const Settings = ({sessionData}) => {
+const Settings = ({sessionData, userData}) => {
         
   React.useEffect(() => {
     console.log(sessionData)
@@ -15,7 +16,7 @@ const Settings = ({sessionData}) => {
   }, [])
 
   return (
-    <div>settings</div>
+    <div><SettingsLayout userData={userData} /></div>
   )
 }
 
@@ -29,9 +30,18 @@ export async function getServerSideProps({req,res}) {
           "x-access-token":`${cookies.get('token')}`
       }
     }).then((x)=>x.data)
-  
   const dataone = await requestOne
+
+
+  const requestTwo = await axios.get(process.env.NEXT_PUBLIC_TI_ADMIN_SETTINGS,{
+      headers:{
+          "id":`${cookies.get('loginId')}`
+      }
+    }).then((x)=>x.data);
+  const datatwo = await requestTwo
+    console.log(datatwo);
+
   return{
-      props: { sessionData: dataone }
+      props: { sessionData: dataone, userData:requestTwo }
   }
 }

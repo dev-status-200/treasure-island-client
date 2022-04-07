@@ -30,7 +30,7 @@ export async function getServerSideProps({req,res}) {
       headers:{
           "x-access-token":`${cookies.get('token')}`
       }
-    }).then((x)=>x.data)
+    }).then((x)=>x.data);
   const dataone = await requestOne
 
   const config = {
