@@ -2,8 +2,9 @@ import React from 'react'
 import axios from 'axios'
 import Cookies from 'cookies'
 import Router from 'next/router'
+import NotificationsLayout from '../components/layouts/NotificationsLayout'
 
-const Notifications = ({sessionData}) => {
+const Notifications = ({sessionData, notifications}) => {
     
   React.useEffect(() => {
     console.log(sessionData)
@@ -15,7 +16,7 @@ const Notifications = ({sessionData}) => {
   }, [])
 
   return (
-    <div>notifications</div>
+    <div><NotificationsLayout notifications={notifications} /></div>
   )
 }
 
@@ -29,9 +30,12 @@ export async function getServerSideProps({req,res}) {
           "x-access-token":`${cookies.get('token')}`
       }
     }).then((x)=>x.data)
-  
   const dataone = await requestOne
+  
+  const requestTwo = await axios.get(process.env.NEXT_PUBLIC_TI_GET_NOTIFICATIONS).then((x)=>x.data)
+  const datatwo = await requestTwo
+
   return{
-      props: { sessionData: dataone }
+      props: { sessionData: dataone, notifications:datatwo }
   }
 }
