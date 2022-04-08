@@ -10,10 +10,11 @@ import { RiSortDesc } from "react-icons/ri";
 import NumberFormat from "react-number-format";
 import Router from 'next/router'
 import { FaIdCard, FaEnvelope } from "react-icons/fa";
+import { useRouter } from 'next/router'
 
-const CustomersLayout = ({customers}) => {
+const userForm = () => {
 
-    const location = useSelector((state) => state.location.value);
+    const router = useRouter();
 
     const [show, setShow] = useState(false);
     const [change, setChange] = useState(false);
@@ -24,9 +25,6 @@ const CustomersLayout = ({customers}) => {
     const handleShow = () => { getMail(); setShow(true); setChange(true); }
 
     const handleEditShow = () => { setEdit(true); setShow(true); }
-
-    const [linkShow, setLinkShow] = useState(false);
-    const [link, setLink] = useState("");
     
     const [edit, setEdit] = useState(false);
     const [load, setLoad] = useState(false);
@@ -39,8 +37,10 @@ const CustomersLayout = ({customers}) => {
     const [MechanicList,setMechanicList] = useState([]);
 
     useEffect(() => {
-        setMechanicList(customers)
+        //axios.post()
     }, [])
+    
+
     const getMail = async() => {
         let res = await axios.get(process.env.NEXT_PUBLIC_TI_CUSTOMERS_EMAILS).then((x)=>(x.data));
         console.log(res)
@@ -187,15 +187,6 @@ const CustomersLayout = ({customers}) => {
             }
         })
     }
-    const createLink = () => {
-        axios.post(process.env.NEXT_PUBLIC_TI_CREATE_LINK,
-            {id:Cookies.get('loginId')}
-            ).then((x)=>{
-            console.log(x.data.id);
-            setLinkShow(true)
-            setLink(`http://localhost:3000/userForm?id=${x.data.id}`)
-        })
-    }
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState((MechanicList.length/5));
     const [startIndex, setStartIndex] = useState(0)
@@ -215,155 +206,13 @@ const CustomersLayout = ({customers}) => {
         }
     }, [page])
 
-    useEffect(() => {
-        setPage(1);
-    }, [location])
-
-
-
   return (
-    <div className='mechanic-styles'>
-        {!profileView &&
-        <Container className='profile-view' fluid>
-            <Row className=''>
-               <Col>
-                    <span style={{color:'grey'}}> Customers </span>
-                    <span><button className='global-btn mx-2' onClick={handleShow}> Add new</button></span>
-                    <span><button className='global-btn mx-2' onClick={createLink}> Create Link</button></span>
-               </Col>
-               <Col>
-               <span>
-                    <button className='filter-btn' style={{ float:'right'}} onClick={()=>setNumSearch(!numSearch)}><RiSortDesc/></button>
-               </span>
-               <span>
-               <FormControl 
-                    style={{width:'300px', float:'right', backgroundColor:'#f4f6fd', paddingLeft:'35px', border:'none', borderRadius:'0px'}} 
-                    type='text' placeholder={numSearch?"Search By Number...":"Search By Name..."} value={search}
-                    onChange={(e)=>{setSearch(e.target.value); setPage(1)}}
-                />
-               </span>
-               <span><AiOutlineSearch style={{float:'right',position:'relative', left:'28px', top:'10px',color:'grey'}} /></span>
-               </Col>
-            </Row>
-            <Row className='mt-4'>
-            <Col md={12}>
-            <div className='box' >
-            <div style={{minHeight:'542px'}}>
-                <Table responsive >
-                <thead>
-                    <tr>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Completed Task</th>
-                    <th>Active Task</th>
-                    <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody >
-                {MechanicList.filter((y)=>{
-                    if(y.shop_id==location){
-                        return y
-                    }
-                }).filter((x)=>{
-                    if(search==""){
-                        return x
-                    }else if(
-                        !numSearch?(x.f_name.toLowerCase().includes(search.toLowerCase()) || 
-                        x.l_name.toLowerCase().includes(search.toLowerCase()) || 
-                        (x.f_name + " " +x.l_name).toLowerCase().includes(search.toLowerCase())):
-                        (x.phone.toLowerCase().includes(search.toLowerCase()))
-                    ){
-                        return x
-                    }   
-                }).slice(startIndex, startIndex+8).map((mech, index)=>{
-                return(<tr key={index} className=''>
-                    <td>
-                    <Row>
-                        <Col md={2}>
-                            <img src={mech.profile_pic} className="image"/>
-                        </Col>
-                        <Col md={10}>
-                            <div className='name pt-2'>{mech.f_name} {mech.l_name}</div>
-                            <div style={{display:'inline-block'}} className='email'>{mech.email}</div>
-                        </Col>
-                    </Row>
-                    </td>
-                    <td className='phone py-3'>{mech.phone}</td>
-                    <td className='phone py-3 px-5'>0</td>
-                    <td className='phone py-3 px-5'>0</td>
-                    <td className='phone py-3'>
-                        {/*<AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />*/}
-                        <AiFillEdit className='yellow icon-trans' onClick={()=>{editFields(mech);}} />
-                        <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
-                    </td>
-                    </tr>
-                )})}  
-                </tbody>
-                </Table>
-            </div>
-            <div>
-            <span>
-                <button className='paginate-btn' 
-                    onClick={()=>{
-                        if(page>1){
-                            setIncrement(false);
-                            setPage(page-1);
-                        }
-                    }}
-                >{"<"} PREV</button>
-            </span>
-            <span> | {page}  | </span>
-            <span><button className='paginate-btn' onClick={()=>{
-                setIncrement(false);
-                if(page<totalPages){
-                    setIncrement(true);
-                    setPage(page+1);
-                }
-            }}> NEXT {">"}</button> </span>
-            </div>
-            </div>
-            </Col>
-            </Row>
-        </Container>}
-        {profileView &&
-            <div className='profile-view  pt-1'>
-                <Row>
-                    <Col md={4}>
-                        <div className='pic-frame'>
-                            <img src={image} className="frame-image"/>
-                        </div>
-                    </Col>
-                    <Col md={8}>
-                        <div className='detail-bar'>
-                            <Row>
-                                <Col md={4} className="text-center">
-                                    <h5 className='my-2'> <b>{f_name} {l_name}</b> </h5>
-                                    <button  className='btn btn-light btn-sm mt-2 px-3' onClick={handleEditShow}>
-                                        <MdOutlineMode className='' style={{fontSize:'15px', color:'blue'}} /> Edit Profile
-                                    </button>
-                                </Col>
-                                <Col md={4} className="">
-                                    <div className='my-2'> <ImPhone className='mx-3 mb-1' /> {phone} </div>
-                                    <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
-                                    <div className='my-2'> <FaIdCard className='mx-3' /> {ssn} </div>
-                                </Col>
-                                <Col md={4} className="">
-                                    <div className='my-2'> <FaEnvelope className='mx-3' /> {email=='-'?'Not Registered':email==''?'Not Registered':email} </div>
-                                    <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
-                                    <div className='my-2'> <MdLocationOn className='mx-3' /> {address} </div>
-                                </Col>
-                            </Row>
-                        </div>
-                    </Col>
-                </Row>
-                <span onClick={()=>{setProfileView(false); handleClose();}}><b className='bact-btn'>{"<"} Mechanics</b> </span>
-            </div>
-        }
-        <Modal show={show} onHide={profileView?()=>setShow(false):handleClose} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>{edit==true?"Update Customer":"Add New Customer"}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+    <div className='online-form pt-5' >
+        <div className='text-center'>
+            <img src={'/assets/images/white png logo.png'} width={140} height={70} />
+            <h3 className='wh'>Online Registration</h3>
+        </div>    
+        <Container className='box mt-4 px-4 py-5' style={{maxWidth:'600px'}}>
         <Form onSubmit={edit==true?editMechanic:addAgent}>
         <Row>
             <Col>
@@ -398,15 +247,17 @@ const CustomersLayout = ({customers}) => {
                     <Col>
                     <Form.Group className="mb-3" controlId="Shop ID">
                         <Form.Label>Shop ID</Form.Label>
-                        <input 
-                            type="text" style={{border:'1px solid silver', borderRadius:'5px', width:"100%", color:'grey',height:'39px', paddingLeft:'15px'}}
-                            placeholder="shop id..." required value={location} 
-                         />
+                        <select aria-label="Default select example" required value={gender} onChange={(e)=>setGender(e.target.value)}
+                            style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'5px', backgroundColor:'white'}}
+                            >
+                                <option value="male">Location-1</option>
+                                <option value="female">Location-2</option>
+                            </select>
                     </Form.Group>                
                 </Col>
         </Row>
         <Row>
-
+    
         </Row>
         <Row>
             <Col md={6}>
@@ -437,31 +288,9 @@ const CustomersLayout = ({customers}) => {
                 {load==true?<Spinner className='mx-4' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:(edit==true?"Update":'Create')}
             </Button>
         </Form>
-        </Modal.Body>
-        </Modal>
-      <Modal className='shadow' show={deleteView} onHide={()=>setDeleteView(false)} size="md">
-        <Modal.Header closeButton>
-          <Modal.Title>Delete Customer</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-        <span><h6>Sure You Want to Delete <span style={{color:'crimson'}}>{f_name} {l_name}</span> ?</h6></span>
-            <Button className='px-4 mt-2' variant="danger" size="sm" onClick={deleteUser}>
-                {load==true?<Spinner className='' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:"Yes"}
-            </Button>
-            <Button className='px-4 mx-2 mt-2' variant="success" size="sm" onClick={()=>setDeleteView(false)}>No</Button>
-        </Modal.Body>
-      </Modal>
-      <Modal className='shadow' show={linkShow} onHide={()=>setLinkShow(false)} size="md" backdrop={'static'}>
-        <Modal.Header closeButton>
-          <Modal.Title>Link Generated</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-        <span><h6>Copy The Following Link <span style={{color:'crimson'}}>{f_name} {l_name}</span></h6></span>
-            {link}
-        </Modal.Body>
-      </Modal>
+        </Container>
     </div>
   )
 }
 
-export default CustomersLayout
+export default userForm

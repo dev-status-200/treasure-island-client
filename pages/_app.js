@@ -12,7 +12,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <>
-      {router.asPath!='/' &&
+      {(router.pathname!='/'&& router.pathname!='/userForm') &&
       <Provider store={store}>
         <MainLayout>
         <Component {...pageProps} />
@@ -20,6 +20,7 @@ function MyApp({ Component, pageProps }) {
       </Provider>
       }
       { router.asPath=='/' && <Component {...pageProps} /> }
+      { router.pathname=='/userForm' && <Component {...pageProps} /> }
     </>
     )
 }
