@@ -16,8 +16,7 @@ const userForm = () => {
 
     const router = useRouter();
 
-    const [show, setShow] = useState(false);
-    const [change, setChange] = useState(false);
+    const [available, setAvailable] = useState(false);
 
     const [mailList, setMailList] = useState([]);
 
@@ -37,7 +36,17 @@ const userForm = () => {
     const [MechanicList,setMechanicList] = useState([]);
 
     useEffect(() => {
-        //axios.post()
+        console.log(router.asPath.slice(13))
+        axios.post(process.env.NEXT_PUBLIC_TI_VERIFY_LINK,{id:router.asPath.slice(13)}).then((x)=>{
+            if(x.data==""){
+                console.log('notFound')
+                setAvailable(false);
+            }else{
+                console.log('Found')
+                setAvailable(true);
+            }
+        })
+        getMail();
     }, [])
     
 
@@ -87,10 +96,8 @@ const userForm = () => {
     const [phone   , setPhone     ] = useState('');
     const [gender  , setGender    ] = useState('male');
     const [address , setAddress   ] = useState('');
+    const [location , setLocation   ] = useState('Location-1');
     const [image   , setImage     ] = useState("");
-
-    const [search, setSearch] = useState('');
-    const [numSearch, setNumSearch] = useState(false);
 
     const [profileView, setProfileView] = useState(false)
 
@@ -113,182 +120,104 @@ const userForm = () => {
         }else{
             setLoad(true);
             await axios.post(process.env.NEXT_PUBLIC_TI_ADD_CUSTOMERS, {
-                f_name:f_name, l_name:l_name, password:password, gender:gender, photo:"https://res.cloudinary.com/abdullah7c/image/upload/v1643040095/images_djois2.png",
+                f_name:f_name, l_name:l_name, gender:gender, photo:"https://res.cloudinary.com/abdullah7c/image/upload/v1643040095/images_djois2.png",
                 email:email, ssn:ssn, shop_id:location, phone:phone, address:address, loginId:Cookies.get('loginId')
             }).then((x)=>{
-                let tempState = [...MechanicList];
-                tempState.push(x.data);
-                setMechanicList(tempState);
-                handleClose();
                 setLoad(false);
             })
         }
     }
-    const editMechanic = async(e) => {
-        e.preventDefault();
-
-        let mailWarning = false;
-        let phoneWarning = false;
-        mailList.forEach((x)=>{
-            if(x.email==email){
-                mailWarning = true;
-            }
-            if(x.phone==phone){
-                phoneWarning = true;
-            }
-        })
-
-        if(mailWarning==true || phoneWarning == true){
-            mailWarning==true?setMailWarn(true):setMailWarn(false);
-            phoneWarning==true?setPhoneWarn(true):setPhoneWarn(false);
-        } else {
-            setLoad(true);
-            axios.put(process.env.NEXT_PUBLIC_TI_EDIT_CUSTOMERS, {
-                id:id,f_name:f_name, l_name:l_name, phone:phone, address:address,
-                email:email, shop_id:location, loginId:Cookies.get('loginId')
-            }).then((x)=>{
-                if(x.data[0]=='1'){
-                        let tempState = [...MechanicList];
-                        tempState.forEach((z)=>{
-                            if (z.id==id) {
-                                z.f_name=f_name;
-                                z.l_name=l_name;
-                                z.email=email;
-                                z.shop_id=shop_id;
-                                z.phone=phone;
-                                z.address=address;
-                            }
-                        })
-                        setMechanicList(tempState);
-                        setChange(false);
-                }
-                setShow(false)
-                setLoad(false);
-                setMailWarn(false);
-                setPhoneWarn(false);
-            })
-        }
-
-
-    }
-    const deleteUser = () => {
-        setLoad(true);
-        axios.post(process.env.NEXT_PUBLIC_TI_DELETE_CUSTOMERS,{id:id}).then((x)=>{
-            if(x.data[0]=='1'){
-                let tempState = [...MechanicList];
-                tempState = tempState.filter((z)=>{
-                    if(z.id!=id){
-                      return x
-                    }
-                  })
-                  setMechanicList(tempState);
-                  setDeleteView(false);
-                  setLoad(false);
-            }
-        })
-    }
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState((MechanicList.length/5));
-    const [startIndex, setStartIndex] = useState(0)
-
-    const [increment, setIncrement] = useState(false);
-
-    useEffect(() => {
-        setTotalPages(MechanicList.length/8);
-    }, [MechanicList])
-    
-    useEffect(() => {
-        console.log(startIndex)
-        if(page===1){
-            setStartIndex(0);
-        }else if(page>1){
-            increment==true?setStartIndex(startIndex+8):setStartIndex(startIndex-8)
-        }
-    }, [page])
 
   return (
     <div className='online-form pt-5' >
+        {available && 
+        <div>
         <div className='text-center'>
-            <img src={'/assets/images/white png logo.png'} width={140} height={70} />
-            <h3 className='wh'>Online Registration</h3>
-        </div>    
-        <Container className='box mt-4 px-4 py-5' style={{maxWidth:'600px'}}>
-        <Form onSubmit={edit==true?editMechanic:addAgent}>
-        <Row>
-            <Col>
-                <Form.Group className="mb-3" controlId="First Name">
-                    <Form.Label>First Name</Form.Label>
-                    <input 
-                        type="text" placeholder="first Name..." required value={f_name} onChange={(e)=>setF_name(e.target.value)} 
-                        style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
-                    />
+        <img src={'/assets/images/white png logo.png'} width={140} height={70} />
+        <h3 className='wh'>Online Registration</h3>
+    </div>    
+    <Container className='box mt-4 px-4 py-5' style={{maxWidth:'600px'}}>
+    <Form onSubmit={addAgent}>
+    <Row>
+        <Col>
+            <Form.Group className="mb-3" controlId="First Name">
+                <Form.Label>First Name</Form.Label>
+                <input 
+                    type="text" placeholder="first Name..." required value={f_name} onChange={(e)=>setF_name(e.target.value)} 
+                    style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                />
+            </Form.Group>
+        </Col>
+        <Col>
+            <Form.Group className="mb-3" controlId="Last Name">
+                <Form.Label>Last Name</Form.Label>
+                <input 
+                    style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                    type="text" placeholder="last Name..." required value={l_name} onChange={(e)=>setL_Name(e.target.value)}
+                />
+            </Form.Group>                
+        </Col>
+    </Row>      
+    <Row>
+        <Col>
+            <Form.Group className="mb-3" controlId="Email">
+                <Form.Label>Email</Form.Label>
+                <input
+                style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                type="email" required placeholder="email..." value={email} onChange={(e)=>setEmail(e.target.value)} />
+                {mailWarn==true && <Form.Text style={{color:'crimson'}}> Email Not Unique  </Form.Text>}
                 </Form.Group>
-            </Col>
-            <Col>
-                <Form.Group className="mb-3" controlId="Last Name">
-                    <Form.Label>Last Name</Form.Label>
-                    <input 
-                        style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
-                        type="text" placeholder="last Name..." required value={l_name} onChange={(e)=>setL_Name(e.target.value)}
-                    />
+                </Col>
+                <Col>
+                <Form.Group className="mb-3" controlId="Shop ID">
+                    <Form.Label>Shop ID</Form.Label>
+                    <select aria-label="Default select example" required value={location} onChange={(e)=>setLocation(e.target.value)}
+                        style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'5px', backgroundColor:'white'}}
+                        >
+                            <option value="male">Location-1</option>
+                            <option value="female">Location-2</option>
+                        </select>
                 </Form.Group>                
             </Col>
-        </Row>      
-        <Row>
-            <Col>
-                <Form.Group className="mb-3" controlId="Email">
-                    <Form.Label>Email</Form.Label>
-                    <input
-                    style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
-                    type="email" required placeholder="email..." value={email} onChange={(e)=>setEmail(e.target.value)} />
-                    {mailWarn==true && <Form.Text style={{color:'crimson'}}> Email Not Unique  </Form.Text>}
-                    </Form.Group>
-                    </Col>
-                    <Col>
-                    <Form.Group className="mb-3" controlId="Shop ID">
-                        <Form.Label>Shop ID</Form.Label>
-                        <select aria-label="Default select example" required value={gender} onChange={(e)=>setGender(e.target.value)}
-                            style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'5px', backgroundColor:'white'}}
-                            >
-                                <option value="male">Location-1</option>
-                                <option value="female">Location-2</option>
-                            </select>
-                    </Form.Group>                
-                </Col>
-        </Row>
-        <Row>
-    
-        </Row>
-        <Row>
-            <Col md={6}>
-                <Form.Group className="mb-3" controlId="Phone">
-                    <Form.Label>Phone</Form.Label>
-                    <NumberFormat
-                            format="(+#)###-###-####"
-                            style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
-                            mask="_"
-                            allowEmptyFormatting={true}
-                            required value={phone} onChange={(e)=>setPhone(e.target.value)}
-                        />
-                        {phoneWarn==true && <Form.Text style={{color:'crimson'}}> Phone Already Exists </Form.Text>}
-                </Form.Group>
-            </Col>
-        </Row>
-        <Row>
-            <Col>
-                <Form.Group className="mb-3" controlId="Address">
-                    <Form.Label>Detailed Address</Form.Label>
-                    <input
-                    style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
-                    type="text" placeholder="address..." required value={address} onChange={(e)=>setAddress(e.target.value)}/>
-                </Form.Group>
-            </Col>
-        </Row>
-            <Button variant="primary" type="submit">
-                {load==true?<Spinner className='mx-4' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:(edit==true?"Update":'Create')}
-            </Button>
-        </Form>
-        </Container>
+    </Row>
+    <Row>
+
+    </Row>
+    <Row>
+        <Col md={6}>
+            <Form.Group className="mb-3" controlId="Phone">
+                <Form.Label>Phone</Form.Label>
+                <NumberFormat
+                        format="(+#)###-###-####"
+                        style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                        mask="_"
+                        allowEmptyFormatting={true}
+                        required value={phone} onChange={(e)=>setPhone(e.target.value)}
+                    />
+                    {phoneWarn==true && <Form.Text style={{color:'crimson'}}> Phone Already Exists </Form.Text>}
+            </Form.Group>
+        </Col>
+    </Row>
+    <Row>
+        <Col>
+            <Form.Group className="mb-3" controlId="Address">
+                <Form.Label>Detailed Address</Form.Label>
+                <input
+                style={{border:'1px solid silver', borderRadius:'5px', width:"100%", height:'39px', paddingLeft:'15px'}}
+                type="text" placeholder="address..." required value={address} onChange={(e)=>setAddress(e.target.value)}/>
+            </Form.Group>
+        </Col>
+    </Row>
+        <Button variant="primary" type="submit">
+            {load==true?<Spinner className='mx-4' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:(edit==true?"Update":'Create')}
+        </Button>
+    </Form>
+    </Container>
+        </div>
+        }
+        {
+            !available && <h5 className='wh text-center'>Sorry, the following link expired</h5>
+        }
     </div>
   )
 }
