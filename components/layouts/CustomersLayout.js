@@ -193,7 +193,7 @@ const CustomersLayout = ({customers}) => {
             ).then((x)=>{
             console.log(x.data.id);
             setLinkShow(true)
-            setLink(`http://localhost:3000/userForm?id=${x.data.id}`)
+            setLink(`${process.env.NEXT_PUBLIC_TI_URL}/userForm?id=${x.data.id}`)
         })
     }
     const [page, setPage] = useState(1);
@@ -457,7 +457,7 @@ const CustomersLayout = ({customers}) => {
         </Modal.Header>
         <Modal.Body>
         <span><h6>Copy The Following Link <span style={{color:'crimson'}}>{f_name} {l_name}</span></h6></span>
-            {link}
+            <div style={{color:'grey'}}>{link}</div>
         </Modal.Body>
       </Modal>
     </div>
