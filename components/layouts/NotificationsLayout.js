@@ -24,7 +24,7 @@ const NotificationsLayout = ({notifications}) => {
                     {
                     notifications.map((note,index)=>{
                     return(
-                    <div className='box-notifications my-3'>
+                    <div className='box-notifications my-3' key={index}>
                     <Row>
                         <Col style={{maxWidth:'60px'}}>
                             <img src={Cookies.get('picture')} className="picture-notification" />
