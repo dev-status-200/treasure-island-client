@@ -99,6 +99,7 @@
         padding: 0px 4px 3px 4px;
         left: -8px;
     }
+
     ul:hover {
     }
     .top-bar{
@@ -121,6 +122,12 @@
         border-left: 1px solid #1A73EB;
         padding-left: 20px;
         height: 59px;
+        width: 200px;
+    }
+    .login_pic{
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
     }
     .user-type{
         font-size: 11px;

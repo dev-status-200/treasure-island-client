@@ -103,8 +103,26 @@ const MainLayout = ({children}) => {
                 <Row>
                     <Col md={12} className="top-bar">
                     <div className='user'>
+                    <Row>
+                    <Col md={3}>
+                        <img src={Cookies.get('picture')} className="login_pic" />
+                    </Col>
+                    <Col >
                         {Cookies.get('username')}<br/>
                         <span className='user-type'>{Cookies.get('role_id')}</span>
+                    </Col>
+                    </Row>
+                        {/*<span>
+                            <img src={Cookies.get('picture')} className="login_pic" />
+                        </span>
+                        <span>
+                            <div>
+                                {Cookies.get('username')}<br/>
+                            </div>
+                            <div>
+                                <span className='user-type'>{Cookies.get('role_id')}</span>
+                            </div>
+                        </span>*/}
                     </div>
                     <div className='notification-bell'><AiFillBell/></div>
                     <div className="location">

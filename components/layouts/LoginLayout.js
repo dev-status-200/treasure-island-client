@@ -28,6 +28,7 @@ const LoginLayout = () => {
           Cookies.set('username', jwt_decode(x.data.token).username, { expires: 1 })
           Cookies.set('role_id', jwt_decode(x.data.token).role_id, { expires: 1 })
           Cookies.set('loginId', jwt_decode(x.data.token).loginId, { expires: 1 })
+          Cookies.set('picture', jwt_decode(x.data.token).picture, { expires: 1 })
           Router.push('/dashboard')
       }else if(x.data.message=="Invalid"){
           setLoading(false)

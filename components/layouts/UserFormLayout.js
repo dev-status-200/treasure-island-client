@@ -4,8 +4,8 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 import NumberFormat from "react-number-format";
 import { useRouter } from 'next/router'
-const UserFormLayout = () => {
 
+const UserFormLayout = () => {
     
     const router = useRouter();
 

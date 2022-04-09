@@ -2,9 +2,11 @@ import React from 'react'
 import axios from 'axios'
 import Cookies from 'cookies'
 import Router from 'next/router'
+import ServiceLayout from '../components/layouts/ServiceLayout'
+
 
 const Services = ({sessionData}) => {
-        
+
   React.useEffect(() => {
     console.log(sessionData)
     if(sessionData.isLoggedIn==true){
@@ -15,11 +17,11 @@ const Services = ({sessionData}) => {
   }, [])
 
   return (
-    <div>services</div>
+    <div><ServiceLayout/></div>
   )
 }
-
 export default Services
+
 
 export async function getServerSideProps({req,res}) {
 

@@ -14,7 +14,11 @@
 .f15{
     font-size: 15px;
 }
-
+.picture-notification{
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+}
 .global-btn{
     border: none;
     border-radius: 3px;
@@ -38,6 +42,17 @@
     border-radius: 8px;
     padding: 15px;
 
+    box-shadow: 0px 0px 15px -10px rgba(20,20,20,0.75);
+    -webkit-box-shadow: 0px 0px 15px -10px rgba(20,20,20,0.75);
+    -moz-box-shadow: 0px 0px 15px -10px rgba(20,20,20,0.75);
+}
+.box-notifications{
+    background-color: white;
+    min-height: 50px;
+    border-radius: 8px;
+    padding: 5px;
+    color: grey;
+    font-size: 14px;
     box-shadow: 0px 0px 15px -10px rgba(20,20,20,0.75);
     -webkit-box-shadow: 0px 0px 15px -10px rgba(20,20,20,0.75);
     -moz-box-shadow: 0px 0px 15px -10px rgba(20,20,20,0.75);
