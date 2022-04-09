@@ -1,0 +1,58 @@
+.service-styles{
+    .service-card{
+        min-height: 40px;
+        width: 100%;
+        border: 1px solid silver;
+        border-radius: 15px;
+        background-color: white;
+        box-shadow: 10px 10px 27px -11px rgba(0,0,0,0.75);
+        -webkit-box-shadow: 10px 10px 27px -11px rgba(0,0,0,0.75);
+        -moz-box-shadow: 10px 10px 27px -11px rgba(0,0,0,0.75);
+    }
+    .service-card-pic{
+        width: 100%;
+    }
+    .left{
+    }
+    .right{
+        position: relative;
+        right: -70%;
+    }
+    .detail-service{
+        font-size: 14px;
+        color: grey;
+    }
+    @media screen and (min-width: 1299px) {
+        .left{
+        }
+        .service-left{
+            margin-left: 40px;
+        }
+        .right{
+            position: relative;
+            right: -50%;
+        }
+      }
+      @media screen and (min-width: 1400px) {
+        .left{
+        }
+        .service-left{
+            margin-left: 20px;
+        }
+        .right{
+            position: relative;
+            right: -55%;
+        }
+      }
+    @media screen and (min-width: 1600px) {
+        .left{
+        }
+        .service-left{
+            margin-left: 10px;
+        }
+        .right{
+            position: relative;
+            right: -60%;
+        }
+      }
+}
