@@ -8,12 +8,14 @@ import { ImPhone, ImCreditCard } from "react-icons/im";
 import { MdMailOutline, MdLocationOn, MdOutlineMode } from "react-icons/md";
 import { RiSortDesc } from "react-icons/ri";
 import NumberFormat from "react-number-format";
-import Router from 'next/router'
+import Router,{ useRouter } from 'next/router'
 import { FaIdCard, FaEnvelope } from "react-icons/fa";
 
 const MechanicsLayout = ({mechanics}) => {
 
     const location = useSelector((state) => state.location.value)
+
+    const router = useRouter();
 
     const [show, setShow] = useState(false);
     const [change, setChange] = useState(false);
@@ -275,6 +277,16 @@ const MechanicsLayout = ({mechanics}) => {
     useEffect(() => {
         setPage(1);
     }, [location])
+    // for displaying mechanic view
+    useEffect(() => {
+      if(router.query.id){
+          MechanicList.find((x)=>{
+              if(x.id==router.query.id){
+                  viewMechanic(x);
+              }
+          })
+        }
+    }, [router.query.id, MechanicList])
     
 
   return (
@@ -344,7 +356,9 @@ const MechanicsLayout = ({mechanics}) => {
                         <td className='phone py-3 px-5'>0</td>
                         <td className='phone py-3 px-5'>0</td>
                         <td className='phone py-3'>
-                            <AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />
+                            <AiFillEye className='blue icon-trans' 
+                                onClick={()=>{Router.push({pathname:'/mechanics', query:{id:mech.id}}); viewMechanic(mech)}} 
+                            />
                             <AiFillEdit className='yellow icon-trans' onClick={()=>{editFields(mech);}} />
                             <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
                         </td>
