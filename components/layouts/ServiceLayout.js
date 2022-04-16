@@ -130,8 +130,8 @@ const ServiceLayout = ({parts}) => {
       <div style={{maxHeight:'640px', overflowY:'auto', overflowX:'hidden'}}>
       <Row>
         <Col>
+        <span className='service-left px-1' style={{color:'grey'}}> Detail </span>
           <button className='global-btn mx-1' onClick={handleClose}>{"< Back"}</button>
-          <span className='service-left' style={{color:'grey'}}> Detail </span>
         </Col>
       </Row>
       <Row className=' mx-1'>
@@ -161,7 +161,7 @@ const ServiceLayout = ({parts}) => {
           {
             cars.map((serv, index)=>{
               return(
-          <div className='mt-1 service-box'>
+          <div className='mt-3 service-box'>
             <Row>
                 <Col>
                 <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
@@ -219,37 +219,44 @@ const ServiceLayout = ({parts}) => {
           </Row>
           <Row>
             <Col>
+            <Row className='mt-2 px-1' ><Col><span className='service-left' style={{color:'grey'}}>Pricing </span></Col></Row>
               <div className='box px-5 mt-2 mx-3 car-box'>
-              <Row>
-                {/*<Col md={1}>
-                  <div>Car</div>
-                  <div className='car-heading'>Audi-R8</div>
-                </Col>*/}
-                  <Col>
-                  <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
-                    <Form.Label>Parts Cost</Form.Label>
-                    <Form.Control type="text" size="sm" placeholder="" />
-                  </Form.Group>
-                  </Col>
-                  <Col>
-                  <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
-                    <Form.Label>Labour cost</Form.Label>
-                    <Form.Control type="text" size="sm" placeholder="" />
-                  </Form.Group>
-                  </Col>
-                  <Col>
-                  <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
-                    <Form.Label>Discount</Form.Label>
-                    <Form.Control type="text" size="sm" placeholder="" />
-                  </Form.Group>
-                  </Col>
-                  <Col>
-                  <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
-                    <Form.Label>Estimate Cost</Form.Label>
-                    <Form.Control type="text" size="sm" placeholder="" />
-                  </Form.Group>
-                  </Col>
-              </Row>
+              {
+                cars.map((serv, index)=>{
+                  return(
+                    <Row>
+                      {/*<Col md={1}>
+                        <div>Car</div>
+                        <div className='car-heading'>Audi-R8</div>
+                      </Col>*/}
+                        <Col>
+                        <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
+                          <Form.Label>Parts Cost</Form.Label>
+                          <Form.Control type="text" size="sm" placeholder="" />
+                        </Form.Group>
+                        </Col>
+                        <Col>
+                        <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
+                          <Form.Label>Labour cost</Form.Label>
+                          <Form.Control type="text" size="sm" placeholder="" />
+                        </Form.Group>
+                        </Col>
+                        <Col>
+                        <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
+                          <Form.Label>Discount</Form.Label>
+                          <Form.Control type="text" size="sm" placeholder="" />
+                        </Form.Group>
+                        </Col>
+                        <Col>
+                        <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
+                          <Form.Label>Estimate Cost</Form.Label>
+                          <Form.Control type="text" size="sm" placeholder="" />
+                        </Form.Group>
+                        </Col>
+                    </Row>
+                  )
+                })
+              }
               </div>
             </Col>
           </Row>
