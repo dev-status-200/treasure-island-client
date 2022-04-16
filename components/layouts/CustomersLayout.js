@@ -524,7 +524,7 @@ const CustomersLayout = ({customers, customersUnapproved}) => {
                 {
                     unAppCustomerList.map((cust, index)=>{
                         return(
-                            <tr>
+                            <tr key={cust.id}>
                                 <td>{cust.f_name} {cust.l_name}</td>
                                 <td>{cust.address}</td>
                                 <td>{cust.phone}</td>
