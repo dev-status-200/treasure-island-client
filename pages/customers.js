@@ -4,7 +4,7 @@ import Cookies from 'cookies'
 import Router from 'next/router'
 import CustomersLayout from '../components/layouts/CustomersLayout'
 
-const Customers = ({sessionData, customers}) => {
+const Customers = ({sessionData, customers, customersUnapproved}) => {
 
   useEffect(() => {
     console.log(sessionData)
@@ -16,7 +16,7 @@ const Customers = ({sessionData, customers}) => {
   }, [])
 
   return (
-    <div><CustomersLayout customers={customers} /></div>
+    <div><CustomersLayout customers={customers} customersUnapproved={customersUnapproved} /></div>
   )
 }
 
@@ -32,14 +32,20 @@ export async function getServerSideProps({req,res}) {
     }).then((x)=>x.data)
   const dataone = await requestOne
 
-      const config = {
+    const config = {
         method: 'get', headers: { 'Content-Type': 'application/json' }, url: `${process.env.NEXT_PUBLIC_TI_GET_CUSTOMERS}`,
         data : {  }
     };
+    const configTwo = {
+        method: 'get', headers: { 'Content-Type': 'application/json' }, url: `${process.env.NEXT_PUBLIC_TI_GET_UNAPPROVED_CUSTOMERS}`,
+        data : {  }
+    };
     const requestTwo = await axios(config);
+    const requestThree = await axios(configTwo);
     const customers = await requestTwo.data;
+    const customersUnapproved = await requestThree.data;
 
   return{
-      props: { sessionData: dataone, customers:customers }
+      props: { sessionData: dataone, customers:customers, customersUnapproved:customersUnapproved }
   }
 }

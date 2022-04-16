@@ -11,7 +11,7 @@ import NumberFormat from "react-number-format";
 import Router from 'next/router'
 import { FaIdCard, FaEnvelope } from "react-icons/fa";
 
-const CustomersLayout = ({customers}) => {
+const CustomersLayout = ({customers, customersUnapproved}) => {
 
     const location = useSelector((state) => state.location.value);
 
@@ -31,16 +31,32 @@ const CustomersLayout = ({customers}) => {
     const [edit, setEdit] = useState(false);
     const [load, setLoad] = useState(false);
     const [deleteView, setDeleteView] = useState(false);
-
+    const [RequestShow, setRequestShow] = useState(false);
 
     const [mailWarn, setMailWarn] = useState(false);
     const [phoneWarn, setPhoneWarn] = useState(false);
 
-    const [MechanicList,setMechanicList] = useState([]);
+    const [MechanicList, setMechanicList] = useState([]);
+
+    const [unAppCustomerList, setUnAppCustomerList] = useState([]);
+
+    const [unAppCustomer, setUnAppCustomer] = useState(false);
 
     useEffect(() => {
-        setMechanicList(customers)
+        setMechanicList(customers);
+        setUnAppCustomerList(customersUnapproved);
     }, [])
+
+    useEffect(() => {
+        if(unAppCustomerList.length>0){
+            console.log('incoming requests');
+            setUnAppCustomer(true)
+        }else{
+            setUnAppCustomer(false)
+        }
+    }, [unAppCustomerList])
+    
+
     const getMail = async() => {
         let res = await axios.get(process.env.NEXT_PUBLIC_TI_CUSTOMERS_EMAILS).then((x)=>(x.data));
         console.log(res)
@@ -207,7 +223,6 @@ const CustomersLayout = ({customers}) => {
     }, [MechanicList])
     
     useEffect(() => {
-        console.log(startIndex)
         if(page===1){
             setStartIndex(0);
         }else if(page>1){
@@ -219,7 +234,30 @@ const CustomersLayout = ({customers}) => {
         setPage(1);
     }, [location])
 
+    const approveClient = (cust) => {
 
+        axios.put(process.env.NEXT_PUBLIC_TI_APPROVE_CUSTOMERS,{id:cust.id}).then((x)=>{
+            if(x.data[0]=='1'){
+                //console.log(cust)
+                let tempState = [...unAppCustomerList];
+                let tempState2 = [...MechanicList];
+        
+                tempState = tempState.filter((z)=>{
+                    if(z.id==cust.id){
+                        z.approved="approved";
+                        tempState2.push(z);
+                    }else if(z.id!=cust.id){
+                        return z
+                    }
+                  })
+                  console.log(tempState2);
+                  setMechanicList(tempState2);
+                  setUnAppCustomerList(tempState);
+            }
+        })
+
+
+    }
 
   return (
     <div className='mechanic-styles'>
@@ -228,7 +266,7 @@ const CustomersLayout = ({customers}) => {
             <Row className=''>
                <Col>
                     <span style={{color:'grey'}}> Customers </span>
-                    <span><button className='global-btn mx-2' onClick={handleShow}> Add new</button></span>
+                    <span><button className='global-btn mx-2' onClick={()=>setRequestShow(true)}> Requests</button><div className={unAppCustomer?'notification-red':'notification-grey'}></div></span>
                     <span><button className='global-btn mx-2' onClick={createLink}> Create Link</button></span>
                </Col>
                <Col>
@@ -460,6 +498,47 @@ const CustomersLayout = ({customers}) => {
             <div style={{color:'grey'}}>{link}</div>
         </Modal.Body>
       </Modal>
+      <Modal
+      show={RequestShow}
+      onHide={()=>setRequestShow(false)}
+      backdrop="static"
+      size='xl'
+      keyboard={false}
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>Up Coming Requests</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div className='unApproveList'>
+        <Table>
+            <thead>
+                <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Phone</th>
+                <th>Car</th>
+                <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {
+                    unAppCustomerList.map((cust, index)=>{
+                        return(
+                            <tr>
+                                <td>{cust.f_name} {cust.l_name}</td>
+                                <td>{cust.address}</td>
+                                <td>{cust.phone}</td>
+                                <td>{cust.Cars[0].make} {cust.Cars[0].model} {cust.Cars[0].year}</td>
+                                <td><Button className='approve-btn' size="sm" onClick={()=>approveClient(cust)}>Approve</Button></td>
+                            </tr>
+                        )
+                    })
+                }
+            </tbody>
+        </Table>
+        </div>
+      </Modal.Body>
+    </Modal>
     </div>
   )
 }

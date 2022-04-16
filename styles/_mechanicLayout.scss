@@ -4,12 +4,34 @@
         color: rgb(161, 161, 161);
         font-size: 12px;
     }
+    .notification-red{
+        width: 10px;
+        height: 10px;
+        background-color: red;
+        position: relative;
+        display: inline-block;
+        right: 15px;
+        bottom: 17px;
+        border-radius: 50%;
+    }
+    .notification-grey{
+        width: 10px;
+        height: 10px;
+        background-color: rgba(165, 165, 165, 0.966);
+        position: relative;
+        display: inline-block;
+        right: 15px;
+        bottom: 17px;
+        border-radius: 50%;
+    }
     .image{
         height: 40px;
         width: 40px;
         border-radius: 25px;
     }
     .pic-frame{
+    }
+    .unApproveList{
     }
     .box-two{
         background-color: white;
