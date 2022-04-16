@@ -161,7 +161,7 @@ const ServiceLayout = ({parts}) => {
           {
             cars.map((serv, index)=>{
               return(
-          <div className='mt-3 service-box'>
+          <div className='mt-3 service-box' key={index}>
             <Row>
                 <Col>
                 <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
@@ -224,7 +224,7 @@ const ServiceLayout = ({parts}) => {
               {
                 cars.map((serv, index)=>{
                   return(
-                    <Row>
+                    <Row key={index}>
                       {/*<Col md={1}>
                         <div>Car</div>
                         <div className='car-heading'>Audi-R8</div>
