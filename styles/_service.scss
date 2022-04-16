@@ -22,6 +22,25 @@
         font-size: 14px;
         color: grey;
     }
+    .car-heading{
+        color: grey;
+        margin-top: 10px;
+    }
+    .service-box{
+    }
+    .car-box{
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .plus{
+        cursor: pointer;
+        background-color: white ;
+        padding: 4px 10px 4px 10px;
+        border: 1px solid grey;
+        border-radius: 50%;
+        position: relative;
+        bottom: 20px;
+    }
     @media screen and (min-width: 1299px) {
         .left{
         }

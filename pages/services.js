@@ -5,7 +5,7 @@ import Router from 'next/router'
 import ServiceLayout from '../components/layouts/ServiceLayout'
 
 
-const Services = ({sessionData}) => {
+const Services = ({sessionData, parts}) => {
 
   React.useEffect(() => {
     console.log(sessionData)
@@ -17,7 +17,7 @@ const Services = ({sessionData}) => {
   }, [])
 
   return (
-    <div><ServiceLayout/></div>
+    <div><ServiceLayout parts={parts} /></div>
   )
 }
 export default Services
@@ -32,8 +32,11 @@ export async function getServerSideProps({req,res}) {
       }
     }).then((x)=>x.data)
   
+  const requestTwo = await axios.get(process.env.NEXT_PUBLIC_TI_GET_PARTS).then((x)=>x.data)
+  
   const dataone = await requestOne
+  const datatwo = await requestTwo
   return{
-      props: { sessionData: dataone }
+      props: { sessionData: dataone, parts:datatwo }
   }
 }
