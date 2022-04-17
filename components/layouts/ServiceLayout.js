@@ -4,27 +4,32 @@ import { AiFillDelete, AiFillEdit, AiFillEye ,AiOutlineSearch, AiFillEyeInvisibl
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import NumberFormat from "react-number-format";
-import { useRouter } from 'next/router'
+import Router, { useRouter } from 'next/router'
 import Select from 'react-select';
 import { useSetState } from 'react-use';
 
-const ServiceLayout = ({parts}) => {
+const ServiceLayout = ({parts, servicesData}) => {
 
   const [show, setShow] = useState(false);
+  const [load, setLoad] = useState(false);
   const [cars, setCars] = useState([{index:1}]);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  const [name, setName] = useState("");
   const [image, setImage] = useState();
   const [state, setState] = useSetState({
-    serviceList:[{index:0, make:'', model:'', from:0, to:0, partList:"", partCost:0, labourCost:0, discount:0, estimateCost:0}]
+    serviceList:[{index:0, make:'', model:'', from:0, to:0, partList:"", partCost:0.00, labourCost:0.00, discount:0.00, estimateCost:0}]
   });
   const [partList, setPartList] = useState([]);
 
-  const [priceChange, setPriceChange] = useState(false)
+  const [priceChange, setPriceChange] = useState(false);
+  const [servicesList, setServicesList] = useState([]);
 
   useEffect(() => {
+    console.log(servicesData)
+    setServicesList(servicesData);
     let tempState = [];
     parts.forEach(x => {
       tempState.push({label:`${x.part_number} (${x.brand_name} ${x.part_name}) $ ${x.cost}`, value:x.id})
@@ -41,7 +46,24 @@ const ServiceLayout = ({parts}) => {
     setState({serviceList:tempStateTwo});
     console.log(tempStateTwo);
   }
+  async function uploadImage(){
+      let value = '';
+        const data = new FormData()
+        data.append("file", image)
+        data.append("upload_preset", "g4hjcqh7")
+        data.append("cloud_name", "abdullah7c")
+        value = await fetch(`https://api.cloudinary.com/v1_1/abdullah7c/image/upload`, {
+            method: "post",
+            body: data
+        })
+            .then(resp => resp.json())
+            .then(data => data.url)
+            .catch(err => console.log(err));
+        setImage(value);
+        console.log(value)
 
+      return value;
+  }
   useEffect(() => {
     console.log('useeffect Hit')
     let tempState = state.serviceList;
@@ -53,8 +75,36 @@ const ServiceLayout = ({parts}) => {
     });
     console.log(estimate)
     setState({serviceList:tempState})
-  }, [priceChange])
-  
+  }, [priceChange]);
+  const createService = async(e) => {
+    e.preventDefault();
+    setLoad(true)
+    axios.post(process.env.NEXT_PUBLIC_TI_CREATE_SERVICE,{name:name, image: await uploadImage(), service:state.serviceList}).then((x)=>{
+      Router.reload("/services")
+    })
+  } 
+
+  const maxVal = (vals) => {
+    let values = [];
+    vals.forEach((x, index)=>{
+      values[index] = x.estimate
+    })
+    return Math.max(values)
+  }
+  const maxValCost = (vals) => {
+    let values = [];
+    vals.forEach((x, index)=>{
+      values[index] = x.labourCost
+    })
+    return Math.max(values)
+  }
+  const maxValparts = (vals) => {
+    let values = [];
+    vals.forEach((x, index)=>{
+      values[index] = x.partsCost
+    })
+    return Math.max(values)
+  }
 
   return (
     <div className='service-styles'>
@@ -63,92 +113,44 @@ const ServiceLayout = ({parts}) => {
       <Row>
         <Col><span className='service-left' style={{color:'grey'}}> Services </span><button className='global-btn mx-2' onClick={handleShow}> Add new</button></Col>
       </Row>
-      <Row className='mt-5 mx-3'>
-        <Col md={3} className='mx-1'>
-          <div className='service-card'>
-            <img src={'/assets/images/car.PNG'} className='service-card-pic' />
-            <div>
-              <div className=' mx-2'>
-                <h6 className='text-center  my-3'><b>Tuning & Serice</b></h6>
-                <div className='detail-service'>
-                  <span className='left'>Total Cost</span>
-                  <span className='right'>100 $</span>
+        <div style={{maxHeight:'400px'}}>
+        <Row className='mt-5 mx-3'>
+        {
+          servicesData.map((serv, index)=>{
+            return(
+              <Col md={3} key={index} className='mx-1 mt-3'>
+                <div className='service-card'>
+                  <img src={serv.image} className='service-card-pic' />
+                  <div>
+                    <div className=' mx-2'>
+                      <h6 className='text-center  my-3'><b>{serv.name}</b></h6>
+                      <div className='detail-service'>
+                        <span className='left'>Total Cost</span>
+                        <span className='right'>{maxVal(serv.Servicecars)} $</span>
+                      </div>
+                      <hr className='my-2' />
+                      <div className='detail-service'>
+                        <span className='left'>Labour Cost</span>
+                        <span className='right'>{maxValCost(serv.Servicecars)} $</span>
+                      </div>
+                      <hr className='my-2' />
+                      <div className='detail-service'>
+                      <span className='left'>Parts Cost</span>
+                      <span className='right'>{maxValparts(serv.Servicecars)} $</span>
+                      </div>
+                      <hr className='mt-2' />
+                      <div className='text-center my-2'>
+                        <button className='global-btn px-5 my-3' > See Details </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <hr className='my-2' />
-                <div className='detail-service'>
-                  <span className='left'>Labour Cost</span>
-                  <span className='right'>50 $</span>
-                </div>
-                <hr className='my-2' />
-                <div className='detail-service'>
-                <span className='left'>Labour Cost</span>
-                <span className='right'>50 $</span>
-                </div>
-                <hr className='mt-2' />
-                <div className='text-center my-2'>
-                  <button className='global-btn px-5 my-3' > See Details </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-        <Col md={3} className='mx-1'>
-          <div className='service-card'>
-            <img src={'/assets/images/car.PNG'} className='service-card-pic' />
-            <div>
-              <div className=' mx-2'>
-                <h6 className='text-center  my-3'><b>Tuning & Serice</b></h6>
-                <div className='detail-service'>
-                  <span className='left'>Total Cost</span>
-                  <span className='right'>100 $</span>
-                </div>
-                <hr className='my-2' />
-                <div className='detail-service'>
-                  <span className='left'>Labour Cost</span>
-                  <span className='right'>50 $</span>
-                </div>
-                <hr className='my-2' />
-                <div className='detail-service'>
-                <span className='left'>Labour Cost</span>
-                <span className='right'>50 $</span>
-                </div>
-                <hr className='mt-2' />
-                <div className='text-center my-2'>
-                  <button className='global-btn px-5 my-3' > See Details </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-        <Col md={3} className='mx-1'>
-          <div className='service-card'>
-            <img src={'/assets/images/car.PNG'} className='service-card-pic' />
-            <div>
-              <div className=' mx-2'>
-                <h6 className='text-center  my-3'><b>Tuning & Serice</b></h6>
-                <div className='detail-service'>
-                  <span className='left'>Total Cost</span>
-                  <span className='right'>100 $</span>
-                </div>
-                <hr className='my-2' />
-                <div className='detail-service'>
-                  <span className='left'>Labour Cost</span>
-                  <span className='right'>50 $</span>
-                </div>
-                <hr className='my-2' />
-                <div className='detail-service'>
-                <span className='left'>Labour Cost</span>
-                <span className='right'>50 $</span>
-                </div>
-                <hr className='mt-2' />
-                <div className='text-center my-2'>
-                  <button className='global-btn px-5 my-3' > See Details </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Col>
-      </Row>
+              </Col>
+            )
+          })
+        }
+        </Row>
+        </div>
     </div>}
     {show &&
       <div style={{maxHeight:'640px', overflowY:'auto', overflowX:'hidden'}}>
@@ -161,7 +163,7 @@ const ServiceLayout = ({parts}) => {
       <Row className=' mx-1'>
       <Col><span className='service-left' style={{color:'grey'}}> </span></Col>
       </Row>
-      <Form>
+      <Form onSubmit={createService}>
       <Row>
         <Col>
           <div className='box px-5 mx-3'>
@@ -169,13 +171,13 @@ const ServiceLayout = ({parts}) => {
             <Col md={6}>
             <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
               <Form.Label>Name</Form.Label>
-              <Form.Control type="text" size="sm" placeholder="" />
+              <Form.Control type="text" size="sm" placeholder="" required value={name} onChange={(e)=>setName(e.target.value)} />
             </Form.Group>
             </Col>
             <Col md={6}>
             <Form.Group style={{minWidth:"300px", float:'right'}} className="mb-3"  controlId="formBasicEmail">
               <Form.Label>Image</Form.Label><br/>
-              <input type="file" size="sm" onChange={(e) => setImage(e.target.files[0])} required></input>
+              <input type="file" size="sm" required onChange={(e) => setImage(e.target.files[0])} ></input>
             </Form.Group>
             </Col>
           </Row>
@@ -305,7 +307,7 @@ const ServiceLayout = ({parts}) => {
                           value={state.serviceList[index].labourCost} 
                           onChange={(e)=>{
                             let tempState = state.serviceList;
-                            tempState[index].labourCost=e.target.value
+                            tempState[index].labourCost=parseFloat(e.target.value)
                             setState({serviceList:tempState});
                             setPriceChange(!priceChange);
                           }}  />
@@ -318,7 +320,7 @@ const ServiceLayout = ({parts}) => {
                           value={state.serviceList[index].discount} 
                           onChange={(e)=>{
                             let tempState = state.serviceList;
-                            tempState[index].discount=e.target.value
+                            tempState[index].discount=parseFloat(e.target.value)
                             setState({serviceList:tempState});
                             setPriceChange(!priceChange);
                           }}  />
@@ -338,6 +340,7 @@ const ServiceLayout = ({parts}) => {
               </div>
             </Col>
           </Row>
+          <Button type="submit" className='my-2 mx-3' >{load?<Spinner className='mx-4' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:"Submit"}</Button>
         </Form>
       </div>
     }
