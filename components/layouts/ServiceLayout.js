@@ -91,6 +91,13 @@ const ServiceLayout = ({parts, servicesData}) => {
     })
     return Math.max(values)
   }
+  const minVal = (vals) => {
+    let values = [];
+    vals.forEach((x, index)=>{
+      values[index] = x.estimate
+    })
+    return Math.max(values)
+  }
   const maxValCost = (vals) => {
     let values = [];
     vals.forEach((x, index)=>{
@@ -98,7 +105,21 @@ const ServiceLayout = ({parts, servicesData}) => {
     })
     return Math.max(values)
   }
+  const minValCost = (vals) => {
+    let values = [];
+    vals.forEach((x, index)=>{
+      values[index] = x.labourCost
+    })
+    return Math.max(values)
+  }
   const maxValparts = (vals) => {
+    let values = [];
+    vals.forEach((x, index)=>{
+      values[index] = x.partsCost
+    })
+    return Math.max(values)
+  }
+  const minValparts = (vals) => {
     let values = [];
     vals.forEach((x, index)=>{
       values[index] = x.partsCost
@@ -126,17 +147,17 @@ const ServiceLayout = ({parts, servicesData}) => {
                       <h6 className='text-center  my-3'><b>{serv.name}</b></h6>
                       <div className='detail-service'>
                         <span className='left'>Total Cost</span>
-                        <span className='right'>{maxVal(serv.Servicecars)} $</span>
+                        <span className='right'>{minVal(serv.Servicecars)} $ - {maxVal(serv.Servicecars)} $</span>
                       </div>
                       <hr className='my-2' />
                       <div className='detail-service'>
                         <span className='left'>Labour Cost</span>
-                        <span className='right'>{maxValCost(serv.Servicecars)} $</span>
+                        <span className='right'>{minValCost(serv.Servicecars)} $ - {maxValCost(serv.Servicecars)} $</span>
                       </div>
                       <hr className='my-2' />
                       <div className='detail-service'>
                       <span className='left'>Parts Cost</span>
-                      <span className='right'>{maxValparts(serv.Servicecars)} $</span>
+                      <span className='right'>{minValparts(serv.Servicecars)} $ - {maxValparts(serv.Servicecars)} $</span>
                       </div>
                       <hr className='mt-2' />
                       <div className='text-center my-2'>
