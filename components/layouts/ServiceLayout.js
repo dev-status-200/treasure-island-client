@@ -18,19 +18,43 @@ const ServiceLayout = ({parts}) => {
 
   const [image, setImage] = useState();
   const [state, setState] = useSetState({
-    serviceList:[{index:0, make:'', model:'', from:0, to:0, partList:[], partCost:0, labourCost:0, discount:0, estimateCost:0}]
-  })
+    serviceList:[{index:0, make:'', model:'', from:0, to:0, partList:"", partCost:0, labourCost:0, discount:0, estimateCost:0}]
+  });
   const [partList, setPartList] = useState([]);
 
+  const [priceChange, setPriceChange] = useState(false)
 
   useEffect(() => {
     let tempState = [];
     parts.forEach(x => {
-      tempState.push({label:`${x.part_number} (${x.brand_name} ${x.part_name})`, value:x.id})
+      tempState.push({label:`${x.part_number} (${x.brand_name} ${x.part_name}) $ ${x.cost}`, value:x.id})
     });
-    //setState({serviceList:...tempState})
-    setPartList(tempState)
+    setPartList(tempState);
   }, [])
+
+  const extendCar = () => {
+    let tempState = [...cars];
+    let tempStateTwo = state.serviceList;
+    tempState.push({index:1});
+    tempStateTwo.push({index:0, make:'', model:'', from:0, to:0, partList:[], partCost:0, labourCost:0, discount:0, estimateCost:0})
+    setCars(tempState);
+    setState({serviceList:tempStateTwo});
+    console.log(tempStateTwo);
+  }
+
+  useEffect(() => {
+    console.log('useeffect Hit')
+    let tempState = state.serviceList;
+    let estimate = 0;
+    tempState.forEach((x, index)=>{
+      estimate = x.partCost + parseFloat(x.labourCost) - parseFloat(x.discount)
+      console.log(x.partCost)
+      x.estimateCost = estimate
+    });
+    console.log(estimate)
+    setState({serviceList:tempState})
+  }, [priceChange])
+  
 
   return (
     <div className='service-styles'>
@@ -166,22 +190,46 @@ const ServiceLayout = ({parts}) => {
                 <Col>
                 <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
                   <Form.Label>Make</Form.Label>
-                  <Form.Control type="text" size="sm" placeholder="" />
+                  <Form.Control type="text" size="sm" placeholder="" 
+                  value={state.serviceList[index].make} 
+                  onChange={(e)=>{
+                    let tempState = state.serviceList;
+                    tempState[index].make=e.target.value
+                    setState({serviceList:tempState})
+                  }} />
                 </Form.Group>
                 </Col>
                 <Col>
                 <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
                   <Form.Label>Model</Form.Label>
-                  <Form.Control type="text" size="sm" placeholder="" />
+                  <Form.Control type="text" size="sm" placeholder="" 
+                  value={state.serviceList[index].model} 
+                  onChange={(e)=>{
+                    let tempState = state.serviceList;
+                    tempState[index].model=e.target.value
+                    setState({serviceList:tempState})
+                  }}  />
                 </Form.Group>
                 </Col>
                 <Col>
                 <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
                   <Form.Label>Year</Form.Label>
                   <br/>
-                  <span><Form.Control type="text" className=''  size="sm" style={{maxWidth:'40%', display:'inline-block'}} placeholder="" /></span>
+                  <span><Form.Control type="text" className=''  size="sm" style={{maxWidth:'40%', display:'inline-block'}} placeholder=""
+                  value={state.serviceList[index].from} 
+                  onChange={(e)=>{
+                    let tempState = state.serviceList;
+                    tempState[index].from=e.target.value
+                    setState({serviceList:tempState})
+                  }}  /></span>
                   <span className='mx-2'>To</span>
-                  <span><Form.Control type="text" className=''  size="sm" style={{maxWidth:'40%', display:'inline-block'}} placeholder="" /></span>
+                  <span><Form.Control type="text" className=''  size="sm" style={{maxWidth:'40%', display:'inline-block'}} placeholder=""
+                  value={state.serviceList[index].to} 
+                  onChange={(e)=>{
+                    let tempState = state.serviceList;
+                    tempState[index].to=e.target.value
+                    setState({serviceList:tempState})
+                  }}  /></span>
                 </Form.Group>
                 </Col>
             </Row>
@@ -191,8 +239,27 @@ const ServiceLayout = ({parts}) => {
                 isMulti
                 name="colors"
                 options={partList}
-                //value={state.country}
-                //onChange={(e) => setState({ country: e })}
+                onChange={(e) => {
+                    let tempState = state.serviceList;
+                    let price = 0;
+                    //let estimate = tempState[index].estimateCost
+                    console.log(e);
+                    if(e.length>0){
+                      parts.forEach((x)=>{
+                        e.forEach((y)=>{
+                          if(x.id==y.value){
+                            price = price + x.cost;
+                            //estimate = estimate + price;
+                          }
+                        })
+                      })
+                    }
+                    tempState[index].partList=e
+                    tempState[index].partCost=price
+                    //tempState[index].estimateCost=estimate
+                    setState({serviceList:tempState});
+                    setPriceChange(!priceChange);
+                }}
                 className="basic-multi-select"
                 classNamePrefix="select"
             />
@@ -204,11 +271,7 @@ const ServiceLayout = ({parts}) => {
             <Row className="justify-content-md-center mt-5">
               <hr/>
               <Col md="auto">
-                <div className='plus' onClick={()=>{
-                  let tempState = [...cars];
-                  tempState.push({index:1});
-                  setCars(tempState)
-                }}>+</div>
+                <div className='plus' onClick={extendCar}>+</div>
               </Col>
             </Row>
           </div>
@@ -232,25 +295,40 @@ const ServiceLayout = ({parts}) => {
                         <Col>
                         <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
                           <Form.Label>Parts Cost</Form.Label>
-                          <Form.Control type="text" size="sm" placeholder="" />
+                          <Form.Control type="number" size="sm" placeholder="" value={state.serviceList[index].partCost.toFixed(2)} />
                         </Form.Group>
                         </Col>
                         <Col>
                         <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
                           <Form.Label>Labour cost</Form.Label>
-                          <Form.Control type="text" size="sm" placeholder="" />
+                          <Form.Control type="number" size="sm" placeholder="" 
+                          value={state.serviceList[index].labourCost} 
+                          onChange={(e)=>{
+                            let tempState = state.serviceList;
+                            tempState[index].labourCost=e.target.value
+                            setState({serviceList:tempState});
+                            setPriceChange(!priceChange);
+                          }}  />
                         </Form.Group>
                         </Col>
                         <Col>
                         <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
                           <Form.Label>Discount</Form.Label>
-                          <Form.Control type="text" size="sm" placeholder="" />
+                          <Form.Control type="text" size="sm" placeholder=""
+                          value={state.serviceList[index].discount} 
+                          onChange={(e)=>{
+                            let tempState = state.serviceList;
+                            tempState[index].discount=e.target.value
+                            setState({serviceList:tempState});
+                            setPriceChange(!priceChange);
+                          }}  />
                         </Form.Group>
                         </Col>
                         <Col>
                         <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
                           <Form.Label>Estimate Cost</Form.Label>
-                          <Form.Control type="text" size="sm" placeholder="" />
+                          <Form.Control type="number" size="sm" placeholder=""
+                          value={state.serviceList[index].estimateCost.toFixed(2)} />
                         </Form.Group>
                         </Col>
                     </Row>
