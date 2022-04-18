@@ -11,7 +11,7 @@ import NumberFormat from "react-number-format";
 import Router from 'next/router'
 import { FaIdCard, FaEnvelope } from "react-icons/fa";
 
-const CustomersLayout = ({customers, customersUnapproved}) => {
+const CustomersLayout = ({customers, serviceRequest}) => {
 
     const location = useSelector((state) => state.location.value);
 
@@ -42,19 +42,24 @@ const CustomersLayout = ({customers, customersUnapproved}) => {
 
     const [unAppCustomer, setUnAppCustomer] = useState(false);
 
-    useEffect(() => {
-        setMechanicList(customers);
-        setUnAppCustomerList(customersUnapproved);
-    }, [])
+    const [requests, setRequests] = useState([]);
+    const [carList, setCarList] = useState([]);
 
     useEffect(() => {
-        if(unAppCustomerList.length>0){
-            console.log('incoming requests');
-            setUnAppCustomer(true)
-        }else{
-            setUnAppCustomer(false)
-        }
-    }, [unAppCustomerList])
+        setMechanicList(customers);
+        console.log(serviceRequest);
+        setRequests(serviceRequest);
+        //setUnAppCustomerList(serviceRequest);
+    }, [])
+
+    // useEffect(() => {
+    //     if(unAppCustomerList.length>0){
+    //         console.log('incoming requests');
+    //         setUnAppCustomer(true)
+    //     }else{
+    //         setUnAppCustomer(false)
+    //     }
+    // }, [unAppCustomerList])
     
 
     const getMail = async() => {
@@ -92,6 +97,7 @@ const CustomersLayout = ({customers, customersUnapproved}) => {
         setPassword(values.password); setEmail(values.email); setSsn(values.ssn);
         setShop_id(values.shop_id); setPhone(values.phone); setGender(values.gender);
         setAddress(values.address); setImage(values.profile_pic); setProfileView(true);
+        setCarList(values.Cars);console.log(values.Cars);
     }
     const [id      , setId        ] = useState('')
     const [f_name  , setF_name    ] = useState('');
@@ -235,28 +241,25 @@ const CustomersLayout = ({customers, customersUnapproved}) => {
     }, [location])
 
     const approveClient = (cust) => {
-
-        axios.put(process.env.NEXT_PUBLIC_TI_APPROVE_CUSTOMERS,{id:cust.id}).then((x)=>{
-            if(x.data[0]=='1'){
-                //console.log(cust)
-                let tempState = [...unAppCustomerList];
-                let tempState2 = [...MechanicList];
+        // axios.put(process.env.NEXT_PUBLIC_TI_APPROVE_CUSTOMERS,{id:cust.id}).then((x)=>{
+        //     if(x.data[0]=='1'){
+        //         //console.log(cust)
+        //         let tempState = [...unAppCustomerList];
+        //         let tempState2 = [...MechanicList];
         
-                tempState = tempState.filter((z)=>{
-                    if(z.id==cust.id){
-                        z.approved="approved";
-                        tempState2.push(z);
-                    }else if(z.id!=cust.id){
-                        return z
-                    }
-                  })
-                  console.log(tempState2);
-                  setMechanicList(tempState2);
-                  setUnAppCustomerList(tempState);
-            }
-        })
-
-
+        //         tempState = tempState.filter((z)=>{
+        //             if(z.id==cust.id){
+        //                 z.approved="approved";
+        //                 tempState2.push(z);
+        //             }else if(z.id!=cust.id){
+        //                 return z
+        //             }
+        //           })
+        //           console.log(tempState2);
+        //           setMechanicList(tempState2);
+        //           setUnAppCustomerList(tempState);
+        //     }
+        // })
     }
 
   return (
@@ -266,7 +269,6 @@ const CustomersLayout = ({customers, customersUnapproved}) => {
             <Row className=''>
                <Col>
                     <span style={{color:'grey'}}> Customers </span>
-                    <span><button className='global-btn mx-2' onClick={()=>setRequestShow(true)}> Requests</button><div className={unAppCustomer?'notification-red':'notification-grey'}></div></span>
                     <span><button className='global-btn mx-2' onClick={createLink}> Create Link</button></span>
                </Col>
                <Col>
@@ -330,7 +332,7 @@ const CustomersLayout = ({customers, customersUnapproved}) => {
                     <td className='phone py-3 px-5'>0</td>
                     <td className='phone py-3 px-5'>0</td>
                     <td className='phone py-3'>
-                        {/*<AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />*/}
+                        <AiFillEye className='blue icon-trans' onClick={()=>viewMechanic(mech)} />
                         <AiFillEdit className='yellow icon-trans' onClick={()=>{editFields(mech);}} />
                         <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
                     </td>
@@ -366,10 +368,8 @@ const CustomersLayout = ({customers, customersUnapproved}) => {
         {profileView &&
             <div className='profile-view  pt-1'>
                 <Row>
-                    <Col md={4}>
-                        <div className='pic-frame'>
-                            <img src={image} className="frame-image"/>
-                        </div>
+                    <Col md={3}>
+                        
                     </Col>
                     <Col md={8}>
                         <div className='detail-bar'>
@@ -383,10 +383,10 @@ const CustomersLayout = ({customers, customersUnapproved}) => {
                                 <Col md={4} className="">
                                     <div className='my-2'> <ImPhone className='mx-3 mb-1' /> {phone} </div>
                                     <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
-                                    <div className='my-2'> <FaIdCard className='mx-3' /> {ssn} </div>
+                                    <div className='my-2'> <FaIdCard className='mx-3' /> {"Not Registered"} </div>
                                 </Col>
                                 <Col md={4} className="">
-                                    <div className='my-2'> <FaEnvelope className='mx-3' /> {email=='-'?'Not Registered':email==''?'Not Registered':email} </div>
+                                    <div className='my-2'> <FaEnvelope className='mx-3' /> {email=='-'?'Not Registered':email=='none'?'Not Registered':email} </div>
                                     <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
                                     <div className='my-2'> <MdLocationOn className='mx-3' /> {address} </div>
                                 </Col>
@@ -394,7 +394,52 @@ const CustomersLayout = ({customers, customersUnapproved}) => {
                         </div>
                     </Col>
                 </Row>
-                <span onClick={()=>{setProfileView(false); handleClose();}}><b className='bact-btn'>{"<"} Mechanics</b> </span>
+                <Row>
+                <Col md={2}>
+                    <div className='back-btn-cust' onClick={()=>{setProfileView(false); handleClose();}}><b className=''>{"<"} Customers</b> </div>
+                </Col>
+                <Col >
+                    <div className='back-btn-cust-two' onClick={()=>setRequestShow(true)}><b className=''>Upcoming Requests</b> </div>
+                </Col>
+                </Row>
+                <Row>
+                <Col className='small-table-frame'>
+                <div className='box'>
+                <h6 className='my-2'><strong>Cars</strong></h6>
+                <Table responsive="sm" style={{fontSize:'14px'}}>
+                <thead>
+                  <tr>
+                    <th>Region</th>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Year</th>
+                    <th>Engine No.</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {
+                    carList.map((car, index)=>{
+                        return(
+                            <tr key={index}>
+                                <td>{car.regio}</td>
+                                <td>{car.make}</td>
+                                <td>{car.model}</td>
+                                <td>{car.year}</td>
+                                <td>none</td>
+                                <td className='phone'>
+                                    <AiFillEdit className='yellow icon-trans'  />
+                                    <AiFillDelete className='red icon-trans' />
+                                </td>
+                            </tr>
+                        )
+                    })
+                }
+                </tbody>
+              </Table>
+                </div>
+                </Col>
+                </Row>
             </div>
         }
         <Modal show={show} onHide={profileView?()=>setShow(false):handleClose} size="lg">
@@ -514,22 +559,22 @@ const CustomersLayout = ({customers, customersUnapproved}) => {
             <thead>
                 <tr>
                 <th>Name</th>
-                <th>Address</th>
-                <th>Phone</th>
                 <th>Car</th>
+                <th>Model</th>
+                <th>Service</th>
                 <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 {
-                    unAppCustomerList.map((cust, index)=>{
+                    requests.map((cust, index)=>{
                         return(
                             <tr key={cust.id}>
-                                <td>{cust.f_name} {cust.l_name}</td>
-                                <td>{cust.address}</td>
-                                <td>{cust.phone}</td>
-                                <td>{cust.Cars[0].make} {cust.Cars[0].model} {cust.Cars[0].year}</td>
-                                <td><Button className='approve-btn' size="sm" onClick={()=>approveClient(cust)}>Approve</Button></td>
+                                <td>{cust.Customer.f_name} {cust.Customer.l_name}</td>
+                                <td>{cust.make}</td>
+                                <td>{cust.model}</td>
+                                <td></td>
+                                <td><Button className='approve-btn' size="sm" >Approve</Button></td>
                             </tr>
                         )
                     })

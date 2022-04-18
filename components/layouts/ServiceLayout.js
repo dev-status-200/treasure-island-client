@@ -87,59 +87,60 @@ const ServiceLayout = ({parts, servicesData}) => {
   const maxVal = (vals) => {
     let values = [];
     vals.forEach((x, index)=>{
-      values[index] = x.estimate
+      values[index] = parseFloat(x.estimate)
     })
-    return Math.max(values)
+    console.log(Math.max(values))
+    return Math.max(...values)
   }
   const minVal = (vals) => {
     let values = [];
     vals.forEach((x, index)=>{
-      values[index] = x.estimate
+      values[index] = parseFloat(x.estimate)
     })
-    return Math.max(values)
+    return Math.min(...values)
   }
   const maxValCost = (vals) => {
     let values = [];
     vals.forEach((x, index)=>{
-      values[index] = x.labourCost
+      values[index] = parseFloat(x.labourCost)
     })
-    return Math.max(values)
+    return Math.max(...values)
   }
   const minValCost = (vals) => {
     let values = [];
     vals.forEach((x, index)=>{
-      values[index] = x.labourCost
+      values[index] = parseFloat(x.labourCost)
     })
-    return Math.max(values)
+    return Math.max(...values)
   }
   const maxValparts = (vals) => {
     let values = [];
     vals.forEach((x, index)=>{
-      values[index] = x.partsCost
+      values[index] = parseFloat(x.partsCost)
     })
-    return Math.max(values)
+    return Math.max(...values)
   }
   const minValparts = (vals) => {
     let values = [];
     vals.forEach((x, index)=>{
-      values[index] = x.partsCost
+      values[index] = parseFloat(x.partsCost)
     })
-    return Math.max(values)
+    return Math.max(...values)
   }
 
   return (
     <div className='service-styles'>
     {!show && 
-      <div>
+      <div >
       <Row>
-        <Col><span className='service-left' style={{color:'grey'}}> Services </span><button className='global-btn mx-2' onClick={handleShow}> Add new</button></Col>
+        <Col><span className='service-left' style={{color:'grey'}}> Services </span><button className='global-btn mx-2 my-1' onClick={handleShow}> Add new</button></Col>
       </Row>
-        <div style={{maxHeight:'400px'}}>
+        <div style={{maxHeight:'600px', overflowY:'auto', overflowX:'hidden'}}>
         <Row className='mt-5 mx-3'>
         {
           servicesData.map((serv, index)=>{
             return(
-              <Col md={3} key={index} className='mx-1 mt-3'>
+              <Col md={3} key={index} className='mx-4 mt-3'>
                 <div className='service-card'>
                   <img src={serv.image} className='service-card-pic' />
                   <div>

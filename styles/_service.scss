@@ -17,8 +17,7 @@
     .left{
     }
     .right{
-        position: relative;
-        right: -70%;
+        float: right;
     }
     .detail-service{
         font-size: 14px;
@@ -43,37 +42,37 @@
         position: relative;
         bottom: 20px;
     }
-    @media screen and (min-width: 1299px) {
-        .left{
-        }
-        .service-left{
-            margin-left: 40px;
-        }
-        .right{
-            position: relative;
-            right: -20%;
-        }
-      }
-      @media screen and (min-width: 1400px) {
-        .left{
-        }
-        .service-left{
-            margin-left: 20px;
-        }
-        .right{
-            position: relative;
-            right: -25%;
-        }
-      }
-    @media screen and (min-width: 1600px) {
-        .left{
-        }
-        .service-left{
-            margin-left: 10px;
-        }
-        .right{
-            position: relative;
-            right: -35%;
-        }
-      }
+    // @media screen and (min-width: 1299px) {
+    //     .left{
+    //     }
+    //     .service-left{
+    //         margin-left: 40px;
+    //     }
+    //     .right{
+    //         position: relative;
+    //         right: -20%;
+    //     }
+    //   }
+    //   @media screen and (min-width: 1400px) {
+    //     .left{
+    //     }
+    //     .service-left{
+    //         margin-left: 20px;
+    //     }
+    //     .right{
+    //         position: relative;
+    //         right: -25%;
+    //     }
+    //   }
+    // @media screen and (min-width: 1600px) {
+    //     .left{
+    //     }
+    //     .service-left{
+    //         margin-left: 10px;
+    //     }
+    //     .right{
+    //         position: relative;
+    //         right: -35%;
+    //     }
+    //   }
 }
