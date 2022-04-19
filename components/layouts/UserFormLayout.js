@@ -5,7 +5,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 import NumberFormat from "react-number-format";
-import { useRouter } from 'next/router';
+import Router, { useRouter } from 'next/router';
 
 const UserFormLayout = () => {
 
@@ -48,6 +48,7 @@ const UserFormLayout = () => {
         console.log(res)
         setMailList(res);
     }
+    const [id          , setId        ] = useState('');
     const [f_name      , setF_name    ] = useState('');
     const [l_name      , setL_Name    ] = useState('');
     const [email       , setEmail     ] = useState('');
@@ -61,11 +62,11 @@ const UserFormLayout = () => {
     const [description , setDescrition] = useState('');
     
 
-    const [car1id      , cetCar1Id    ] = useState("");
-    const [car2id      , cetCar2Id    ] = useState("");
+    const [car1id      , setCar1Id    ] = useState("");
+    const [car2id      , setCar2Id    ] = useState("");
 
-    const [car1        , cetCar1      ] = useState(true);
-    const [car2        , cetCar2      ] = useState(false);
+    const [car1        , setCar1      ] = useState(true);
+    const [car2        , setCar2      ] = useState(false);
     const [regio       , setRegio     ] = useState('');
     const [makeTwo     , setMakeTwo   ] = useState('');
     const [modelTwo    , setModelTwo  ] = useState('');
@@ -106,11 +107,26 @@ const UserFormLayout = () => {
         axios.post(process.env.NEXT_PUBLIC_TI_CUSTOMERS_PHONE,{phone:oldPhone}).then((x)=>{
             console.log(x.data)
             //setMake(x.data.make)
-            cetCar1Id(x.data.Cars[0].id)
-            setMake(x.data.Cars[0].make)
-            setModel(x.data.Cars[0].model)
-            setYear(x.data.Cars[0].year)
-            setRegio(x.data.Cars[0].regio)
+            setId(x.data.id);
+            if(x.data.Cars.length==1){
+                setCar1Id(x.data.Cars[0].id)
+                setMake(x.data.Cars[0].make)
+                setModel(x.data.Cars[0].model)
+                setYear(x.data.Cars[0].year)
+                setRegio(x.data.Cars[0].regio)
+            }else if(x.data.Cars.length==2){
+                setCar1Id(x.data.Cars[0].id)
+                setMake(x.data.Cars[0].make)
+                setModel(x.data.Cars[0].model)
+                setYear(x.data.Cars[0].year)
+                setRegio(x.data.Cars[0].regio)
+                setCar2Id(x.data.Cars[1].id)
+                setMakeTwo(x.data.Cars[1].make)
+                setModelTwo(x.data.Cars[1].model)
+                setYearTwo(x.data.Cars[1].year)
+                setRegioTwo(x.data.Cars[1].regio)
+            }
+            
             if(x.data!="not found"){
                 console.log("phone exists");
                 setOldPhoneExists(true);
@@ -136,14 +152,33 @@ const UserFormLayout = () => {
                 setSuccess(true);
             })}else if(checkNew=="old"){
                 console.log('Old User')
-                await axios.post(process.env.NEXT_PUBLIC_TI_RE_CREATE_REQUEST,{id:car1id, linkId:router.asPath.slice(13)}).then((x)=>{
-                    if(x.data[0]=='1'){
+                console.log('Old User')
+                if(car2==false){
+                    await axios.post(process.env.NEXT_PUBLIC_TI_RE_CREATE_REQUEST,{id:car1id, linkId:router.asPath.slice(13)}).then((x)=>{
                         setLoad(false);
                         setSuccess(true);
-                        Router.reload({pathname:'/userForm', query:{id:"989744a3-53fa-4a38-87be-6b5f7bfebc7c"}})
-                    }
-                })
+                        //Router.push('/userForm');
+                });
+            }else if(car2==true){
+                if(car2id==""){
+                    //create car 2 and service request
+                    console.log('create car 2 and service request');
+                    await axios.post(process.env.NEXT_PUBLIC_TI_ADD_CUSTOMER_NEW_CAR,{
+                        linkId:router.asPath.slice(13), id:id, make:makeTwo, model:modelTwo, year:yearTwo, regio:regioTwo }).then((x)=>{
+                            setLoad(false);
+                            setSuccess(true);
+                        });
+                }else if(car2id!=""){
+                    //create car 2 service request only
+                    console.log('ccreate car 2 service request only');
+                    await axios.post(process.env.NEXT_PUBLIC_TI_RE_CREATE_REQUEST,{id:car2id, linkId:router.asPath.slice(13)}).then((x)=>{
+                        setLoad(false);
+                        setSuccess(true);
+                        //Router.push('/userForm');
+                });
+                }
             }
+        }
     }
     const checkCustomerType = () => {
         if(checkNew=="new"){
@@ -358,7 +393,7 @@ const UserFormLayout = () => {
             <Col md={1}>
             <Form.Group className="mb" controlId="old">
             <Form.Label></Form.Label>
-                <Form.Check className="mt-2" type="radio" label="" checked={car1?true:false} onChange={()=>{cetCar1(true); cetCar2(false);}} />
+                <Form.Check className="mt-2" type="radio" label="" checked={car1?true:false} onChange={()=>{setCar1(true); setCar2(false);}} />
             </Form.Group>
             </Col>
             <Col>
@@ -390,7 +425,7 @@ const UserFormLayout = () => {
             <Col md={1}>
             <Form.Group className="mb" controlId="old">
             <Form.Label></Form.Label>
-                <Form.Check className="mt-2" type="radio" label="" checked={car2?true:false} onChange={()=>{cetCar1(false); cetCar2(true);}} />
+                <Form.Check className="mt-2" type="radio" label="" checked={car2?true:false} onChange={()=>{setCar1(false); setCar2(true);}} />
             </Form.Group>
             </Col>
             <Col>
