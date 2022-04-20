@@ -74,6 +74,7 @@ const UserFormLayout = () => {
     const [regioTwo    , setRegioTwo  ] = useState('');
 
     const [addNew, setAddNew] = useState(false);
+    const [selected, setSelected] = useState(false);
 
     const [state       , setState     ] = useSetState({
         car:[]//{id:"", make:"", model:"", year:"", regio:""}
@@ -402,6 +403,7 @@ const UserFormLayout = () => {
                             <Form.Label></Form.Label>
                                 <Form.Check className="mt-2" type="radio" label="" checked={carz.select?true:false}
                                 onChange={()=>{
+                                    setSelected(true);
                                     let tempState = state.car;
                                     tempState.forEach((x, indexTwo)=>{
                                         if(indexTwo==index){
@@ -473,7 +475,7 @@ const UserFormLayout = () => {
                     }}>Add New</Button>
                 </Col>
                 <Col style={{textAlign:'center'}}>
-                    <Button className='px-5 mt-5' size="" type="submit">NEXT</Button>
+                    <Button className='px-5 mt-5' size="" disabled={selected?false:true} type="submit">NEXT</Button>
                 </Col>
             </Row>
             </Form>
