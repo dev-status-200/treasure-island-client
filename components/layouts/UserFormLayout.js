@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Table, Modal, Button, Form, Spinner, FormControl } from 'react-bootstrap';
 import axios from 'axios';
-
+import { useSetState } from 'react-use';
 import Cookies from 'js-cookie';
 
 import NumberFormat from "react-number-format";
@@ -58,6 +58,7 @@ const UserFormLayout = () => {
     const [make        , setMake      ] = useState('');
     const [model       , setModel     ] = useState('');
     const [year        , setYear      ] = useState('');
+    const [regio       , setRegio     ] = useState('');
     const [service     , setService   ] = useState('Service 1');
     const [description , setDescrition] = useState('');
     
@@ -67,11 +68,16 @@ const UserFormLayout = () => {
 
     const [car1        , setCar1      ] = useState(true);
     const [car2        , setCar2      ] = useState(false);
-    const [regio       , setRegio     ] = useState('');
     const [makeTwo     , setMakeTwo   ] = useState('');
     const [modelTwo    , setModelTwo  ] = useState('');
     const [yearTwo     , setYearTwo   ] = useState('');
     const [regioTwo    , setRegioTwo  ] = useState('');
+
+    const [addNew, setAddNew] = useState(false);
+
+    const [state       , setState     ] = useSetState({
+        car:[]//{id:"", make:"", model:"", year:"", regio:""}
+    })
 
     const addAgent = (e) => {
         e.preventDefault();
@@ -106,32 +112,26 @@ const UserFormLayout = () => {
         console.log('searching old customer');
         axios.post(process.env.NEXT_PUBLIC_TI_CUSTOMERS_PHONE,{phone:oldPhone}).then((x)=>{
             console.log(x.data)
-            //setMake(x.data.make)
             setId(x.data.id);
-            if(x.data.Cars.length==1){
-                setCar1Id(x.data.Cars[0].id)
-                setMake(x.data.Cars[0].make)
-                setModel(x.data.Cars[0].model)
-                setYear(x.data.Cars[0].year)
-                setRegio(x.data.Cars[0].regio)
-            }else if(x.data.Cars.length==2){
-                setCar1Id(x.data.Cars[0].id)
-                setMake(x.data.Cars[0].make)
-                setModel(x.data.Cars[0].model)
-                setYear(x.data.Cars[0].year)
-                setRegio(x.data.Cars[0].regio)
-                setCar2Id(x.data.Cars[1].id)
-                setMakeTwo(x.data.Cars[1].make)
-                setModelTwo(x.data.Cars[1].model)
-                setYearTwo(x.data.Cars[1].year)
-                setRegioTwo(x.data.Cars[1].regio)
-            }
-            
             if(x.data!="not found"){
                 console.log("phone exists");
                 setOldPhoneExists(true);
                 setCustomerType("old");
                 setServiceShow("show");
+                let tempState = state.car;
+                x.data.Cars.forEach((y, index)=>{
+                    tempState.push({
+                        id:y.id,
+                        make:y.make,
+                        model:y.model,
+                        year:y.year,
+                        regio:y.regio,
+                        select:false,
+                        new:false
+                    })
+                })
+                setState({car:tempState})
+                console.log(tempState)
             }else if(x.data=="not found"){
                 console.log("phone dosent exits exists");
                 setOldPhoneExists(false);
@@ -151,32 +151,34 @@ const UserFormLayout = () => {
                 setLoad(false);
                 setSuccess(true);
             })}else if(checkNew=="old"){
-                console.log('Old User')
-                console.log('Old User')
-                if(car2==false){
-                    await axios.post(process.env.NEXT_PUBLIC_TI_RE_CREATE_REQUEST,{id:car1id, linkId:router.asPath.slice(13)}).then((x)=>{
+                let selectedCar;
+                let newCar = false;
+                state.car.forEach((x, index)=>{
+                    if(x.new==true && x.select==true){
+                        newCar = true;
+                    }
+                    if(x.select==true){
+                        selectedCar = x
+                    }
+                });
+                console.log(newCar);
+                console.log(selectedCar);
+
+                if(newCar==false){
+                    await axios.post(process.env.NEXT_PUBLIC_TI_RE_CREATE_REQUEST,{id:selectedCar.id, linkId:router.asPath.slice(13)}).then((x)=>{
                         setLoad(false);
                         setSuccess(true);
                         //Router.push('/userForm');
                 });
-            }else if(car2==true){
-                if(car2id==""){
+            }else if(newCar==true){
                     //create car 2 and service request
                     console.log('create car 2 and service request');
                     await axios.post(process.env.NEXT_PUBLIC_TI_ADD_CUSTOMER_NEW_CAR,{
-                        linkId:router.asPath.slice(13), id:id, make:makeTwo, model:modelTwo, year:yearTwo, regio:regioTwo }).then((x)=>{
+                        linkId:router.asPath.slice(13), id:id, make:selectedCar.make,
+                        model:selectedCar.model, year:selectedCar.year, regio:selectedCar.regio }).then((x)=>{
                             setLoad(false);
                             setSuccess(true);
-                        });
-                }else if(car2id!=""){
-                    //create car 2 service request only
-                    console.log('ccreate car 2 service request only');
-                    await axios.post(process.env.NEXT_PUBLIC_TI_RE_CREATE_REQUEST,{id:car2id, linkId:router.asPath.slice(13)}).then((x)=>{
-                        setLoad(false);
-                        setSuccess(true);
-                        //Router.push('/userForm');
                 });
-                }
             }
         }
     }
@@ -189,7 +191,8 @@ const UserFormLayout = () => {
     }
     const checkDetails = (e) => {
         e.preventDefault();
-        setDetailCheck("ok")
+        setDetailCheck("ok");
+        console.log(state.car);
     }
   return (
     <div className='online-form pt-5'>
@@ -387,82 +390,96 @@ const UserFormLayout = () => {
             </Container>
         }
         {   (customerType=="old" && serviceShow=="show" && detailCheck=="") &&
-        <Container className='box mt-4 px-5 py-5' style={{maxWidth:'800px'}}>
-        <Form onSubmit={checkDetails}>
-        <Row>
-            <Col md={1}>
-            <Form.Group className="mb" controlId="old">
-            <Form.Label></Form.Label>
-                <Form.Check className="mt-2" type="radio" label="" checked={car1?true:false} onChange={()=>{setCar1(true); setCar2(false);}} />
-            </Form.Group>
-            </Col>
-            <Col>
-            <Form.Group className="mb-3" controlId="make">
-                <Form.Label>Make</Form.Label>
-                <Form.Control type="text" size="sm" disabled={car1?false:true} value={make} onChange={(e)=>setMake(e.target.value)} required />
-            </Form.Group>
-            </Col>
-            <Col>
-            <Form.Group className="mb-3" controlId="make">
-                <Form.Label>Model</Form.Label>
-                <Form.Control type="text" size="sm" disabled={car1?false:true} value={model} onChange={(e)=>setModel(e.target.value)} required />
-            </Form.Group>
-            </Col>
-            <Col>
-            <Form.Group className="mb-3" controlId="make">
-                <Form.Label>Year</Form.Label>
-                <Form.Control type="text" size="sm" disabled={car1?false:true} value={year} onChange={(e)=>setYear(e.target.value)} required />
-            </Form.Group>
-            </Col>
-            <Col>
-            <Form.Group className="mb-3" controlId="make">
-                <Form.Label>Regio/Vin</Form.Label>
-                <Form.Control type="text" size="sm" disabled={car1?false:true} value={regio} onChange={(e)=>setRegio(e.target.value)} required />
-            </Form.Group>
-            </Col>
-        </Row>
-        <Row>
-            <Col md={1}>
-            <Form.Group className="mb" controlId="old">
-            <Form.Label></Form.Label>
-                <Form.Check className="mt-2" type="radio" label="" checked={car2?true:false} onChange={()=>{setCar1(false); setCar2(true);}} />
-            </Form.Group>
-            </Col>
-            <Col>
-            <Form.Group className="mb-3" controlId="make">
-                <Form.Label>Make</Form.Label>
-                <Form.Control type="text" size="sm" disabled={car2?false:true} value={makeTwo} onChange={(e)=>setMakeTwo(e.target.value)} required />
-            </Form.Group>
-            </Col>
-            <Col>
-            <Form.Group className="mb-3" controlId="make">
-                <Form.Label>Model</Form.Label>
-                <Form.Control type="text" size="sm" disabled={car2?false:true} value={modelTwo} onChange={(e)=>setModelTwo(e.target.value)} required />
-            </Form.Group>
-            </Col>
-            <Col>
-            <Form.Group className="mb-3" controlId="make">
-                <Form.Label>Year</Form.Label>
-                <Form.Control type="text" size="sm" disabled={car2?false:true} value={yearTwo} onChange={(e)=>setYearTwo(e.target.value)} required />
-            </Form.Group>
-            </Col>
-            <Col>
-            <Form.Group className="mb-3" controlId="make">
-                <Form.Label>Regio/Vin</Form.Label>
-                <Form.Control type="text" size="sm" disabled={car2?false:true} value={regioTwo} onChange={(e)=>setRegioTwo(e.target.value)} required />
-            </Form.Group>
-            </Col>
-        </Row>
-        <Row className='mt-3'>
-            <Col style={{textAlign:'center'}}>
-                <Button className='px-5 mt-5' size="" type="submit">NEXT</Button>
-            </Col>
-        </Row>
-        </Form>
-        </Container>
+            <Container className='box mt-4 px-5 py-5' style={{maxWidth:'800px'}}>
+            <Form onSubmit={checkDetails}>
+            <Row style={{ maxHeight:'280px', overflowY:'auto'}}>
+            {
+                state.car.map((carz, index)=>{
+                    return(
+                        <Row key={index} >
+                            <Col md={1}>
+                            <Form.Group className="mb" controlId="old">
+                            <Form.Label></Form.Label>
+                                <Form.Check className="mt-2" type="radio" label="" checked={carz.select?true:false}
+                                onChange={()=>{
+                                    let tempState = state.car;
+                                    tempState.forEach((x, indexTwo)=>{
+                                        if(indexTwo==index){
+                                            x.select = true
+                                        }else{
+                                            x.select = false
+                                        }
+                                    })
+                                    setState({car:tempState})
+                                }} />
+                            </Form.Group>
+                            </Col>
+                            <Col>
+                            <Form.Group className="mb-3" controlId="make">
+                                <Form.Label>Make</Form.Label>
+                                <Form.Control type="text" size="sm" disabled={carz.select?false:true} value={carz.make}
+                                onChange={(e)=>{
+                                    let tempState = state.car;
+                                    tempState[index].make = e.target.value;
+                                    setState({car:tempState})
+                                }} required />
+                            </Form.Group>
+                            </Col>
+                            <Col>
+                            <Form.Group className="mb-3" controlId="make">
+                                <Form.Label>Model</Form.Label>
+                                <Form.Control type="text" size="sm" disabled={carz.select?false:true} value={carz.model} 
+                                onChange={(e)=>{
+                                    let tempState = state.car;
+                                    tempState[index].model = e.target.value;
+                                    setState({car:tempState})
+                                }}  required />
+                            </Form.Group>
+                            </Col>
+                            <Col>
+                            <Form.Group className="mb-3" controlId="make">
+                                <Form.Label>Year</Form.Label>
+                                <Form.Control type="text" size="sm" disabled={carz.select?false:true} value={carz.year} 
+                                onChange={(e)=>{
+                                    let tempState = state.car;
+                                    tempState[index].year = e.target.value;
+                                    setState({car:tempState})
+                                }} required />
+                            </Form.Group>
+                            </Col>
+                            <Col>
+                            <Form.Group className="mb-3" controlId="make">
+                                <Form.Label>Regio/Vin</Form.Label>
+                                <Form.Control type="text" size="sm" disabled={carz.select?false:true} value={carz.regio} 
+                                onChange={(e)=>{
+                                    let tempState = state.car;
+                                    tempState[index].regio = e.target.value;
+                                    setState({car:tempState})
+                                }} required />
+                            </Form.Group>
+                            </Col>
+                        </Row>
+                    )
+                })
+            }
+            </Row>
+            <Row className='mt-3'>
+                <Col style={{textAlign:'center'}}>
+                    <Button className='px-5 mt-5' size="" disabled={addNew?true:false} onClick={()=>{
+                        setAddNew(true);
+                        let tempState = state.car
+                        tempState.push({id:"", make:"", model:"", year:"", regio:"", select:false, new:true})
+                        setState({car:tempState});
+                    }}>Add New</Button>
+                </Col>
+                <Col style={{textAlign:'center'}}>
+                    <Button className='px-5 mt-5' size="" type="submit">NEXT</Button>
+                </Col>
+            </Row>
+            </Form>
+            </Container>
         }
-        {
-            (customerType=="old" && serviceShow=="show" && detailCheck=="ok") &&
+        {   (customerType=="old" && serviceShow=="show" && detailCheck=="ok") &&
             <Container className='box mt-4 px-5 py-5' style={{maxWidth:'600px'}}>
                 <Form onSubmit={submitForm}>
                 <Row className="justify-content-md-center">

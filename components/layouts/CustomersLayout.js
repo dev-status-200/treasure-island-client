@@ -47,20 +47,8 @@ const CustomersLayout = ({customers, serviceRequest}) => {
 
     useEffect(() => {
         setMechanicList(customers);
-        console.log(serviceRequest);
-        setRequests(serviceRequest);
-        //setUnAppCustomerList(serviceRequest);
+        //setRequests(serviceRequest);
     }, [])
-
-    // useEffect(() => {
-    //     if(unAppCustomerList.length>0){
-    //         console.log('incoming requests');
-    //         setUnAppCustomer(true)
-    //     }else{
-    //         setUnAppCustomer(false)
-    //     }
-    // }, [unAppCustomerList])
-    
 
     const getMail = async() => {
         let res = await axios.get(process.env.NEXT_PUBLIC_TI_CUSTOMERS_EMAILS).then((x)=>(x.data));
@@ -97,7 +85,15 @@ const CustomersLayout = ({customers, serviceRequest}) => {
         setPassword(values.password); setEmail(values.email); setSsn(values.ssn);
         setShop_id(values.shop_id); setPhone(values.phone); setGender(values.gender);
         setAddress(values.address); setImage(values.profile_pic); setProfileView(true);
-        setCarList(values.Cars);console.log(values.Cars);
+        setCarList(values.Cars);
+        let tempState = values.Cars;
+        tempState = tempState.filter((x)=>{
+            if(x.need_service=="yes"){
+                return x
+            }
+        })
+        console.log(tempState);
+        setRequests(tempState)
     }
     const [id      , setId        ] = useState('')
     const [f_name  , setF_name    ] = useState('');
@@ -264,7 +260,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
 
   return (
     <div className='mechanic-styles'>
-        {!profileView &&
+        {(!profileView && !RequestShow ) &&
         <Container className='profile-view' fluid>
             <Row className=''>
                <Col>
@@ -365,7 +361,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
             </Col>
             </Row>
         </Container>}
-        {profileView &&
+        {(profileView && !RequestShow) &&
             <div className='profile-view  pt-1'>
                 <Row>
                     <Col md={3}>
@@ -440,6 +436,12 @@ const CustomersLayout = ({customers, serviceRequest}) => {
                 </div>
                 </Col>
                 </Row>
+            </div>
+        }
+        {
+            (RequestShow) &&
+            <div>
+                On Coming Requests Page
             </div>
         }
         <Modal show={show} onHide={profileView?()=>setShow(false):handleClose} size="lg">
@@ -543,7 +545,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
             <div style={{color:'grey'}}>{link}</div>
         </Modal.Body>
       </Modal>
-      <Modal
+      {/*<Modal
       show={RequestShow}
       onHide={()=>setRequestShow(false)}
       backdrop="static"
@@ -583,7 +585,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
         </Table>
         </div>
       </Modal.Body>
-    </Modal>
+    </Modal>*/}
     </div>
   )
 }
