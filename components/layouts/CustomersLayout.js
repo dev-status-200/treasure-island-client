@@ -107,6 +107,8 @@ const CustomersLayout = ({customers, serviceRequest}) => {
     const [address , setAddress   ] = useState('');
     const [image   , setImage     ] = useState("");
 
+    const [request , setRequest   ] = useState({});
+
     const [search, setSearch] = useState('');
     const [numSearch, setNumSearch] = useState(false);
 
@@ -259,7 +261,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
     }
 
   return (
-    <div className='mechanic-styles'>
+    <div className='customer-styles'>
         {(!profileView && !RequestShow ) &&
         <Container className='profile-view' fluid>
             <Row className=''>
@@ -296,7 +298,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
                     </tr>
                 </thead>
                 <tbody >
-                {MechanicList.filter((y)=>{
+                {MechanicList.length>0 && MechanicList.filter((y)=>{
                     if(y.shop_id==location){
                         return y
                     }
@@ -310,7 +312,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
                         (x.phone.toLowerCase().includes(search.toLowerCase()))
                     ){
                         return x
-                    }   
+                    }
                 }).slice(startIndex, startIndex+8).map((mech, index)=>{
                 return(<tr key={index} className=''>
                     <td>
@@ -333,7 +335,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
                         <AiFillDelete className='red icon-trans' onClick={()=>{setId(mech.id); setDeleteView(true)}}/>
                     </td>
                     </tr>
-                )})}  
+                )})}
                 </tbody>
                 </Table>
             </div>
@@ -364,8 +366,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
         {(profileView && !RequestShow) &&
             <div className='profile-view  pt-1'>
                 <Row>
-                    <Col md={3}>
-                        
+                    <Col md={1}>
                     </Col>
                     <Col md={8}>
                         <div className='detail-bar'>
@@ -395,7 +396,17 @@ const CustomersLayout = ({customers, serviceRequest}) => {
                     <div className='back-btn-cust' onClick={()=>{setProfileView(false); handleClose();}}><b className=''>{"<"} Customers</b> </div>
                 </Col>
                 <Col >
-                    <div className='back-btn-cust-two' onClick={()=>setRequestShow(true)}><b className=''>Upcoming Requests</b> </div>
+                    <div className='back-btn-cust-two' 
+                        onClick={()=>{
+                            setRequestShow(true);
+                            let list = {};
+                            list = carList.filter((x, index)=>{
+                                return x.need_service=="yes"
+                            })
+                            console.log(list);
+                            setRequest(list);
+                        }}
+                        ><b className=''>Upcoming Requests</b> </div>
                 </Col>
                 </Row>
                 <Row>
@@ -441,8 +452,69 @@ const CustomersLayout = ({customers, serviceRequest}) => {
         {
             (RequestShow) &&
             <div>
-                On Coming Requests Page
+            <Row>
+                <Col md={2}>
+                    <div className='btn mx-4 px-3' onClick={()=>setRequestShow(false)}><b className=''>back</b></div>
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                <div className='box mx-5 p-5' style={{width:'80%'}}>
+                    <Row>
+                        <Col md={3}>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Make</Form.Label>
+                            <Form.Control type="text" value={request[0].make} />
+                        </Form.Group>
+                        </Col>
+                        <Col md={3}>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Model</Form.Label>
+                            <Form.Control type="text" value={request[0].model} />
+                        </Form.Group>
+                        </Col>
+                        <Col md={3}>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Year</Form.Label>
+                            <Form.Control type="text" value={request[0].year} />
+                        </Form.Group>
+                        </Col>
+                        <Col md={3}>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Region</Form.Label>
+                            <Form.Control type="text" value={request[0].regio} />
+                        </Form.Group>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col md={3}>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Service</Form.Label>
+                            <Form.Control type="email" value={request[0].service} />
+                        </Form.Group>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col md={5}>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                            <Form.Label>Description</Form.Label>
+                            <Form.Control as="textarea" rows={3} value={request[0].description} />
+                        </Form.Group>
+                        </Col>
+                    </Row>
+                    <Row >
+                        <Col >
+                            <button className='btn btn-primary mx-4 px-5' style={{float:'right'}}>Accept</button>
+                        </Col>
+                        <Col md={2} >
+                            <button className='btn btn-primary px-5' style={{float:'right'}}>Decline</button>
+                        </Col>
+                    </Row>
+                </div>
+                </Col>
+            </Row>
             </div>
+            
         }
         <Modal show={show} onHide={profileView?()=>setShow(false):handleClose} size="lg">
         <Modal.Header closeButton>
@@ -545,7 +617,8 @@ const CustomersLayout = ({customers, serviceRequest}) => {
             <div style={{color:'grey'}}>{link}</div>
         </Modal.Body>
       </Modal>
-      {/*<Modal
+      {/*
+      <Modal
       show={RequestShow}
       onHide={()=>setRequestShow(false)}
       backdrop="static"
@@ -585,7 +658,8 @@ const CustomersLayout = ({customers, serviceRequest}) => {
         </Table>
         </div>
       </Modal.Body>
-    </Modal>*/}
+    </Modal>
+*/}
     </div>
   )
 }

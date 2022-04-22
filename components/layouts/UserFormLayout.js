@@ -166,7 +166,9 @@ const UserFormLayout = () => {
                 console.log(selectedCar);
 
                 if(newCar==false){
-                    await axios.post(process.env.NEXT_PUBLIC_TI_RE_CREATE_REQUEST,{id:selectedCar.id, linkId:router.asPath.slice(13)}).then((x)=>{
+                    await axios.post(process.env.NEXT_PUBLIC_TI_RE_CREATE_REQUEST,{
+                        id:selectedCar.id, service:service, description:description, linkId:router.asPath.slice(13)
+                    }).then((x)=>{
                         setLoad(false);
                         setSuccess(true);
                         //Router.push('/userForm');
@@ -176,7 +178,8 @@ const UserFormLayout = () => {
                     console.log('create car 2 and service request');
                     await axios.post(process.env.NEXT_PUBLIC_TI_ADD_CUSTOMER_NEW_CAR,{
                         linkId:router.asPath.slice(13), id:id, make:selectedCar.make,
-                        model:selectedCar.model, year:selectedCar.year, regio:selectedCar.regio }).then((x)=>{
+                        model:selectedCar.model, year:selectedCar.year, regio:selectedCar.regio,
+                        service:service, description:description }).then((x)=>{
                             setLoad(false);
                             setSuccess(true);
                 });
