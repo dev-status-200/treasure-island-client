@@ -454,7 +454,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
             <div>
             <Row>
                 <Col md={2}>
-                    <div className='btn mx-4 px-3' onClick={()=>setRequestShow(false)}><b className=''>back</b></div>
+                    <div className='btn btn-primary mx-5 my-3 px-4' onClick={()=>setRequestShow(false)}><b className=''>back</b></div>
                 </Col>
             </Row>
             <Row>
