@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Container, Spinner, Button, Form } from 'react-bootstrap';
 import { useSetState } from 'react-use';
+import { FileUploader } from "react-drag-drop-files";
+
+const fileTypes = ["JPEG", "PNG", "GIF"];
 
 const TaskLayout = ({services, parts}) => {
 
@@ -42,6 +45,10 @@ const TaskLayout = ({services, parts}) => {
         })
         return value
     }
+    const [file, setFile] = useState(null);
+    const handleChange = (file) => {
+        setFile(file);
+    };
 
   return (
     <div className='task-styles'>
@@ -54,7 +61,7 @@ const TaskLayout = ({services, parts}) => {
         }
         {taskShow &&
             <Row>
-                <Col className='mx-5' md={10} style={{maxHeight:'650px', overflowY:'auto'}}>
+                <Col className='mx-5' md={10} style={{maxHeight:'650px', overflowY:'auto', overflowX:"hidden"}}>
                     <h6 className='my-2'>Add New Task</h6>
                     <Form>
                     <div className='box py-3'>
@@ -134,10 +141,10 @@ const TaskLayout = ({services, parts}) => {
                                         onChange={(e)=>{
                                             let tempState = [...state.service]
                                             console.log(e.target.value);
-                                            services.find((x)=>{
-                                                if(x.id==e.target.value){
-                                                    x.Servicecars.find((y)=>{
-                                                        if(y.make.toLowerCase()==make.toLowerCase() && (y.from<=year && y.to>=year)){
+                                            services.find((x)=>{                                       // You Need This
+                                                if(x.id==e.target.value){                              // Extremely Important
+                                                    x.Servicecars.find((y)=>{                          // Very Important
+                                                        if(y.make.toLowerCase()==make.toLowerCase() ){ //&& (y.from<=year && y.to>=year)
                                                             tempState[indexMain] = {}
                                                             tempState[indexMain] = y;
                                                             if(y.parts.length<20){
@@ -255,11 +262,17 @@ const TaskLayout = ({services, parts}) => {
                             </Form.Group>
                             </Col>
                         </Row>
-                        <Row>
-                        <Form.Group style={{minWidth:"300px", float:'right'}} className="mb-3"  controlId="formBasicEmail">
-                            <Form.Label>Image</Form.Label><br/>
-                            <input type="file" size="sm" multiple className='image' required onChange={(e) => setImage(e.target.files[0])} ></input>
-                        </Form.Group>
+                        <Row className='justify-content-md-center'>
+                        <Col md="auto">
+                            <FileUploader
+                            style={{minWidth:'500px'}}
+                            multiple={true}
+                            handleChange={handleChange}
+                            name="file"
+                            types={fileTypes}
+                        />
+                        <p>{file ? `File name: ${file[0].name}` : "no files uploaded yet"}</p>
+                        </Col>
                         </Row>
                         </div>
                         <Button className='mt-3 px-5' style={{float:'right'}} variant="primary" type="submit">
