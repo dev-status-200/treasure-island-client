@@ -199,7 +199,7 @@ const ServiceLayout = ({parts, servicesData}) => {
             <Col md={6}>
             <Form.Group style={{minWidth:"300px", float:'right'}} className="mb-3"  controlId="formBasicEmail">
               <Form.Label>Image</Form.Label><br/>
-              <input type="file" size="sm" required onChange={(e) => setImage(e.target.files[0])} ></input>
+              <input type="file" required onChange={(e) => setImage(e.target.files[0])} />
             </Form.Group>
             </Col>
           </Row>

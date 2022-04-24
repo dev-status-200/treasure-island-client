@@ -1,0 +1,44 @@
+.task-styles{
+    .cost-area{
+        width: 94%;
+        margin-left: 10px;
+    }
+
+    .part-frame{
+        border: 1px solid silver;
+        width: 96%;
+        border-radius: 5px;
+        height: 40px;
+        padding: 7px;
+    }
+    .part{
+        border: 1px solid grey;
+        border-radius: 25px;
+        padding-right: 20px;
+        padding-left: 20px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+    .plus{
+        cursor: pointer;
+        width: 35px;
+        background-color: white ;
+        padding: 4px 10px 4px 10px;
+        border: 1px solid grey;
+        border-radius: 50%;
+        position: relative;
+        bottom: 20px;
+        left: 50%;
+    }
+    .image{
+        border: 2px solid silver;
+        color: red;
+        width: 94%;
+    }
+    #__next > div > div > div > div.col > div > div:nth-child(2) > div > div > div > div > div > form > div > div:nth-child(8) > div > input{
+        background-color: red!important;
+    }
+    .image > button {
+        color: red;
+    }
+}
