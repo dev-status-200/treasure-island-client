@@ -9,15 +9,30 @@
         width: 96%;
         border-radius: 5px;
         height: 40px;
-        padding: 7px;
+        padding: 6px;
     }
     .part{
-        border: 1px solid grey;
-        border-radius: 25px;
-        padding-right: 20px;
+        font-size: 14px;
+        border-radius: 5px;
+        background-color: rgba(192, 192, 192, 0.425);
         padding-left: 20px;
-        padding-top: 2px;
-        padding-bottom: 2px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
+    .cross{
+        color: black;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        position: relative;
+        bottom: 2px;
+        margin-left: 20px;
+        margin-right: 8px;
+    }
+    .cross:hover{
+        transition-duration: 200ms;
+        color: red;
+
     }
     .plus{
         cursor: pointer;
@@ -30,6 +45,25 @@
         bottom: 20px;
         left: 50%;
     }
-    label {
-      }
+    .img-upload{
+        font-size: 13px!important;
+        border:1px solid silver;
+        padding-left:40%;
+        padding-top:50px;
+        padding-bottom:0px
+    }
+    .img-upload-icon{
+        height: 70px;
+        position: relative;
+        left: -200px;
+        bottom: 50px;
+    }
+    input[type=file]::file-selector-button {
+        border: 1px solid silver;
+        padding: .2em .4em;
+        border-radius: .2em;
+        background-color: white;
+        transition: 1s;
+    }
+    
 }

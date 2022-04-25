@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Container, Spinner, Button, Form } from 'react-bootstrap';
 import { useSetState } from 'react-use';
 import { FileUploader } from "react-drag-drop-files";
+import Select from 'react-select';
 
-const fileTypes = ["JPEG", "PNG", "GIF"];
+const fileTypes = ["JPEG", "PNG", "GIF", "BMP"];
 
 const TaskLayout = ({services, parts}) => {
 
@@ -15,13 +16,21 @@ const TaskLayout = ({services, parts}) => {
     const [tax, setTax] = useState(0.00);
     const [fPrice, setFPrice] = useState(0.00);
     const [image, setImage] = useState("");
+    const [extPartPrice, setExtPartPrice] = useState(0.00)
 
     const [state   , setState ] = useSetState({
         service:[{
         id:"",make:"",model:"",from:"",to:"",partsCost:"",labourCost:"",discount:"",estimate:"",parts:[],createdAt:"",updatedAt:"",ServiceId:""
-        }],
-        partList:[]
+        }]
     });
+
+    useEffect(() => {
+        let tempState = [];
+        parts.forEach(x => {
+          tempState.push({label:`${x.part_number} (${x.brand_name} ${x.part_name}) $ ${x.cost}`, value:x.id})
+        });
+        setPartList(tempState);
+    }, [])
 
     useEffect(() => {
 
@@ -33,8 +42,8 @@ const TaskLayout = ({services, parts}) => {
         })
         Price = Price
         setTotalPrice(Price)
-        setFPrice(Price + parseFloat(tax))
-    }, [state.service, tax])
+        setFPrice(Price + parseFloat(tax) + parseFloat(extPartPrice))
+    }, [state.service, tax, extPartPrice])
                 
     const getPartName = (x) => {
         let value = "";
@@ -44,11 +53,64 @@ const TaskLayout = ({services, parts}) => {
             }
         })
         return value
-    }
-    const [file, setFile] = useState(null);
-    const handleChange = (file) => {
-        setFile(file);
     };
+
+    const getPartsPrize = (x) => {
+        console.log("Price Calculation");
+        console.log(x)
+        let price = 0.0
+        parts.forEach((y)=>{
+            x.forEach((z, index)=>{
+                if(y.id==z){
+                    //console.log(y.cost);
+                    price = price + parseFloat(y.cost)
+                }
+            })
+        })
+        return price
+    };
+
+    const changePrice = (part, index) => {
+        console.log(part)
+        console.log(index)
+        let tempState = [...state.service];
+        parts.forEach((y)=>{
+            if(y.id==part){
+                tempState[index].parts = tempState[index].parts.filter((x)=>{
+                    if(x==part){
+                        console.log(x)
+                    }else if(x!=part) {
+                        return x
+                    }else if(x==""){
+                        return x
+                    }
+                })
+                tempState[index].estimate = parseFloat(tempState[index].estimate) - parseFloat(y.cost)
+            }
+        })
+        console.log(tempState)
+        
+        setState({service:tempState})
+    }
+
+    async function uploadImage(){
+        let value = '';
+          const data = new FormData()
+          data.append("file", image)
+          data.append("upload_preset", "g4hjcqh7")
+          data.append("cloud_name", "abdullah7c")
+          value = await fetch(`https://api.cloudinary.com/v1_1/abdullah7c/image/upload`, {
+              method: "post",
+              body: data
+          })
+              .then(resp => resp.json())
+              .then(data => data.url)
+              .catch(err => console.log(err));
+          setImage(value);
+          console.log(value)
+  
+        return value;
+    }
 
   return (
     <div className='task-styles'>
@@ -132,36 +194,42 @@ const TaskLayout = ({services, parts}) => {
                             <Row className="justify-content-md-center">
                                 <Col className="mx-4 my-2" >
                                 <Form.Label>Service</Form.Label>
-                                    <Form.Select required  
-                                        style={{
-                                            backgroundColor:'white', border:"1px solid silver",
-                                            height:'40px', fontSize:'16px', color:'black',
-                                            marginRight:'260px', width:'96%'
-                                        }}
-                                        onChange={(e)=>{
-                                            let tempState = [...state.service]
-                                            console.log(e.target.value);
-                                            services.find((x)=>{                                       // You Need This
-                                                if(x.id==e.target.value){                              // Extremely Important
-                                                    x.Servicecars.find((y)=>{                          // Very Important
-                                                        if(y.make.toLowerCase()==make.toLowerCase() ){ //&& (y.from<=year && y.to>=year)
-                                                            tempState[indexMain] = {}
-                                                            tempState[indexMain] = y;
-                                                            if(y.parts.length<20){
-                                                                tempState[indexMain].parts = y.parts
-                                                            }else{
-                                                                tempState[indexMain].parts = y.parts.split(", ");
-                                                            }
-                                                            console.log(tempState[indexMain]);
-                                                        }else{
-                                                            tempState[indexMain] = {id:"",make:"",model:"",from:"",to:"",partsCost:"",labourCost:"",discount:"",estimate:"",parts:[],createdAt:"",updatedAt:"",ServiceId:""}
-                                                        }
-                                                    })
-                                                }
-                                            })
-                                            setState({service:tempState});
-                                            console.log(ser.parts)
-                                        }}
+                                <Form.Select required  
+                                    style={{
+                                        backgroundColor:'white', border:"1px solid silver",
+                                        height:'40px', fontSize:'16px', color:'black',
+                                        marginRight:'260px', width:'96%'
+                                    }}
+                                onChange={(e)=>{
+                                    let tempState = [...state.service]
+                                    //console.log(e.target.value);
+                                    services.find((x)=>{                                  // You Need This
+                                    if(x.id==e.target.value){                            // Extremely Important
+                                    x.Servicecars.find((y)=>{                           // Very Important
+                                        if(y.make.toLowerCase()==make.toLowerCase() ){ //&& (y.from<=year && y.to>=year)
+                                            tempState[indexMain] = {}
+                                            tempState[indexMain] = y;
+                                            if(y.parts.length<20){
+                                                //tempState[indexMain].partsCost = getPartsPrize(tempState[indexMain].parts)
+
+                                            }else{
+                                                tempState[indexMain].parts = y.parts.split(", ");
+                                                tempState[indexMain].parts = tempState[indexMain].parts.filter((l)=>{
+                                                    if(l!=""){
+                                                        return l
+                                                    }
+                                                })
+                                            }
+                                            console.log(tempState[indexMain]);
+                                        }else{
+                                            tempState[indexMain] = {id:"",make:"",model:"",from:"",to:"",partsCost:"",labourCost:"",discount:"",estimate:"",parts:[],createdAt:"",updatedAt:"",ServiceId:""}
+                                        }
+                                    })
+                                    }
+                                    })
+                                    setState({service:tempState});
+                                    console.log(ser.parts)
+                                }}
                                     >
                                         {services.map((serv, index)=>{
                                             return(
@@ -179,9 +247,10 @@ const TaskLayout = ({services, parts}) => {
                                         {ser.parts.map((x, index)=>{
                                             return(
                                                 <span key={index} >
-                                                    {index<ser.parts.length-1 &&
+                                                    {
                                                     <span className="mx-1 part">
                                                         {getPartName(x)}
+                                                        <span className='cross' onClick={()=>changePrice(x, indexMain)}>x</span>
                                                     </span>
                                                     }
                                                 </span>
@@ -232,13 +301,40 @@ const TaskLayout = ({services, parts}) => {
                         </div>
                         )})
                         }
+                        <Row>
+                        <Col>
+                            <div style={{width:'92%', marginLeft:"22px"}}>
+                            <Select
+                            defaultValue={'Country'}
+                            isMulti
+                            name="colors"
+                            options={partList}
+                            onChange={(e) => {
+                                console.log(e)
+                                let partCost = 0.00;
+                                parts.forEach((x)=>{
+                                    e.forEach((y)=>{
+                                        if(y.value == x.id){
+                                            console.log(x.cost)
+                                            partCost = partCost + parseFloat(x.cost)
+                                        }
+                                    })
+                                })
+                                setExtPartPrice(partCost)
+                            }}
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                        />
+                            </div>
+                        </Col>
+                        </Row>
                         <Row className='my-4'>
                             <Col md={8}>
                                 <div style={{float:'right', marginTop:'5px'}}>Total Price</div>
                             </Col>
                             <Col md={3} style={{marginLeft:'20px'}}>
                             <Form.Group className="">
-                                <Form.Control type="number" placeholder="" value={totalPrice} />
+                                <Form.Control type="number" placeholder="" value={totalPrice+extPartPrice} />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -248,7 +344,7 @@ const TaskLayout = ({services, parts}) => {
                             </Col>
                             <Col md={3} style={{marginLeft:'20px'}}>
                             <Form.Group className="">
-                                <Form.Control type="text" placeholder="" value={tax} onChange={(e)=>setTax(e.target.value)} />
+                                <Form.Control type="text" placeholder="" value={tax} onChange={(e)=>{setTax(e.target.value);}} />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -258,20 +354,16 @@ const TaskLayout = ({services, parts}) => {
                             </Col>
                             <Col md={3} style={{marginLeft:'20px'}}>
                             <Form.Group className="">
-                                <Form.Control type="number" placeholder="" value={fPrice} onChange={(e)=>setFPrice(e.target.value)} />
+                                <Form.Control type="number" placeholder="" value={fPrice} />
                             </Form.Group>
                             </Col>
                         </Row>
                         <Row className='justify-content-md-center'>
-                        <Col md="auto">
-                            <FileUploader
-                            style={{minWidth:'500px'}}
-                            multiple={true}
-                            handleChange={handleChange}
-                            name="file"
-                            types={fileTypes}
-                        />
-                        <p>{file ? `File name: ${file[0].name}` : "no files uploaded yet"}</p>
+                        <Col md={12}>
+                            <div className='img-upload'>
+                            <input type="file" required multiple onChange={(e) => setImage(e.target.files[0])} />
+                            <img src='assets/images/upload.png' className='img-upload-icon' />
+                            </div>
                         </Col>
                         </Row>
                         </div>
