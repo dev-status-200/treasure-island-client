@@ -171,7 +171,7 @@ const TaskLayout = ({services, parts, tasks}) => {
                 {
                     tasks.map((task, index)=>{
                         return(
-                            <Col md={3}>
+                            <Col md={3} key={index}>
                                 <div className='card'>
                                     <div className='top'>
                                     <div className='dot'></div>

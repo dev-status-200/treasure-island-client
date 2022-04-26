@@ -506,7 +506,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
                         <Col >
                             <button className='btn btn-primary mx-4 px-5'
                                 onClick={()=>{
-                                    Router.replace({pathname:"/tasks",
+                                    Router.push({pathname:"/tasks",
                                     query:{
                                         make:request[0].make,model:request[0].model, year:request[0].year,
                                         regio:request[0].regio, service:request[0].service, taskhow:true, description:request[0].description
