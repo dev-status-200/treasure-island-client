@@ -9,12 +9,13 @@ import Router, { useRouter } from 'next/router';
 
 const fileTypes = ["JPEG", "PNG", "GIF", "BMP"];
 
-const TaskLayout = ({services, parts, tasks}) => {
+const TaskLayout = ({services, parts, tasks, employees}) => {
 
     const router = useRouter();
 
     const [taskShow, setTaskhow] = useState(false);
     const [make    , setMake  ] = useState("Audi");
+    const [carMake    , setCarMake  ] = useState("");
     const [year    , setYear  ] = useState("2012");
     const [model    , setModel  ] = useState("2012");
     const [regio    , setRegio  ] = useState("2012");
@@ -37,15 +38,6 @@ const TaskLayout = ({services, parts, tasks}) => {
 
     useEffect(() => {
  //       console.log(router.query)
-        if(router.query.taskhow){
-            setTaskhow(true);
-            setService(router.query.service)
-            setMake(router.query.make)
-            setYear(router.query.year)
-            setModel(router.query.model)
-            setRegio(router.query.regio)
-            setDescription(router.query.description)
-        }
         let tempState = [];
         parts.forEach(x => {
           tempState.push({label:`${x.part_number} (${x.brand_name} ${x.part_name}) $ ${x.cost}`, value:x.id})
@@ -158,6 +150,24 @@ const TaskLayout = ({services, parts, tasks}) => {
         })
     }
 
+    useEffect(() => {
+
+        if(router.query.service){
+        const intervalId = setInterval(() => {
+                setTaskhow(true);
+                setCarMake(router.query.carmake)
+                setService(router.query.service)
+                setYear(router.query.year)
+                setModel(router.query.model)
+                setRegio(router.query.regio)
+                setDescription(router.query.description)
+            }, 1000) // in milliseconds
+        }
+        return () => clearInterval(intervalId)
+
+    }, [])
+    
+
   return (
     <div className='task-styles'>
         {!taskShow &&
@@ -220,7 +230,7 @@ const TaskLayout = ({services, parts, tasks}) => {
                             <Col md={3} className="mx-4">
                             <Form.Group className="mb-3" controlId="formBasicEmail">
                                 <Form.Label>Make</Form.Label>
-                                <Form.Control type="text" placeholder="" value={make} onChange={(e)=>setMake(e.target.value)} />
+                                <Form.Control type="text" placeholder="" value={carMake} />
                             </Form.Group>
                             </Col>
                             <Col md={3} className="mx-5">
@@ -244,13 +254,13 @@ const TaskLayout = ({services, parts, tasks}) => {
                             <Col md={3} className="mx-5">
                             <Form.Group className="mb-3" controlId="formBasicEmail">
                                 <Form.Label>Engine Number</Form.Label>
-                                <Form.Control type="text" placeholder="" />
+                                <Form.Control type="text" placeholder="" disabled />
                             </Form.Group>
                             </Col>
                             <Col md={3} className="mx-5">
                             <Form.Group className="mb-3" controlId="formBasicEmail">
                                 <Form.Label>Mileage</Form.Label>
-                                <Form.Control type="text" placeholder="" />
+                                <Form.Control type="text" placeholder="" disabled />
                             </Form.Group>
                             </Col>
                         </Row>

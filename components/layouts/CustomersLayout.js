@@ -260,6 +260,10 @@ const CustomersLayout = ({customers, serviceRequest}) => {
         // })
     }
 
+    const deleteServiceRequest = () => {
+        axios.post(process.env.NEXT_PUBLIC_TI_DELETE_SERVICE_REQUEST,{id:id})
+    }
+
   return (
     <div className='customer-styles'>
         {(!profileView && !RequestShow ) &&
@@ -364,165 +368,175 @@ const CustomersLayout = ({customers, serviceRequest}) => {
             </Row>
         </Container>}
         {(profileView && !RequestShow) &&
-            <div className='profile-view  pt-1'>
-                <Row>
-                    <Col md={1}>
-                    </Col>
-                    <Col md={8}>
-                        <div className='detail-bar'>
-                            <Row>
-                                <Col md={4} className="text-center">
-                                    <h5 className='my-2'> <b>{f_name} {l_name}</b> </h5>
-                                    <button  className='btn btn-light btn-sm mt-2 px-3' onClick={handleEditShow}>
-                                        <MdOutlineMode className='' style={{fontSize:'15px', color:'blue'}} /> Edit Profile
-                                    </button>
-                                </Col>
-                                <Col md={4} className="">
-                                    <div className='my-2'> <ImPhone className='mx-3 mb-1' /> {phone} </div>
-                                    <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
-                                    <div className='my-2'> <FaIdCard className='mx-3' /> {"Not Registered"} </div>
-                                </Col>
-                                <Col md={4} className="">
-                                    <div className='my-2'> <FaEnvelope className='mx-3' /> {email=='-'?'Not Registered':email=='none'?'Not Registered':email} </div>
-                                    <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
-                                    <div className='my-2'> <MdLocationOn className='mx-3' /> {address} </div>
-                                </Col>
-                            </Row>
-                        </div>
-                    </Col>
-                </Row>
-                <Row>
-                <Col md={2}>
-                    <div className='back-btn-cust' onClick={()=>{setProfileView(false); handleClose();}}><b className=''>{"<"} Customers</b> </div>
+        <div className='profile-view  pt-1'>
+            <Row>
+                <Col md={1}>
                 </Col>
-                <Col >
-                    <div className='back-btn-cust-two' 
-                        onClick={()=>{
+                <Col md={8}>
+                    <div className='detail-bar'>
+                        <Row>
+                            <Col md={4} className="text-center">
+                                <h5 className='my-2'> <b>{f_name} {l_name}</b> </h5>
+                                <button  className='btn btn-light btn-sm mt-2 px-3' onClick={handleEditShow}>
+                                    <MdOutlineMode className='' style={{fontSize:'15px', color:'blue'}} /> Edit Profile
+                                </button>
+                            </Col>
+                            <Col md={4} className="">
+                                <div className='my-2'> <ImPhone className='mx-3 mb-1' /> {phone} </div>
+                                <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
+                                <div className='my-2'> <FaIdCard className='mx-3' /> {"Not Registered"} </div>
+                            </Col>
+                            <Col md={4} className="">
+                                <div className='my-2'> <FaEnvelope className='mx-3' /> {email=='-'?'Not Registered':email=='none'?'Not Registered':email} </div>
+                                <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
+                                <div className='my-2'> <MdLocationOn className='mx-3' /> {address} </div>
+                            </Col>
+                        </Row>
+                    </div>
+                </Col>
+            </Row>
+            <Row>
+            <Col md={2}>
+                <div className='back-btn-cust' onClick={()=>{setProfileView(false); handleClose();}}><b className=''>{"<"} Customers</b> </div>
+            </Col>
+            <Col >
+                <div className='back-btn-cust-two' 
+                    onClick={()=>{
+                        let list = {};
+                        let need_service = false
+                        list = carList.filter((x, index)=>{
+                            if(x.need_service=="yes"){
+                                need_service = true
+                                return x
+                            }
+                        })
+                        if(need_service){
                             setRequestShow(true);
-                            let list = {};
-                            list = carList.filter((x, index)=>{
-                                return x.need_service=="yes"
-                            })
-                            console.log(list);
                             setRequest(list);
-                        }}
-                        ><b className=''>Upcoming Requests</b> </div>
-                </Col>
+                        }
+                        
+                    }}
+                    ><b className=''>Upcoming Requests</b> </div>
+            </Col>
+            </Row>
+            <Row>
+            <Col className='small-table-frame'>
+            <div className='box'>
+            <h6 className='my-2'><strong>Cars</strong></h6>
+            <Table responsive="sm" style={{fontSize:'14px'}}>
+            <thead>
+                <tr>
+                <th>Region</th>
+                <th>Make</th>
+                <th>Model</th>
+                <th>Year</th>
+                <th>Engine No.</th>
+                <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {
+                carList.map((car, index)=>{
+                    return(
+                        <tr key={index}>
+                            <td>{car.regio}</td>
+                            <td>{car.make}</td>
+                            <td>{car.model}</td>
+                            <td>{car.year}</td>
+                            <td>none</td>
+                            <td className='phone'>
+                                <AiFillEdit className='yellow icon-trans'  />
+                                <AiFillDelete className='red icon-trans' />
+                            </td>
+                        </tr>
+                    )
+                })
+            }
+            </tbody>
+            </Table>
+            </div>
+            </Col>
+            </Row>
+        </div>
+        }
+        {(RequestShow) &&
+        <div>
+        <Row>
+            <Col md={2}>
+                <div className='btn btn-primary mx-5 my-3 px-4' onClick={()=>setRequestShow(false)}><b className=''>back</b></div>
+            </Col>
+        </Row>
+        <Row>
+            <Col>
+            <div className='box mx-5 p-5' style={{width:'80%'}}>
+                <Row>
+                    <Col md={3}>
+                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                        <Form.Label>Make</Form.Label>
+                        <Form.Control type="text" value={request[0].make} />
+                    </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                        <Form.Label>Model</Form.Label>
+                        <Form.Control type="text" value={request[0].model} />
+                    </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                        <Form.Label>Year</Form.Label>
+                        <Form.Control type="text" value={request[0].year} />
+                    </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                        <Form.Label>Region</Form.Label>
+                        <Form.Control type="text" value={request[0].regio} />
+                    </Form.Group>
+                    </Col>
                 </Row>
                 <Row>
-                <Col className='small-table-frame'>
-                <div className='box'>
-                <h6 className='my-2'><strong>Cars</strong></h6>
-                <Table responsive="sm" style={{fontSize:'14px'}}>
-                <thead>
-                  <tr>
-                    <th>Region</th>
-                    <th>Make</th>
-                    <th>Model</th>
-                    <th>Year</th>
-                    <th>Engine No.</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {
-                    carList.map((car, index)=>{
-                        return(
-                            <tr key={index}>
-                                <td>{car.regio}</td>
-                                <td>{car.make}</td>
-                                <td>{car.model}</td>
-                                <td>{car.year}</td>
-                                <td>none</td>
-                                <td className='phone'>
-                                    <AiFillEdit className='yellow icon-trans'  />
-                                    <AiFillDelete className='red icon-trans' />
-                                </td>
-                            </tr>
-                        )
-                    })
-                }
-                </tbody>
-              </Table>
-                </div>
-                </Col>
+                    <Col md={3}>
+                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                        <Form.Label>Service</Form.Label>
+                        <Form.Control type="email" value={request[0].service} />
+                    </Form.Group>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md={5}>
+                    <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control as="textarea" rows={3} value={request[0].description} />
+                    </Form.Group>
+                    </Col>
+                </Row>
+                <Row >
+                    <Col >
+                        <button className='btn btn-primary mx-4 px-5'
+                            onClick={()=>{
+                                deleteServiceRequest()
+                                Router.push({pathname:"/tasks",
+                                query:{
+                                    car:"got",carmake:request[0].make,model:request[0].model, year:request[0].year,
+                                    regio:request[0].regio, service:request[0].service, taskhow:true, description:request[0].description
+                                }})
+                            }}
+                        style={{float:'right'}}>Accept</button>
+                    </Col>
+                    <Col md={2} >
+                        <button className='btn btn-primary px-5'
+                        onClick={()=>{
+                            deleteServiceRequest();
+                            Router.reload("/customers")
+                        }}
+                        style={{float:'right'}}>Decline</button>
+                    </Col>
                 </Row>
             </div>
-        }
-        {
-            (RequestShow) &&
-            <div>
-            <Row>
-                <Col md={2}>
-                    <div className='btn btn-primary mx-5 my-3 px-4' onClick={()=>setRequestShow(false)}><b className=''>back</b></div>
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-                <div className='box mx-5 p-5' style={{width:'80%'}}>
-                    <Row>
-                        <Col md={3}>
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Make</Form.Label>
-                            <Form.Control type="text" value={request[0].make} />
-                        </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Model</Form.Label>
-                            <Form.Control type="text" value={request[0].model} />
-                        </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Year</Form.Label>
-                            <Form.Control type="text" value={request[0].year} />
-                        </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Region</Form.Label>
-                            <Form.Control type="text" value={request[0].regio} />
-                        </Form.Group>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col md={3}>
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Service</Form.Label>
-                            <Form.Control type="email" value={request[0].service} />
-                        </Form.Group>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col md={5}>
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                            <Form.Label>Description</Form.Label>
-                            <Form.Control as="textarea" rows={3} value={request[0].description} />
-                        </Form.Group>
-                        </Col>
-                    </Row>
-                    <Row >
-                        <Col >
-                            <button className='btn btn-primary mx-4 px-5'
-                                onClick={()=>{
-                                    Router.push({pathname:"/tasks",
-                                    query:{
-                                        make:request[0].make,model:request[0].model, year:request[0].year,
-                                        regio:request[0].regio, service:request[0].service, taskhow:true, description:request[0].description
-                                    }})
-                                }}
-                            style={{float:'right'}}>Accept</button>
-                        </Col>
-                        <Col md={2} >
-                            <button className='btn btn-primary px-5' style={{float:'right'}}>Decline</button>
-                        </Col>
-                    </Row>
-                </div>
-                </Col>
-            </Row>
-            </div>
-            
+            </Col>
+        </Row>
+        </div>
         }
         <Modal show={show} onHide={profileView?()=>setShow(false):handleClose} size="lg">
         <Modal.Header closeButton>
@@ -604,27 +618,27 @@ const CustomersLayout = ({customers, serviceRequest}) => {
         </Form>
         </Modal.Body>
         </Modal>
-      <Modal className='shadow' show={deleteView} onHide={()=>setDeleteView(false)} size="md">
-        <Modal.Header closeButton>
-          <Modal.Title>Delete Customer</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-        <span><h6>Sure You Want to Delete <span style={{color:'crimson'}}>{f_name} {l_name}</span> ?</h6></span>
-            <Button className='px-4 mt-2' variant="danger" size="sm" onClick={deleteUser}>
-                {load==true?<Spinner className='' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:"Yes"}
-            </Button>
-            <Button className='px-4 mx-2 mt-2' variant="success" size="sm" onClick={()=>setDeleteView(false)}>No</Button>
-        </Modal.Body>
-      </Modal>
-      <Modal className='shadow' show={linkShow} onHide={()=>setLinkShow(false)} size="md" backdrop={'static'}>
-        <Modal.Header closeButton>
-          <Modal.Title>Link Generated</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-        <span><h6>Copy The Following Link <span style={{color:'crimson'}}>{f_name} {l_name}</span></h6></span>
-            <div style={{color:'grey'}}>{link}</div>
-        </Modal.Body>
-      </Modal>
+        <Modal className='shadow' show={deleteView} onHide={()=>setDeleteView(false)} size="md">
+            <Modal.Header closeButton>
+            <Modal.Title>Delete Customer</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+            <span><h6>Sure You Want to Delete <span style={{color:'crimson'}}>{f_name} {l_name}</span> ?</h6></span>
+                <Button className='px-4 mt-2' variant="danger" size="sm" onClick={deleteUser}>
+                    {load==true?<Spinner className='' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:"Yes"}
+                </Button>
+                <Button className='px-4 mx-2 mt-2' variant="success" size="sm" onClick={()=>setDeleteView(false)}>No</Button>
+            </Modal.Body>
+        </Modal>
+        <Modal className='shadow' show={linkShow} onHide={()=>setLinkShow(false)} size="md" backdrop={'static'}>
+            <Modal.Header closeButton>
+            <Modal.Title>Link Generated</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+            <span><h6>Copy The Following Link <span style={{color:'crimson'}}>{f_name} {l_name}</span></h6></span>
+                <div style={{color:'grey'}}>{link}</div>
+            </Modal.Body>
+        </Modal>
       {/*
       <Modal
       show={RequestShow}

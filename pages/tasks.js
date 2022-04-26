@@ -4,7 +4,7 @@ import Cookies from 'cookies'
 import Router from 'next/router'
 import TaskLayout from '../components/layouts/TaskLayout'
 
-const Tasks = ({sessionData, services, parts, tasks}) => {
+const Tasks = ({sessionData, services, parts, tasks, employees}) => {
 
   React.useEffect(() => {
     console.log(sessionData)
@@ -16,7 +16,7 @@ const Tasks = ({sessionData, services, parts, tasks}) => {
   }, [])
 
   return (
-    <div><TaskLayout services={services} parts={parts} tasks={tasks} /></div>
+    <div><TaskLayout services={services} parts={parts} tasks={tasks} employees={employees} /></div>
   )
 }
 export default Tasks
@@ -30,17 +30,20 @@ export async function getServerSideProps({req,res}) {
     }).then((x)=>x.data)
     
   const requestTwo = await axios.get(process.env.NEXT_PUBLIC_TI_GET_SERVICES).then((x)=>x.data)
-
+  
   const requestThree = await axios.get(process.env.NEXT_PUBLIC_TI_GET_PARTS).then((x)=>x.data)
-
+  
   const requestFour = await axios.get(process.env.NEXT_PUBLIC_TI_GET_TASK).then((x)=>x.data)
-
+  
+  const requestFive = await axios.get(process.env.NEXT_PUBLIC_TI_GET_MECHANICS).then((x)=>x.data)
+  
   const dataone = await requestOne
   const datatwo = await requestTwo
   const datathree = await requestThree
   const datafour = await requestFour
+  const datafive = await requestFive
 
   return{
-      props: { sessionData: dataone, services:datatwo, parts:datathree, tasks:datafour }
+      props: { sessionData: dataone, services:datatwo, parts:datathree, tasks:datafour, employees:datafive }
   }
 }
