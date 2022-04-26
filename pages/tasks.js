@@ -4,7 +4,7 @@ import Cookies from 'cookies'
 import Router from 'next/router'
 import TaskLayout from '../components/layouts/TaskLayout'
 
-const Tasks = ({sessionData, services, parts}) => {
+const Tasks = ({sessionData, services, parts, tasks}) => {
 
   React.useEffect(() => {
     console.log(sessionData)
@@ -16,7 +16,7 @@ const Tasks = ({sessionData, services, parts}) => {
   }, [])
 
   return (
-    <div><TaskLayout services={services} parts={parts} /></div>
+    <div><TaskLayout services={services} parts={parts} tasks={tasks} /></div>
   )
 }
 export default Tasks
@@ -33,11 +33,14 @@ export async function getServerSideProps({req,res}) {
 
   const requestThree = await axios.get(process.env.NEXT_PUBLIC_TI_GET_PARTS).then((x)=>x.data)
 
+  const requestFour = await axios.get(process.env.NEXT_PUBLIC_TI_GET_TASK).then((x)=>x.data)
+
   const dataone = await requestOne
   const datatwo = await requestTwo
   const datathree = await requestThree
+  const datafour = await requestFour
 
   return{
-      props: { sessionData: dataone, services:datatwo, parts:datathree }
+      props: { sessionData: dataone, services:datatwo, parts:datathree, tasks:datafour }
   }
 }

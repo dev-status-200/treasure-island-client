@@ -504,7 +504,15 @@ const CustomersLayout = ({customers, serviceRequest}) => {
                     </Row>
                     <Row >
                         <Col >
-                            <button className='btn btn-primary mx-4 px-5' style={{float:'right'}}>Accept</button>
+                            <button className='btn btn-primary mx-4 px-5'
+                                onClick={()=>{
+                                    Router.replace({pathname:"/tasks",
+                                    query:{
+                                        make:request[0].make,model:request[0].model, year:request[0].year,
+                                        regio:request[0].regio, service:request[0].service, taskhow:true, description:request[0].description
+                                    }})
+                                }}
+                            style={{float:'right'}}>Accept</button>
                         </Col>
                         <Col md={2} >
                             <button className='btn btn-primary px-5' style={{float:'right'}}>Decline</button>
