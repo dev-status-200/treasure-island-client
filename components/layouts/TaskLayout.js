@@ -14,11 +14,11 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
     const router = useRouter();
 
     const [taskShow, setTaskhow] = useState(false);
-    const [make    , setMake  ] = useState("Audi");
+    const [make    , setMake  ] = useState("");
     const [carMake , setCarMake  ] = useState("");
-    const [year    , setYear  ] = useState("2012");
-    const [model    , setModel  ] = useState("2012");
-    const [regio    , setRegio  ] = useState("2012");
+    const [year    , setYear  ] = useState("");
+    const [model    , setModel  ] = useState("");
+    const [regio    , setRegio  ] = useState("");
     const [description    , setDescription  ] = useState("");
     const [partList, setPartList] = useState([]);
     const [taskList, setTaskList] = useState([]);
@@ -298,11 +298,14 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                     let tempState = [...state.service];
                                     //console.log(e.target.value);
                                     services.find((x)=>{
-                                        console.log(x)                       // You Need This
-                                    if(x.id==e.target.value){                            // Extremely Important
-                                    x.Servicecars.find((y)=>{                           // Very Important
-                                        if(y.make.toLowerCase()==make.toLowerCase() ){ //&& (y.from<=year && y.to>=year)
-                                            tempState[indexMain] = {}
+                                    console.log(x)
+                                    if(x.id==e.target.value){
+                                    x.Servicecars.find((y)=>{                   
+                                        console.log(y.make)
+                                        console.log(carMake)
+                                        if(y.make.toLowerCase()==carMake.toLowerCase() ){ //&& (y.from<=year && y.to>=year)
+                                            console.log('Match Found')
+                                            //tempState[indexMain] = {}
                                             tempState[indexMain] = y;
                                             if(y.parts.length<20){
                                                 //tempState[indexMain].partsCost = getPartsPrize(tempState[indexMain].parts)

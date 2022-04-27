@@ -148,17 +148,17 @@ const ServiceLayout = ({parts, servicesData}) => {
                       <h6 className='text-center  my-3'><b>{serv.name}</b></h6>
                       <div className='detail-service'>
                         <span className='left'>Total Cost</span>
-                        <span className='right'>{minVal(serv.Servicecars)} $ - {maxVal(serv.Servicecars)} $</span>
+                        <span className='right'>{minVal(serv.Servicecars).toFixed(2)} $ - {maxVal(serv.Servicecars).toFixed(2)} $</span>
                       </div>
                       <hr className='my-2' />
                       <div className='detail-service'>
                         <span className='left'>Labour Cost</span>
-                        <span className='right'>{minValCost(serv.Servicecars)} $ - {maxValCost(serv.Servicecars)} $</span>
+                        <span className='right'>{minValCost(serv.Servicecars).toFixed(2)} $ - {maxValCost(serv.Servicecars).toFixed(2)} $</span>
                       </div>
                       <hr className='my-2' />
                       <div className='detail-service'>
                       <span className='left'>Parts Cost</span>
-                      <span className='right'>{minValparts(serv.Servicecars)} $ - {maxValparts(serv.Servicecars)} $</span>
+                      <span className='right'>{minValparts(serv.Servicecars).toFixed(2)} $ - {maxValparts(serv.Servicecars).toFixed(2)} $</span>
                       </div>
                       <hr className='mt-2' />
                       <div className='text-center my-2'>
