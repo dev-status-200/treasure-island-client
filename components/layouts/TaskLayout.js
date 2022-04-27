@@ -57,6 +57,23 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         });
         setEmployeeList(tempStateTwo);
     }, [])
+    useEffect(() => {
+        if(router.query.service){
+        const intervalId = setInterval(() => {
+                setTaskhow(true);
+                setCarMake(router.query.carmake)
+                setService(router.query.service)
+                setYear(router.query.year)
+                setModel(router.query.model)
+                setRegio(router.query.regio)
+                setDescription(router.query.description)
+                setPhone(router.query.phone)
+                setCarId(router.query.carId)
+                setCustomerId(router.query.customerId)
+            }, 1000);
+        }
+        return () => clearInterval(intervalId)
+    }, [router.query.service])
 
     useEffect(() => {
 
@@ -159,23 +176,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
             Router.reload("/tasks")
         })
     }
-    useEffect(() => {
-        if(router.query.service){
-        const intervalId = setInterval(() => {
-                setTaskhow(true);
-                setCarMake(router.query.carmake)
-                setService(router.query.service)
-                setYear(router.query.year)
-                setModel(router.query.model)
-                setRegio(router.query.regio)
-                setDescription(router.query.description)
-                setPhone(router.query.phone)
-                setCarId(router.query.carId)
-                setCustomerId(router.query.customerId)
-            }, 1000);
-        }
-        return () => clearInterval(intervalId)
-    }, [])
+
 
   return (
     <div className='task-styles'>
@@ -238,7 +239,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             <Col className="mx-4">
                             <Form.Group className="mb-3" >
                                 <Form.Label>Description</Form.Label>
-                                <Form.Control as="textarea" rows={3} style={{width:'96%'}} value={description}
+                                <Form.Control as="textarea" rows={3} style={{width:'96%'}} value={description} onChange={(e)=>setDescription(e.target.value)}
                                 />
                             </Form.Group>
                             </Col>
