@@ -110,13 +110,15 @@
     }
     .detail-bar{
         background-color: #1A73E8;
-        margin-left: -10px;
-        width: 1000px;
-        min-height: 10px;
         color: white;
-        padding-left: 0px;
-        padding-top: 20px;
-        padding-bottom: 20px;
+    }
+    .small-table-frame{
+        width: 1000px;
+    }
+    .details-bar{
+        background-color: #1A73E8;
+        color:white;
+        padding: 20px;
         border-radius: 15px;
     }
     .border-btm{
@@ -265,11 +267,7 @@
         font-weight: bolder;
         font-size: 20px;
     }
-    .small-table-frame{
-        padding-left: 110px;
-        padding-right: 220px;
-        padding-top: 30px;
-    }
+
     .paginate-btn{
         cursor: pointer;
         color: silver;

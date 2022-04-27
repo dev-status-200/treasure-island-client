@@ -15,35 +15,47 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
 
     const [taskShow, setTaskhow] = useState(false);
     const [make    , setMake  ] = useState("Audi");
-    const [carMake    , setCarMake  ] = useState("");
+    const [carMake , setCarMake  ] = useState("");
     const [year    , setYear  ] = useState("2012");
     const [model    , setModel  ] = useState("2012");
     const [regio    , setRegio  ] = useState("2012");
     const [description    , setDescription  ] = useState("");
     const [partList, setPartList] = useState([]);
+    const [taskList, setTaskList] = useState([]);
+    const [employeeList, setEmployeeList] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0.00);
     const [tax, setTax] = useState(0.00);
     const [fPrice, setFPrice] = useState(0.00);
     const [image, setImage] = useState("");
     const [service, setService] = useState("");
     const [extPartPrice, setExtPartPrice] = useState(0.00);
+    const [phone, setPhone] = useState("");
+    const [engineNo, setEngineNo] = useState("")
+    const [mileage, setMileage] = useState("")
+    const [carId, setCarId] = useState("")
+    const [customerId, setCustomerId] = useState("")
 
     const [load, setLoad] = useState(false)
 
     const [state, setState ] = useSetState({
         service:[{
-        id:"",make:"",model:"",from:"",to:"",partsCost:"",labourCost:"",discount:"",estimate:"",parts:[],createdAt:"",updatedAt:"",ServiceId:""
+            id:"",make:"",model:"",from:"",to:"",partsCost:"",labourCost:"",discount:"",estimate:"",parts:[],createdAt:"",updatedAt:"",ServiceId:""
         }]
     });
 
     useEffect(() => {
- //       console.log(router.query)
+        console.log(tasks)
+        setTaskList(tasks)
         let tempState = [];
+        let tempStateTwo = [];
         parts.forEach(x => {
-          tempState.push({label:`${x.part_number} (${x.brand_name} ${x.part_name}) $ ${x.cost}`, value:x.id})
+            tempState.push({label:`${x.part_number} (${x.brand_name} ${x.part_name}) $ ${x.cost}`, value:x.id})
         });
         setPartList(tempState);
-        //console.log(tasks)
+        employees.forEach(x => {
+            tempStateTwo.push({label:`${x.f_name} ${x.l_name}`, value:x.id})
+        });
+        setEmployeeList(tempStateTwo);
     }, [])
 
     useEffect(() => {
@@ -58,7 +70,6 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         setTotalPrice(Price)
         setFPrice(Price + parseFloat(tax) + parseFloat(extPartPrice))
     }, [state.service, tax, extPartPrice])
-                
     const getPartName = (x) => {
         let value = "";
         parts.forEach((y)=>{
@@ -68,7 +79,6 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         })
         return value
     };
-
     const getPartsPrize = (x) => {
         console.log("Price Calculation");
         console.log(x)
@@ -83,7 +93,6 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         })
         return price
     };
-
     const changePrice = (part, index) => {
         console.log(part)
         console.log(index)
@@ -106,7 +115,6 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         
         setState({service:tempState})
     }
-
     async function uploadImage(){
 
         let value = '';
@@ -136,22 +144,22 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
             partz = partz + x.part
         })
     }
-
     const createTask = async(e) => {
         e.preventDefault();
         let imagesVal = "";
         setLoad(true)
+        let allService;
+
         await axios.post(process.env.NEXT_PUBLIC_TI_CREATE_TASK,{
             service:service, createdBy:Cookies.get('loginId'), description:description,
-            totalPrice:totalPrice, tax:tax, finalPrice:fPrice,images:await uploadImage()
+            totalPrice:totalPrice, tax:tax, finalPrice:fPrice,images:await uploadImage(),
+            engine_no:engineNo, mileage:mileage, carId:carId, customerId:customerId
         }).then((x)=>{
             setLoad(false);
             Router.reload("/tasks")
         })
     }
-
     useEffect(() => {
-
         if(router.query.service){
         const intervalId = setInterval(() => {
                 setTaskhow(true);
@@ -161,34 +169,43 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                 setModel(router.query.model)
                 setRegio(router.query.regio)
                 setDescription(router.query.description)
-            }, 1000) // in milliseconds
+                setPhone(router.query.phone)
+                setCarId(router.query.carId)
+                setCustomerId(router.query.customerId)
+            }, 1000);
         }
         return () => clearInterval(intervalId)
-
     }, [])
-    
 
   return (
     <div className='task-styles'>
         {!taskShow &&
-        <div className='mx-5'>
-            <Row>
-                <Col md={2}>
-                    <Button onClick={()=>setTaskhow(true)}>Add Task</Button>
-                </Col>
-            </Row>
-            <Row className='mt-4' style={{height:"550px", overflowY:"auto"}}>
+        <div className='mx-5 '>
+            <Row className='mt-1' style={{height:"630px", overflowY:"auto"}}>
                 {
-                    tasks.map((task, index)=>{
+                    taskList.map((task, index)=>{
                         return(
-                            <Col md={3} key={index}>
+                            <Col md={3} className="mx-3 my-3" key={index}>
                                 <div className='card'>
                                     <div className='top'>
                                     <div className='dot'></div>
-                                        <h4 className='id'>{task.id.slice(0,4)}</h4>
+                                        <h4 className='id'>{task.Taskassociations[0].Car.regio}</h4>
+                                        <p className='id-name'>{task.Taskassociations[0].Car.make} {task.Taskassociations[0].Car.model} {task.Taskassociations[0].Car.year}</p>
                                     </div>
-                                    <div className='service'><strong>Service: </strong>{task.service}</div>
-                                    <div className='service'><strong>Total Price:</strong> {task.totalPrice}</div>
+                                    <div className=''>
+                                        <div>
+                                            <span className='service-left'>Service: </span>
+                                            <span className='service-right'>{task.service}</span>
+                                        </div>
+                                        <div className='line'></div>
+                                        <div>
+                                            <span className='service-left-two'>Cost: </span>
+                                            <span className='service-right-two'>$ {task.finalPrice}</span>
+                                        </div>
+                                        <div className='text-center mt-5'>
+                                        <Button className='mt-2 px-5 shadow'>See Details</Button>
+                                        </div>
+                                    </div>
                                 </div>
                             </Col>
                         )
@@ -207,13 +224,13 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             <Col md={3} className="mx-4">
                             <Form.Group className="mb-3" controlId="formBasicEmail">
                                 <Form.Label>Number</Form.Label>
-                                <Form.Control type="text" placeholder="" value={"Auto Generated"} />
+                                <Form.Control type="text" placeholder="" value={phone} />
                             </Form.Group>
                             </Col>
                             <Col md={3} className="mx-5">
                             <Form.Group className="mb-3" controlId="formBasicEmail">
                                 <Form.Label>Service</Form.Label>
-                                <Form.Control type="text" placeholder="" value={service} onChange={(e)=>setService(e.target.value)} />
+                                <Form.Control type="text" placeholder="" value={service} />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -222,7 +239,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             <Form.Group className="mb-3" >
                                 <Form.Label>Description</Form.Label>
                                 <Form.Control as="textarea" rows={3} style={{width:'96%'}} value={description}
-                                onChange={(e)=>setDescription(e.target.value)} />
+                                />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -254,13 +271,13 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             <Col md={3} className="mx-5">
                             <Form.Group className="mb-3" controlId="formBasicEmail">
                                 <Form.Label>Engine Number</Form.Label>
-                                <Form.Control type="text" placeholder="" disabled />
+                                <Form.Control type="text" placeholder="" value={engineNo} required onChange={(e)=>setEngineNo(e.target.value)} />
                             </Form.Group>
                             </Col>
                             <Col md={3} className="mx-5">
                             <Form.Group className="mb-3" controlId="formBasicEmail">
                                 <Form.Label>Mileage</Form.Label>
-                                <Form.Control type="text" placeholder="" disabled />
+                                <Form.Control type="text" placeholder="" value={mileage} required onChange={(e)=>setMileage(e.target.value)} />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -278,9 +295,10 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                         marginRight:'260px', width:'96%'
                                     }}
                                 onChange={(e)=>{
-                                    let tempState = [...state.service]
+                                    let tempState = [...state.service];
                                     //console.log(e.target.value);
-                                    services.find((x)=>{                                  // You Need This
+                                    services.find((x)=>{
+                                        console.log(x)                       // You Need This
                                     if(x.id==e.target.value){                            // Extremely Important
                                     x.Servicecars.find((y)=>{                           // Very Important
                                         if(y.make.toLowerCase()==make.toLowerCase() ){ //&& (y.from<=year && y.to>=year)
@@ -288,7 +306,6 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                             tempState[indexMain] = y;
                                             if(y.parts.length<20){
                                                 //tempState[indexMain].partsCost = getPartsPrize(tempState[indexMain].parts)
-
                                             }else{
                                                 tempState[indexMain].parts = y.parts.split(", ");
                                                 tempState[indexMain].parts = tempState[indexMain].parts.filter((l)=>{
@@ -308,12 +325,12 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                     console.log(ser.parts)
                                 }}
                                     >
-                                        {services.map((serv, index)=>{
-                                            return(
-                                                <option key={index} value={serv.id}>{serv.name}</option>
+                                    <option disabled selected>Select Service</option>
+                                    {services.map((serv, index)=>{
+                                        return(
+                                            <option key={index} value={serv.id}>{serv.name}</option>
                                             )
                                         })}
-                                        
                                     </Form.Select>
                                 </Col>
                             </Row>
@@ -374,15 +391,15 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                     }}>+</div>
                                 </Col>
                             </Row>
-                            
                         </div>
                         )})
                         }
                         <Row>
                         <Col>
                             <div style={{width:'92%', marginLeft:"22px"}}>
+                            Extra Parts
                             <Select
-                            defaultValue={'Country'}
+                            defaultValue={''}
                             isMulti
                             name="colors"
                             options={partList}
@@ -437,16 +454,30 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                         </Row>
                         <Row className='justify-content-md-center'>
                         <Col md={12}>
-                            <div className='img-upload'>
+                            <div className='img-upload' style={{width:'92%', marginLeft:"22px"}}>
                             <input type="file" required multiple onChange={(e) => {setImage(e.target.files); console.log(e.target.files)}} />
                             <img src='assets/images/upload.png' className='img-upload-icon' />
                             </div>
                         </Col>
                         </Row>
+                        <Row className='mt-4'>
+                        <div style={{width:'92%', marginLeft:"22px"}}>
+                            Select Employees
+                            <Select
+                                defaultValue={''}
+                                isMulti
+                                name="colors"
+                                options={employeeList}
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                            />
+                        </div>
+                        </Row>
                         </div>
                         <Button className='mt-3 px-5' style={{float:'right'}} variant="primary" type="submit">
                         {load==true?<Spinner className='mx-4' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:"Add Task"}
                         </Button>
+                        <Row className='my-5 py-5'></Row>
                         </Form>
                 </Col>
             </Row>

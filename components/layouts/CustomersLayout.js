@@ -22,7 +22,6 @@ const CustomersLayout = ({customers, serviceRequest}) => {
 
     const handleClose = () => { setShow(false); setEdit(false); setChange(false); clearFields(); setMailWarn(false); setPhoneWarn(false);}
     const handleShow = () => { getMail(); setShow(true); setChange(true); }
-
     const handleEditShow = () => { setEdit(true); setShow(true); }
 
     const [linkShow, setLinkShow] = useState(false);
@@ -37,9 +36,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
     const [phoneWarn, setPhoneWarn] = useState(false);
 
     const [MechanicList, setMechanicList] = useState([]);
-
     const [unAppCustomerList, setUnAppCustomerList] = useState([]);
-
     const [unAppCustomer, setUnAppCustomer] = useState(false);
 
     const [requests, setRequests] = useState([]);
@@ -47,7 +44,6 @@ const CustomersLayout = ({customers, serviceRequest}) => {
 
     useEffect(() => {
         setMechanicList(customers);
-        //setRequests(serviceRequest);
     }, [])
 
     const getMail = async() => {
@@ -95,7 +91,8 @@ const CustomersLayout = ({customers, serviceRequest}) => {
         console.log(tempState);
         setRequests(tempState)
     }
-    const [id      , setId        ] = useState('')
+    const [id      , setId        ] = useState('');
+    const [customerId, setCutomerId] = useState('');
     const [f_name  , setF_name    ] = useState('');
     const [l_name  , setL_Name    ] = useState('');
     const [password, setPassword  ] = useState('');
@@ -291,7 +288,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
             <Col md={12}>
             <div className='box' >
             <div style={{minHeight:'542px'}}>
-                <Table responsive >
+                <Table responsive>
                 <thead>
                     <tr>
                     <th>Name</th>
@@ -368,62 +365,67 @@ const CustomersLayout = ({customers, serviceRequest}) => {
             </Row>
         </Container>}
         {(profileView && !RequestShow) &&
-        <div className='profile-view  pt-1'>
+        <div className='profile-view px-5 pt-1'>
             <Row>
-                <Col md={1}>
-                </Col>
-                <Col md={8}>
-                    <div className='detail-bar'>
-                        <Row>
-                            <Col md={4} className="text-center">
-                                <h5 className='my-2'> <b>{f_name} {l_name}</b> </h5>
-                                <button  className='btn btn-light btn-sm mt-2 px-3' onClick={handleEditShow}>
-                                    <MdOutlineMode className='' style={{fontSize:'15px', color:'blue'}} /> Edit Profile
-                                </button>
-                            </Col>
-                            <Col md={4} className="">
-                                <div className='my-2'> <ImPhone className='mx-3 mb-1' /> {phone} </div>
-                                <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
-                                <div className='my-2'> <FaIdCard className='mx-3' /> {"Not Registered"} </div>
-                            </Col>
-                            <Col md={4} className="">
-                                <div className='my-2'> <FaEnvelope className='mx-3' /> {email=='-'?'Not Registered':email=='none'?'Not Registered':email} </div>
-                                <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
-                                <div className='my-2'> <MdLocationOn className='mx-3' /> {address} </div>
-                            </Col>
-                        </Row>
+                <Col md={10}>
+                    <div  className='details-bar'>
+                    <Row>
+                        <Col md={4} className="text-center">
+                            <h5 className='my-2'> <b>{f_name} {l_name}</b> </h5>
+                            <button  className='btn btn-light btn-sm mt-2 px-3' onClick={handleEditShow}>
+                                <MdOutlineMode className='' style={{fontSize:'15px', color:'blue'}} /> Edit Profile
+                            </button>
+                        </Col>
+                        <Col md={4} className="">
+                            <div className='my-2'> <ImPhone className='mx-3 mb-1' /> {phone} </div>
+                            <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
+                            <div className='my-2'> <FaIdCard className='mx-3' /> {"Not Registered"} </div>
+                        </Col>
+                        <Col md={4} className="">
+                            <div className='my-2'> <FaEnvelope className='mx-3' /> {email=='-'?'Not Registered':email=='none'?'Not Registered':email} </div>
+                            <div className='border-btm' style={{width:"65%", marginLeft:'5%'}}></div>
+                            <div className='my-2'> <MdLocationOn className='mx-3' /> {address} </div>
+                        </Col>
+                    </Row>
                     </div>
                 </Col>
             </Row>
             <Row>
-            <Col md={2}>
-                <div className='back-btn-cust' onClick={()=>{setProfileView(false); handleClose();}}><b className=''>{"<"} Customers</b> </div>
-            </Col>
-            <Col >
-                <div className='back-btn-cust-two' 
-                    onClick={()=>{
-                        let list = {};
-                        let need_service = false
-                        list = carList.filter((x, index)=>{
-                            if(x.need_service=="yes"){
-                                need_service = true
-                                return x
+                <Col md={10}>
+                    <Row className='my-3'>
+                        <Col>
+                            <div className='btn btn-sm px-5' style={{backgroundColor:"#1A73E8", borderRadius:"7px",color:'white'}} onClick={()=>{setProfileView(false); handleClose();}}><b className=''>{"<"} Customers</b> </div>
+                        </Col>
+                        <Col>
+                        <div className='btn btn-sm px-4'
+
+                        style={{backgroundColor:"#1A73E8", color:'white', float:'right', borderRadius:"7px"}} 
+                        onClick={()=>{
+                            let list = {};
+                            let need_service = false
+                            list = carList.filter((x, index)=>{
+                                if(x.need_service=="yes"){
+                                    need_service = true
+                                    return x
+                                }
+                            })
+                            if(need_service){
+                                setRequestShow(true);
+                                setRequest(list);
                             }
-                        })
-                        if(need_service){
-                            setRequestShow(true);
-                            setRequest(list);
-                        }
-                        
-                    }}
-                    ><b className=''>Upcoming Requests</b> </div>
-            </Col>
+                            console.log(list)
+                            
+                        }}
+                        ><b className=''>Upcoming Requests</b> </div>
+                        </Col>
+                    </Row>
+                </Col>
             </Row>
             <Row>
-            <Col className='small-table-frame'>
-            <div className='box'>
-            <h6 className='my-2'><strong>Cars</strong></h6>
-            <Table responsive="sm" style={{fontSize:'14px'}}>
+                <Col md={10}>
+                        <div className='box'>
+                        <h6>Cars</h6>
+                        <Table  style={{fontSize:'14px'}}>
             <thead>
                 <tr>
                 <th>Region</th>
@@ -454,8 +456,8 @@ const CustomersLayout = ({customers, serviceRequest}) => {
             }
             </tbody>
             </Table>
-            </div>
-            </Col>
+                        </div>
+                </Col>
             </Row>
         </div>
         }
@@ -515,11 +517,12 @@ const CustomersLayout = ({customers, serviceRequest}) => {
                     <Col >
                         <button className='btn btn-primary mx-4 px-5'
                             onClick={()=>{
-                                deleteServiceRequest()
+                                //deleteServiceRequest()
                                 Router.push({pathname:"/tasks",
                                 query:{
-                                    car:"got",carmake:request[0].make,model:request[0].model, year:request[0].year,
-                                    regio:request[0].regio, service:request[0].service, taskhow:true, description:request[0].description
+                                    carId:request[0].id, car:"got",carmake:request[0].make,model:request[0].model, year:request[0].year, phone:phone,
+                                    regio:request[0].regio, service:request[0].service, taskhow:true, description:request[0].description,
+                                    customerId:request[0].CustomerId
                                 }})
                             }}
                         style={{float:'right'}}>Accept</button>

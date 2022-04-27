@@ -66,8 +66,8 @@
         transition: 1s;
     }
     .card{
-        height: 300px;
-        width: 250px;
+        height: 320px;
+        width: 270px;
         background-color: white;
         box-shadow: 10px 10px 21px -13px rgba(0,0,0,0.75);
         -webkit-box-shadow: 10px 10px 21px -13px rgba(0,0,0,0.75);
@@ -85,9 +85,42 @@
         text-align: center;
         margin-top: 30px;
     }
-    .service{
+    .id-name{
+        color: white;
+        font-weight: 400;
         text-align: center;
+    }
+    .service-left{
+        margin-left: 20px;
+        float: left;
         margin-top: 20px;
+        font-size: 18px;
+    }
+    .service-right{
+        float: right;
+        margin-right: 20px;
+        margin-top: 20px;
+        font-size: 18px;
+    }
+    .service-left-two{
+        margin-left: 20px;
+        float: left;
+        margin-top: 10px;
+        font-size: 18px;
+    }
+    .service-right-two{
+        float: right;
+        margin-right: 20px;
+        margin-top: 10px;
+        font-size: 18px;
+    }
+    .line{
+        margin-top: 50px;
+        height: 1px;
+        width: 82%;
+        margin-left: 20px;
+        margin-left: 20px;
+        background-color: #74747456;
     }
     .dot{
         background-color: greenyellow;
