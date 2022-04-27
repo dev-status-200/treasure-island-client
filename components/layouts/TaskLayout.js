@@ -109,6 +109,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                     }
                 })
                 tempState[index].estimate = parseFloat(tempState[index].estimate) - parseFloat(y.cost)
+                tempState[index].partsCost = parseFloat(tempState[index].partsCost) - parseFloat(y.cost)
             }
         })
         console.log(tempState)
