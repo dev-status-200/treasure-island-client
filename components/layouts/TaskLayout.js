@@ -203,7 +203,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                             <span className='service-right-two'>$ {task.finalPrice}</span>
                                         </div>
                                         <div className='text-center mt-5'>
-                                        <Button className='mt-2 px-5 shadow'>See Details</Button>
+                                        <Button className='mt-5 px-5 shadow'>See Details</Button>
                                         </div>
                                     </div>
                                 </div>
