@@ -6,6 +6,7 @@ import Select from 'react-select';
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import Router, { useRouter } from 'next/router';
+import moment from 'moment'
 
 const fileTypes = ["JPEG", "PNG", "GIF", "BMP"];
 
@@ -14,6 +15,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
     const router = useRouter();
 
     const [taskShow, setTaskhow] = useState(false);
+    const [taskView, setTaskView] = useState(false);
     const [make    , setMake  ] = useState("");
     const [carMake , setCarMake  ] = useState("");
     const [year    , setYear  ] = useState("");
@@ -23,6 +25,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
     const [partList, setPartList] = useState([]);
     const [taskList, setTaskList] = useState([]);
     const [employeeList, setEmployeeList] = useState([]);
+    const [selectedEmployeeList, setSelectedEmployeeList] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0.00);
     const [tax, setTax] = useState(0.00);
     const [fPrice, setFPrice] = useState(0.00);
@@ -34,13 +37,17 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
     const [mileage, setMileage] = useState("")
     const [carId, setCarId] = useState("")
     const [customerId, setCustomerId] = useState("")
-
+    
     const [load, setLoad] = useState(false)
 
     const [state, setState ] = useSetState({
         service:[{
             id:"",make:"",model:"",from:"",to:"",partsCost:"",labourCost:"",discount:"",estimate:"",parts:[],createdAt:"",updatedAt:"",ServiceId:""
-        }]
+        }],
+        selectedService:{
+            serviceName:"", date:"", employees:[], customer:{id:"", name:''}, status:'', description:'', parts:[], extraParts:[], services:[],
+            make:"", model:'', eng:'', mileage:'', images:[], createdAt:''
+        }
     });
 
     useEffect(() => {
@@ -150,14 +157,14 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         let imagesVal = "";
         setLoad(true)
         let allService;
-
+        console.log(selectedEmployeeList)
         await axios.post(process.env.NEXT_PUBLIC_TI_CREATE_TASK,{
             service:service, createdBy:Cookies.get('loginId'), description:description,
             totalPrice:totalPrice, tax:tax, finalPrice:fPrice,images:await uploadImage(),
-            engine_no:engineNo, mileage:mileage, carId:carId, customerId:customerId
+            engine_no:engineNo, mileage:mileage, carId:carId, customerId:customerId, employeeList:selectedEmployeeList
         }).then((x)=>{
             setLoad(false);
-            Router.reload("/tasks")
+            //Router.reload("/tasks")
         })
     }
     useEffect(() => {
@@ -177,10 +184,31 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         }
         return () => clearInterval(intervalId)
     }, [])
-
+    const fetchTaskDetails = (id) => {
+        setTaskView(true);
+        console.log(id);
+        axios.get(process.env.NEXT_PUBLIC_TI_GET_TASK_BY_ID,{
+            headers:{
+                "id":`${id}`
+            }
+        }).then((x)=>{
+            console.log(x.data)
+            let dataSet = state.selectedService;
+            dataSet.service = x.data[0].service
+            dataSet.status = x.data[0].status=="active"?'In Progress':'Completed'
+            dataSet.customer = {id:x.data[0].Taskassociations[0].Customer.id, name:`${x.data[0].Taskassociations[0].Customer.f_name} ${x.data[0].Taskassociations[0].Customer.l_name}`}
+            dataSet.createdAt = moment(x.data[0].createdAt).fromNow()
+            x.data[0].Taskassociations.forEach((x, index)=>{
+                dataSet.employees.push({id:x.User.id, name:`${x.User.l_name} ${x.User.f_name}`, picture:x.User.profile_pic})
+            })
+            dataSet.description = x.data[0].description
+            setState({selectedService:dataSet})
+            console.log(dataSet)
+        });
+    }
   return (
     <div className='task-styles'>
-        {!taskShow &&
+        {(!taskShow && !taskView) &&
         <div className='mx-5 '>
             <Row className='mt-1' style={{height:"630px", overflowY:"auto"}}>
                 {
@@ -204,7 +232,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                             <span className='service-right-two'>$ {task.finalPrice}</span>
                                         </div>
                                         <div className='text-center mt-5'>
-                                        <Button className='mt-5 px-5 shadow'>See Details</Button>
+                                        <Button className='mt-5 px-5 shadow' onClick={()=>fetchTaskDetails(task.id)}>See Details</Button>
                                         </div>
                                     </div>
                                 </div>
@@ -215,7 +243,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
             </Row>
         </div>
         }
-        {taskShow &&
+        {(taskShow && !taskView) &&
             <Row>
                 <Col className='mx-5' md={10} style={{maxHeight:'650px', overflowY:'auto', overflowX:"hidden"}}>
                     <h6 className='my-2'>Add New Task</h6>
@@ -297,19 +325,17 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                     }}
                                 onChange={(e)=>{
                                     let tempState = [...state.service];
-                                    //console.log(e.target.value);
                                     services.find((x)=>{
-                                    console.log(x)
                                     if(x.id==e.target.value){
-                                    x.Servicecars.find((y)=>{                   
-                                        console.log(y.make)
-                                        console.log(carMake)
+                                    let found = false
+                                    x.Servicecars.find((y)=>{
                                         if(y.make.toLowerCase()==carMake.toLowerCase() ){ //&& (y.from<=year && y.to>=year)
-                                            console.log('Match Found')
-                                            //tempState[indexMain] = {}
+                                            console.log('Match Found');
+                                            found = true
+                                            console.log(y)
                                             tempState[indexMain] = y;
+                                            console.log(tempState[indexMain])
                                             if(y.parts.length<20){
-                                                //tempState[indexMain].partsCost = getPartsPrize(tempState[indexMain].parts)
                                             }else{
                                                 tempState[indexMain].parts = y.parts.split(", ");
                                                 tempState[indexMain].parts = tempState[indexMain].parts.filter((l)=>{
@@ -319,14 +345,15 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                                 })
                                             }
                                             console.log(tempState[indexMain]);
-                                        }else{
+                                        }else if(found==false){
                                             tempState[indexMain] = {id:"",make:"",model:"",from:"",to:"",partsCost:"",labourCost:"",discount:"",estimate:"",parts:[],createdAt:"",updatedAt:"",ServiceId:""}
+                                            console.log('removal')
                                         }
                                     })
                                     }
                                     })
                                     setState({service:tempState});
-                                    console.log(ser.parts)
+                                    console.log(tempState)
                                 }}
                                     >
                                     <option disabled selected>Select Service</option>
@@ -472,6 +499,10 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                 isMulti
                                 name="colors"
                                 options={employeeList}
+                                onChange={(e)=>{
+                                    console.log(e);
+                                    setSelectedEmployeeList(e);
+                                }}
                                 className="basic-multi-select"
                                 classNamePrefix="select"
                             />
@@ -485,6 +516,35 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                         </Form>
                 </Col>
             </Row>
+        }
+        {taskView &&
+            <div>
+                <Row>
+                    <Col md={2}><Button onClick={()=>{
+                        setTaskView(false);
+                        setState({
+                            selectedService:{
+                                serviceName:"", date:"", employees:[], customer:{id:"", name:''}, status:'', description:'', parts:[], extraParts:[], services:[],
+                                make:"", model:'', eng:'', mileage:'', images:[], createdAt:''
+                            }
+                        })
+                    }} className="px-4" size="sm">Back</Button></Col>
+                </Row>
+                <Row >
+                    <Col md={7} className="box mx-2 mt-3 p-4">
+                        <Row>
+                            <Col><input type="checkbox"></input> <span style={{fontSize:'14px', color:'grey'}}>Mark As Completed</span></Col>
+                        </Row>
+                        <Row className='mt-2'>
+                            <h4>{state.selectedService.service}</h4>
+                        </Row>
+                        <Row>
+                            <Col md={12} className="mt-2"></Col>
+                        </Row>
+                    </Col>
+                    <Col md={3} className="box mx-2 mt-3"></Col>
+                </Row>
+            </div>
         }
     </div>
   )
