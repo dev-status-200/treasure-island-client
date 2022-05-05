@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Container, Spinner, Button, Form } from 'react-bootstrap';
+import { Row, Col, Container, Spinner, Button, Form, OverlayTrigger, Tooltip  } from 'react-bootstrap';
 import { useSetState } from 'react-use';
 import { FileUploader } from "react-drag-drop-files";
 import Select from 'react-select';
@@ -7,7 +7,10 @@ import Cookies from 'js-cookie'
 import axios from 'axios'
 import Router, { useRouter } from 'next/router';
 import moment from 'moment'
-
+import { BsWrench, BsSpeedometer } from "react-icons/bs";
+import { FiSettings } from "react-icons/fi";
+import { AiFillCar, AiFillFileImage } from "react-icons/ai";
+import { GiMechanicGarage } from "react-icons/gi";
 const fileTypes = ["JPEG", "PNG", "GIF", "BMP"];
 
 const TaskLayout = ({services, parts, tasks, employees}) => {
@@ -33,12 +36,18 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
     const [service, setService] = useState("");
     const [extPartPrice, setExtPartPrice] = useState(0.00);
     const [phone, setPhone] = useState("");
-    const [engineNo, setEngineNo] = useState("")
-    const [mileage, setMileage] = useState("")
-    const [carId, setCarId] = useState("")
-    const [customerId, setCustomerId] = useState("")
-    
+    const [engineNo, setEngineNo] = useState("");
+    const [mileage, setMileage] = useState("");
+    const [carId, setCarId] = useState("");
+    const [customerId, setCustomerId] = useState("");
+
+    const [selectedCreatedServices, setSelectedCreatedServices] = useState([]);
+    const [selectedParts, setSelectedParts] = useState('');
+    const [selectedExtraParts, setSelectedExtraParts] = useState('');
+
+
     const [load, setLoad] = useState(false)
+    const [serviceload, setServiceLoad] = useState(false)
 
     const [state, setState ] = useSetState({
         service:[{
@@ -46,12 +55,12 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         }],
         selectedService:{
             serviceName:"", date:"", employees:[], customer:{id:"", name:''}, status:'', description:'', parts:[], extraParts:[], services:[],
-            make:"", model:'', eng:'', mileage:'', images:[], createdAt:''
+            make:"", model:'', eng:'', mileage:'', images:[], createdAt:'', regio:''
         }
     });
-
+    
     useEffect(() => {
-        console.log(tasks)
+        console.log(services)
         setTaskList(tasks)
         let tempState = [];
         let tempStateTwo = [];
@@ -157,14 +166,23 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         let imagesVal = "";
         setLoad(true)
         let allService;
-        console.log(selectedEmployeeList)
+        let tempService = '';
+        for(let i = 0; i<selectedCreatedServices.length;i++){
+            if(i==selectedCreatedServices.length-1){
+                tempService = tempService + selectedCreatedServices[i]
+            }else{
+                tempService = tempService + selectedCreatedServices[i]+', '
+            }
+        }
+        console.log(tempService);
+        console.log(selectedExtraParts);
         await axios.post(process.env.NEXT_PUBLIC_TI_CREATE_TASK,{
-            service:service, createdBy:Cookies.get('loginId'), description:description,
-            totalPrice:totalPrice, tax:tax, finalPrice:fPrice,images:await uploadImage(),
+            service:service, createdBy:Cookies.get('loginId'), description:description, createdService:tempService,
+            totalPrice:totalPrice, tax:tax, finalPrice:fPrice,images:await uploadImage(), extraParts:selectedExtraParts,
             engine_no:engineNo, mileage:mileage, carId:carId, customerId:customerId, employeeList:selectedEmployeeList
         }).then((x)=>{
             setLoad(false);
-            //Router.reload("/tasks")
+            Router.reload("/tasks");
         })
     }
     useEffect(() => {
@@ -194,16 +212,37 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         }).then((x)=>{
             console.log(x.data)
             let dataSet = state.selectedService;
+            dataSet.mileage = x.data[0].Taskassociations[0].Car.mileage
+            dataSet.model = x.data[0].Taskassociations[0].Car.model
+            dataSet.make = x.data[0].Taskassociations[0].Car.make
+            dataSet.regio = x.data[0].Taskassociations[0].Car.regio
+            dataSet.eng = x.data[0].Taskassociations[0].Car.engine_no
             dataSet.service = x.data[0].service
+            dataSet.images = x.data[0].images.split(', ')
+            let tempCreatedService = x.data[0].createdService.split(', ')
+            services.forEach((x)=>{
+                tempCreatedService.find((y)=>{
+                    if(x.id==y){
+                        dataSet.services.push({name:x.name})
+                        //console.log(x) parts can be found here if you look in the x consoled
+                    }
+                })
+            })
+            let tempCreatedExtraParts = x.data[0].extraParts.split(', ')
+            tempCreatedExtraParts.forEach((x)=>{
+                dataSet.extraParts.push({name:x})
+            })
             dataSet.status = x.data[0].status=="active"?'In Progress':'Completed'
             dataSet.customer = {id:x.data[0].Taskassociations[0].Customer.id, name:`${x.data[0].Taskassociations[0].Customer.f_name} ${x.data[0].Taskassociations[0].Customer.l_name}`}
             dataSet.createdAt = moment(x.data[0].createdAt).fromNow()
             x.data[0].Taskassociations.forEach((x, index)=>{
                 dataSet.employees.push({id:x.User.id, name:`${x.User.l_name} ${x.User.f_name}`, picture:x.User.profile_pic})
             })
+
             dataSet.description = x.data[0].description
             setState({selectedService:dataSet})
             console.log(dataSet)
+            setServiceLoad(true)
         });
     }
   return (
@@ -324,17 +363,21 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                         marginRight:'260px', width:'96%'
                                     }}
                                 onChange={(e)=>{
+                                    let serviceTemp = [...selectedCreatedServices]
+                                    serviceTemp[indexMain] = e.target.value
+                                    setSelectedCreatedServices(serviceTemp)
+                                    //console.log(e.target.name)
                                     let tempState = [...state.service];
                                     services.find((x)=>{
                                     if(x.id==e.target.value){
                                     let found = false
                                     x.Servicecars.find((y)=>{
                                         if(y.make.toLowerCase()==carMake.toLowerCase() ){ //&& (y.from<=year && y.to>=year)
-                                            console.log('Match Found');
+                                            //console.log('Match Found');
                                             found = true
-                                            console.log(y)
+                                            //console.log(y)
                                             tempState[indexMain] = y;
-                                            console.log(tempState[indexMain])
+                                            //console.log(tempState[indexMain])
                                             if(y.parts.length<20){
                                             }else{
                                                 tempState[indexMain].parts = y.parts.split(", ");
@@ -344,22 +387,22 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                                     }
                                                 })
                                             }
-                                            console.log(tempState[indexMain]);
+                                            //console.log(tempState[indexMain]);
                                         }else if(found==false){
                                             tempState[indexMain] = {id:"",make:"",model:"",from:"",to:"",partsCost:"",labourCost:"",discount:"",estimate:"",parts:[],createdAt:"",updatedAt:"",ServiceId:""}
-                                            console.log('removal')
+                                            //console.log('removal')
                                         }
                                     })
                                     }
                                     })
                                     setState({service:tempState});
-                                    console.log(tempState)
+                                    //console.log(tempState)
                                 }}
                                     >
                                     <option disabled selected>Select Service</option>
                                     {services.map((serv, index)=>{
                                         return(
-                                            <option key={index} value={serv.id}>{serv.name}</option>
+                                            <option key={index} value={serv.id} valueTwo={serv.name}>{serv.name}</option>
                                             )
                                         })}
                                     </Form.Select>
@@ -415,6 +458,9 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                 <Col md={11} className="mx-4 my-4">
                                     <hr/>
                                     <div className='plus' onClick={()=>{
+                                        let serviceTemp = [...selectedCreatedServices]
+                                        serviceTemp.push("");
+                                        setSelectedCreatedServices(serviceTemp);
                                         let tempState = [...state.service];
                                         tempState.push({id:"",make:"",model:"",from:"",to:"",partsCost:"",labourCost:"",discount:"",estimate:"",parts:[],createdAt:"",updatedAt:"",ServiceId:""})
                                         console.log(tempState)
@@ -435,7 +481,16 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             name="colors"
                             options={partList}
                             onChange={(e) => {
-                                console.log(e)
+                                console.log(e);
+                                let tempState = '';
+                                e.forEach((x, index)=>{
+                                    if(index==0){
+                                        tempState = x.label
+                                    }else{
+                                        tempState = tempState + ', '+x.label
+                                    }
+                                })
+                                setSelectedExtraParts(tempState)
                                 let partCost = 0.00;
                                 parts.forEach((x)=>{
                                     e.forEach((y)=>{
@@ -518,9 +573,12 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
             </Row>
         }
         {taskView &&
-            <div>
-                <Row>
+            <div className='mx-5'>
+                { serviceload &&
+                    <div>
+                    <Row>
                     <Col md={2}><Button onClick={()=>{
+                        setServiceLoad(false)
                         setTaskView(false);
                         setState({
                             selectedService:{
@@ -528,22 +586,126 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                 make:"", model:'', eng:'', mileage:'', images:[], createdAt:''
                             }
                         })
-                    }} className="px-4" size="sm">Back</Button></Col>
+                    }} className="px-4 mx-2" size="sm">Back</Button></Col>
                 </Row>
-                <Row >
-                    <Col md={7} className="box mx-2 mt-3 p-4">
+                <Row style={{fontSize:'14px'}}>
+                    <Col md={7} >
+                        <div className="box mx-2 mt-3 p-4">
                         <Row>
-                            <Col><input type="checkbox"></input> <span style={{fontSize:'14px', color:'grey'}}>Mark As Completed</span></Col>
-                        </Row>
-                        <Row className='mt-2'>
-                            <h4>{state.selectedService.service}</h4>
-                        </Row>
-                        <Row>
-                            <Col md={12} className="mt-2"></Col>
-                        </Row>
+                        <Col><input type="checkbox"></input> <span style={{fontSize:'14px', color:'grey'}}>Mark As Completed</span></Col>
+                    </Row>
+                    <Row className='mt-3'>
+                        <h5>{state.selectedService.service}</h5>
+                    </Row>
+                    <Row>
+                        <Col md={6} className="mt-3">
+                            <div style={{color:'grey',fontSize:'14px'}}>Assigned To</div>
+                            <Row>
+                                <Col>
+                                    {state.selectedService.employees.map((emp, index)=>{
+                                        return(
+                                            <span key={emp.id}>
+                                                <span>
+                                                    <img src={emp.picture} height={22} style={{borderRadius:"50%", marginRight:'3px'}} />
+                                                </span>
+                                                <span style={{position:'relative', top:'2px', left:'2px'}}>
+                                                    {emp.name}{index==(state.selectedService.employees.length-1)?'':', '+" "}
+                                                </span>
+                                                {index%2!=0 && <br/>}
+                                            </span>)
+                                    })}
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col md={6} className="mt-2">
+                            <div style={{color:'grey',fontSize:'14px'}}>Date</div>
+                            <div>{state.selectedService.createdAt}</div>
+                        </Col>
+                    </Row>
+                    <Row className='mt-3'>
+                        <Col md={6} className="mt-2">
+                            <div style={{color:'grey',fontSize:'14px'}}>Customer</div>
+                            <div>
+                            <span>
+                                <img src={'https://res.cloudinary.com/abdullah7c/image/upload/v1643040095/images_djois2.png'} height={22} style={{borderRadius:"50%", marginRight:'3px'}} />
+                            </span>
+                            <span style={{position:'relative', top:'2px', left:'2px'}}>
+                            {state.selectedService.customer.name}
+                            </span> 
+                            </div>
+                        </Col>
+                        <Col md={6} className="mt-2">
+                            <div style={{color:'grey',fontSize:'14px'}}>Status</div>
+                            <div>  {state.selectedService.status}</div>
+                        </Col>
+                    </Row>
+                    <Row className='mt-4'>
+                        <div style={{color:'grey',fontSize:'14px'}}>Overview</div>
+                        <div>
+                            {state.selectedService.description}
+                        </div>
+                    </Row>
+                    <Row className='mt-4'>
+                        <Col md={6}><BsWrench className='mx-2' style={{color:'blue'}} /><span>{state.selectedService.services[0].name}</span></Col>
+                        <Col md={6}>
+                            <FiSettings className='mx-2' style={{color:'blue'}} />
+                            <span>
+                            <OverlayTrigger
+                            placement={'bottom'}
+                            overlay={
+                              <Tooltip id={`tooltip-`} >
+                                {
+                                    state.selectedService.extraParts.map((exParts, index)=>{
+                                        return(<div key={index} style={{fontSize:'13px'}}>{exParts.name}</div>)
+                                    })
+                                }
+                              </Tooltip>
+                            }
+                          >
+                            <span variant="secondary" style={{cursor:'pointer'}}>Extra Parts</span>
+                          </OverlayTrigger>
+                            </span>
+                        </Col>
+                    </Row>
+                        </div>
+                        <div className="box mx-2 mt-3 p-4">
+                            <Row>
+                                <p><strong>{state.selectedService.regio}</strong></p>
+                                <Col md={4} className="mt-3"><AiFillCar style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.make} {state.selectedService.model}</span></Col>
+                                <Col md={4} className="mt-3"><GiMechanicGarage style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.eng}</span></Col>
+                                <Col md={4} className="mt-3"><BsSpeedometer style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.mileage} </span></Col>
+                            </Row>
+                            <Row className='my-2'></Row>
+                        </div>
                     </Col>
-                    <Col md={3} className="box mx-2 mt-3"></Col>
+                    <Col md={3} className="box mx-2 mt-3 p-3">
+                            <div>Attachements</div>
+                            {
+                                state.selectedService.images.map((img, index)=>{
+                                    return(
+                                        <div key={index+'abc'} style={{
+                                            border:"1px solid silver",
+                                            padding:"20px 0px 20px 20px",
+                                            marginTop:"5px"
+                                        }}>
+                                            <span>
+                                                <AiFillFileImage style={{color:'blueviolet'}}/>
+                                            </span>
+                                            <span style={{color:'grey', fontSize:'12px', marginLeft:'10px', cursor:'pointer'}} onClick={()=>{window.open(img, '_blank').focus();}}>Click To Download File</span>
+                                        </div>
+                                    )
+                                })
+                            }
+                    </Col>
+                    
                 </Row>
+                
+                </div>
+                }
+                {
+                    !serviceload &&
+                    <Spinner animation="border" style={{marginLeft:'50%', marginTop:'20%'}} />
+                }
             </div>
         }
     </div>
