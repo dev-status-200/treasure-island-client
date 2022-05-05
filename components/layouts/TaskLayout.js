@@ -240,9 +240,9 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
             })
 
             dataSet.description = x.data[0].description
-            setState({selectedService:dataSet})
-            console.log(dataSet)
-            setServiceLoad(true)
+            setState({selectedService:dataSet});
+            setServiceLoad(true);
+            console.log('serviceLoad set to true!')
         });
     }
   return (
@@ -578,7 +578,8 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                     <div>
                     <Row>
                     <Col md={2}><Button onClick={()=>{
-                        setServiceLoad(false)
+                        setServiceLoad(false);
+                        console.log('serviceLoad set to false!')
                         setTaskView(false);
                         setState({
                             selectedService:{
