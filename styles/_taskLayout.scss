@@ -122,13 +122,67 @@
         margin-left: 20px;
         background-color: #74747456;
     }
-    .dot{
-        background-color: greenyellow;
+    .dot-green{
+        background-color: yel;
         height: 10px;
         width: 10px;
         float: right;
         margin-right: 10px;
         margin-top: 10px;
         border-radius: 50%;
+    }
+    .dot-red{
+        background-color: red;
+        height: 10px;
+        width: 10px;
+        float: right;
+        margin-right: 10px;
+        margin-top: 10px;
+        border-radius: 50%;
+    }
+    .dot-yellow{
+        background-color: yellow;
+        height: 10px;
+        width: 10px;
+        float: right;
+        margin-right: 10px;
+        margin-top: 10px;
+        border-radius: 50%;
+    }
+    .cmt-submit{
+        border: none;
+        background-color: rgba(59, 221, 167, 0.945);
+        color: white;
+        padding: 6px 15px 6px 15px;
+        border-radius: 5px;
+    }
+    .comment-pic{
+        border-radius: 50%;
+    }
+    .comment-name{
+        font-weight: 700;
+        font-size: 14px;
+    }
+    .comment-comment{
+        color: grey;
+        margin-top: 5px;
+        font-size: 15px;
+    }
+    .comment-date{
+        color: grey;
+        margin-top: 5px;
+        font-size: 10px;
+    }
+    .img-upload-two{
+        border: 1px solid silver;
+        min-height: 100px;
+        padding-left: 15%;
+        padding-top: 12%;
+    }
+    .upload-two-btn{
+        border: 1px solid silver;
+        background-color: white;
+        padding-left: 19px;
+        padding-right: 19px;
     }
 }

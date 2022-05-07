@@ -11,6 +11,7 @@ import { BsWrench, BsSpeedometer } from "react-icons/bs";
 import { FiSettings } from "react-icons/fi";
 import { AiFillCar, AiFillFileImage } from "react-icons/ai";
 import { GiMechanicGarage } from "react-icons/gi";
+
 const fileTypes = ["JPEG", "PNG", "GIF", "BMP"];
 
 const TaskLayout = ({services, parts, tasks, employees}) => {
@@ -45,6 +46,12 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
     const [selectedParts, setSelectedParts] = useState('');
     const [selectedExtraParts, setSelectedExtraParts] = useState('');
 
+    const [makeComment, setMakeComment] = useState('');
+    const [taskId, setTaskId] = useState('');
+    const [commentLoad, setCommentLoad] = useState(false);
+    const [commentList, setCommentList] = useState([]);
+    const [newImg, setNewImg] = useState();
+    const [newImgUrl, setNewImgUrl] = useState('');
 
     const [load, setLoad] = useState(false)
     const [serviceload, setServiceLoad] = useState(false)
@@ -212,13 +219,17 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         }).then((x)=>{
             console.log(x.data)
             let dataSet = state.selectedService;
+            setTaskId(x.data[0].id)
             dataSet.mileage = x.data[0].Taskassociations[0].Car.mileage
             dataSet.model = x.data[0].Taskassociations[0].Car.model
             dataSet.make = x.data[0].Taskassociations[0].Car.make
             dataSet.regio = x.data[0].Taskassociations[0].Car.regio
             dataSet.eng = x.data[0].Taskassociations[0].Car.engine_no
             dataSet.service = x.data[0].service
-            dataSet.images = x.data[0].images.split(', ')
+            let imagesTemp = x.data[0].images.split(', ');
+            for (let indeTwo = 0; indeTwo < imagesTemp.length-1; indeTwo++) {
+                dataSet.images.push(imagesTemp[indeTwo]);
+            }
             let tempCreatedService = x.data[0].createdService.split(', ')
             services.forEach((x)=>{
                 tempCreatedService.find((y)=>{
@@ -243,7 +254,58 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
             setState({selectedService:dataSet});
             setServiceLoad(true);
             console.log('serviceLoad set to true!')
+            axios.get(process.env.NEXT_PUBLIC_TI_GET_TASK_COMMENT,{
+                headers:{
+                    "userId":`${x.data[0].id}`
+                }
+            }).then((y)=>{
+                console.log(y.data)
+                setCommentList(y.data)
+            })
+            console.log(dataSet)
         });
+    }
+    const submitComment = () => {
+        setCommentLoad(true);
+        axios.post(process.env.NEXT_PUBLIC_TI_MAKE_TASK_COMMENT,{
+            comment:makeComment, taskId:taskId, userId:Cookies.get('loginId')
+        }).then((x)=>{
+            console.log(x.data)
+            setCommentList(x.data);
+            setMakeComment("")
+            setCommentLoad(false);
+        })
+    }
+    async function reUploadImage(){
+        let value = '';
+            if(newImg!=""){
+                const data = new FormData()
+                data.append("file", newImg)
+                data.append("upload_preset", "g4hjcqh7")
+                data.append("cloud_name", "abdullah7c")
+                value = await fetch(`https://api.cloudinary.com/v1_1/abdullah7c/image/upload`, {
+                    method: "post",
+                    body: data
+                })
+                    .then(resp => resp.json())
+                    .then(data => data.url)
+                    .catch(err => console.log(err));
+
+                setNewImgUrl(value);
+                console.log(value)
+                let tempState = state.selectedService
+                tempState.images.push(value);
+                console.log(tempState);
+                setState({selectedService:tempState})
+                let tempImageList = ''
+                tempState.images.forEach((x)=>{
+                    tempImageList = tempImageList + x + ", "
+                })
+                console.log(tempImageList);
+                axios.post(process.env.NEXT_PUBLIC_TI_REUPLOAD_TASK_IMAGE,{
+                    images:tempImageList, id:taskId
+                })
+            }
     }
   return (
     <div className='task-styles'>
@@ -256,7 +318,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             <Col md={3} className="mx-3 my-3" key={index}>
                                 <div className='card'>
                                     <div className='top'>
-                                    <div className='dot'></div>
+                                    <div className='dot-yellow'></div>
                                         <h4 className='id'>{task.Taskassociations[0].Car.regio}</h4>
                                         <p className='id-name'>{task.Taskassociations[0].Car.make} {task.Taskassociations[0].Car.model} {task.Taskassociations[0].Car.year}</p>
                                     </div>
@@ -573,10 +635,10 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
             </Row>
         }
         {taskView &&
-            <div className='mx-5'>
+            <div className='mx-5' style={{maxHeight:'600px', overflowY:'auto', overflowX:'hidden'}}>
                 { serviceload &&
-                    <div>
-                    <Row>
+                <div>
+                <Row>
                     <Col md={2}><Button onClick={()=>{
                         setServiceLoad(false);
                         console.log('serviceLoad set to false!')
@@ -587,7 +649,8 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                 make:"", model:'', eng:'', mileage:'', images:[], createdAt:''
                             }
                         })
-                    }} className="px-4 mx-2" size="sm">Back</Button></Col>
+                    }} className="px-4 mx-2" size="sm">Back</Button>
+                    </Col>
                 </Row>
                 <Row style={{fontSize:'14px'}}>
                     <Col md={7} >
@@ -607,7 +670,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                         return(
                                             <span key={emp.id}>
                                                 <span>
-                                                    <img src={emp.picture} height={22} style={{borderRadius:"50%", marginRight:'3px'}} />
+                                                    <img src={emp.picture} height={25} width={25} style={{borderRadius:"50%", marginRight:'3px'}} />
                                                 </span>
                                                 <span style={{position:'relative', top:'2px', left:'2px'}}>
                                                     {emp.name}{index==(state.selectedService.employees.length-1)?'':', '+" "}
@@ -668,19 +731,25 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             </span>
                         </Col>
                     </Row>
-                        </div>
-                        <div className="box mx-2 mt-3 p-4">
-                            <Row>
-                                <p><strong>{state.selectedService.regio}</strong></p>
-                                <Col md={4} className="mt-3"><AiFillCar style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.make} {state.selectedService.model}</span></Col>
-                                <Col md={4} className="mt-3"><GiMechanicGarage style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.eng}</span></Col>
-                                <Col md={4} className="mt-3"><BsSpeedometer style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.mileage} </span></Col>
-                            </Row>
-                            <Row className='my-2'></Row>
-                        </div>
+                </div>
+                    <div className="box mx-2 mt-3 p-4">
+                        <Row>
+                            <p><strong>{state.selectedService.regio}</strong></p>
+                            <Col md={4} className="mt-3"><AiFillCar style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.make} {state.selectedService.model}</span></Col>
+                            <Col md={4} className="mt-3"><GiMechanicGarage style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.eng}</span></Col>
+                            <Col md={4} className="mt-3"><BsSpeedometer style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.mileage} </span></Col>
+                        </Row>
+                        <Row className='my-2'></Row>
+                    </div>
                     </Col>
                     <Col md={3} className="box mx-2 mt-3 p-3">
                             <div>Attachements</div>
+                            <div>
+                                <div className='img-upload-two'>
+                                <input type="file" onChange={(e) => setNewImg(e.target.files[0])} ></input>
+                                    <button className='upload-two-btn' onClick={()=>reUploadImage()}>Upload</button>
+                                </div>
+                            </div>
                             {
                                 state.selectedService.images.map((img, index)=>{
                                     return(
@@ -697,8 +766,47 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                     )
                                 })
                             }
+                            
                     </Col>
-                    
+                </Row>
+                <Row>
+                    <Col md={7}>
+                        <div className="box mx-2 mt-3 p-3">
+                            <h5>Comments</h5>
+                            <hr/>
+                            <Row>
+                            {
+                                commentList.map((comment, index)=>{
+                                    return(
+                                        <Row className='mt-2'>
+                                        <Col md={1}><img src={comment.User.profile_pic} height={32} width={32} className="comment-pic" /></Col>
+                                        <Col md={8}>
+                                            <div className='comment-name'>{comment.User.f_name} {comment.User.l_name}</div>
+                                            <div className='comment-comment'>{comment.comment}</div>
+                                        </Col>
+                                        <Col className='comment-date'><div style={{float:"right"}}>{moment(comment.createdAt).fromNow()}</div></Col>
+                                        </Row>
+                                        )
+                                })
+                            }
+                                
+                            </Row>
+                            <Row className='mt-3'>
+                                <Col>
+                                <Form.Group className="mb-3" controlId="formBasic">
+                                    <Form.Control as="textarea" rows={3} value={makeComment} onChange={(e)=>setMakeComment(e.target.value)} />
+                                </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                            <Col md={12}>
+                                <button style={{float:'right'}} className='cmt-submit' onClick={submitComment}>
+                                    {commentLoad?<Spinner animation="border" style={{height:'20px', width:'20px', marginLeft:'20px', marginRight:'20px'}} />:"Submit"}
+                                </button>
+                            </Col>
+                            </Row>
+                        </div>
+                    </Col>
                 </Row>
                 
                 </div>
