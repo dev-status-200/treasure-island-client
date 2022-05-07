@@ -40,11 +40,15 @@ const MainLayout = ({children}) => {
         {id:'6',  link:'/notifications', name:'Notifications', class:'', logo:<FiBell/>},
         {id:'7', link:'/',  name:'Logout', class:'', logo:<FiLogOut/>}
     ];
-    const [image, setImage] = useState("")
+    const [image, setImage] = useState("");
+    const [username, setUsername] = useState("");
+    const [userRole, setUserRole] = useState("");
     const [navItems, setNavItems] = useState(Cookies.get('role_id')=="Mechanic"?mechanicMenu:adminMenu);
 
     useEffect(() => {
         setImage(Cookies.get('picture'));
+        setUsername(Cookies.get('username'))
+        setUserRole(Cookies.get('role_id'));
         let tempState = [...navItems];
         tempState.filter((x)=>{ if(x.link===router.pathname){ x.class='active' } else { x.class='' } })
         setNavItems(tempState);
@@ -108,9 +112,9 @@ const MainLayout = ({children}) => {
                     <Col md={3}>
                         <img src={image} className="login_pic" />
                     </Col>
-                    <Col >
-                        {Cookies.get('username')}<br/>
-                        <span className='user-type'>{Cookies.get('role_id')}</span>
+                    <Col>
+                        <p>{username}</p>
+                        <p className='user-type'>{userRole}</p>
                     </Col>
                     </Row>
                     </div>

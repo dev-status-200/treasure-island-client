@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Container, Spinner, Button, Form, OverlayTrigger, Tooltip  } from 'react-bootstrap';
+import { Row, Col, Container, Spinner, Button, Form, OverlayTrigger, Tooltip, Table} from 'react-bootstrap';
 import { useSetState } from 'react-use';
 import { FileUploader } from "react-drag-drop-files";
 import Select from 'react-select';
@@ -62,12 +62,13 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         }],
         selectedService:{
             serviceName:"", date:"", employees:[], customer:{id:"", name:''}, status:'', description:'', parts:[], extraParts:[], services:[],
-            make:"", model:'', eng:'', mileage:'', images:[], createdAt:'', regio:''
+            make:"", model:'', eng:'', mileage:'', images:[], createdAt:'', regio:'', carId:''
         }
     });
     
     useEffect(() => {
         console.log(services)
+        console.log(tasks)
         setTaskList(tasks)
         let tempState = [];
         let tempStateTwo = [];
@@ -211,7 +212,6 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
     }, [])
     const fetchTaskDetails = (id) => {
         setTaskView(true);
-        console.log(id);
         axios.get(process.env.NEXT_PUBLIC_TI_GET_TASK_BY_ID,{
             headers:{
                 "id":`${id}`
@@ -220,30 +220,46 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
             console.log(x.data)
             let dataSet = state.selectedService;
             setTaskId(x.data[0].id)
-            dataSet.mileage = x.data[0].Taskassociations[0].Car.mileage
+            dataSet.carId = x.data[0].Taskassociations[0].CarId
             dataSet.model = x.data[0].Taskassociations[0].Car.model
             dataSet.make = x.data[0].Taskassociations[0].Car.make
             dataSet.regio = x.data[0].Taskassociations[0].Car.regio
-            dataSet.eng = x.data[0].Taskassociations[0].Car.engine_no
+            dataSet.mileage = x.data[0].mileage
+            dataSet.eng = x.data[0].engine_no
             dataSet.service = x.data[0].service
             let imagesTemp = x.data[0].images.split(', ');
-            for (let indeTwo = 0; indeTwo < imagesTemp.length-1; indeTwo++) {
-                dataSet.images.push(imagesTemp[indeTwo]);
+            if(imagesTemp[imagesTemp.length-1]==''){
+                for (let indeTwo = 0; indeTwo < imagesTemp.length-1; indeTwo++) {
+                    dataSet.images.push(imagesTemp[indeTwo]);
+                }
+            }else{
+                for (let indeTwo = 0; indeTwo < imagesTemp.length; indeTwo++) {
+                    dataSet.images.push(imagesTemp[indeTwo]);
+                }
             }
             let tempCreatedService = x.data[0].createdService.split(', ')
+            let partsList = []
             services.forEach((x)=>{
                 tempCreatedService.find((y)=>{
                     if(x.id==y){
                         dataSet.services.push({name:x.name})
-                        //console.log(x) parts can be found here if you look in the x consoled
+                        x.Servicecars.forEach((z)=>{
+                            if(z.make.toLowerCase()==dataSet.make.toLowerCase() && z.model.toLowerCase()==dataSet.model.toLowerCase()){
+                                let tempParts = z.parts.split(', ')
+                                tempParts.forEach((part)=>{
+                                    partsList.push({id:part});
+                                })
+                            }
+                        })
                     }
                 })
             })
+            dataSet.parts = partsList
             let tempCreatedExtraParts = x.data[0].extraParts.split(', ')
             tempCreatedExtraParts.forEach((x)=>{
                 dataSet.extraParts.push({name:x})
             })
-            dataSet.status = x.data[0].status=="active"?'In Progress':'Completed'
+            dataSet.status = x.data[0].status
             dataSet.customer = {id:x.data[0].Taskassociations[0].Customer.id, name:`${x.data[0].Taskassociations[0].Customer.f_name} ${x.data[0].Taskassociations[0].Customer.l_name}`}
             dataSet.createdAt = moment(x.data[0].createdAt).fromNow()
             x.data[0].Taskassociations.forEach((x, index)=>{
@@ -259,7 +275,6 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                     "userId":`${x.data[0].id}`
                 }
             }).then((y)=>{
-                console.log(y.data)
                 setCommentList(y.data)
             })
             console.log(dataSet)
@@ -296,16 +311,69 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                 let tempState = state.selectedService
                 tempState.images.push(value);
                 console.log(tempState);
-                setState({selectedService:tempState})
+                
                 let tempImageList = ''
                 tempState.images.forEach((x)=>{
                     tempImageList = tempImageList + x + ", "
                 })
-                console.log(tempImageList);
-                axios.post(process.env.NEXT_PUBLIC_TI_REUPLOAD_TASK_IMAGE,{
+                await axios.post(process.env.NEXT_PUBLIC_TI_REUPLOAD_TASK_IMAGE,{
                     images:tempImageList, id:taskId
+                }).then(()=>{
+                    setState({selectedService:tempState})
                 })
             }
+            console.log('function End')
+    }
+    const taskComplete = async() => {
+        let value = '';
+        if(state.selectedService.status=='active'){
+            value = "complete"
+        }else{
+            value = "active"
+        }
+        await axios.post(process.env.NEXT_PUBLIC_TI_TASK_COMPLETE,{ 
+            id:taskId, action:value
+        }).then(()=>{
+            let tempState = [...taskList];
+            let tempStateTwo = state.selectedService
+            tempStateTwo.status = value;
+            setState({selectedService:tempStateTwo});
+
+            tempState.forEach((x)=>{
+                if(x.id==taskId){
+                    x.status = value
+                }
+            })
+            console.log(tempState);
+            setTaskList(tempState);
+        })
+    }
+    const getImage = (id) => {
+        let img = ''
+            employees.forEach((y)=>{
+                if(id==y.id){
+                    img = y.profile_pic
+                }
+            })
+        return img
+    }
+    const getPartsName = (id) => {
+        let name = ''
+            parts.forEach((y)=>{
+                if(id==y.id){
+                    name = y.part_number+" "+y.part_name + " " + y.cost
+                }
+            })
+        return name
+    }
+    const getName = (id) => {
+        let name = ''
+            employees.forEach((y)=>{
+                if(id==y.id){
+                    name = y.f_name + " " + y.l_name
+                }
+            })
+        return name
     }
   return (
     <div className='task-styles'>
@@ -318,7 +386,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             <Col md={3} className="mx-3 my-3" key={index}>
                                 <div className='card'>
                                     <div className='top'>
-                                    <div className='dot-yellow'></div>
+                                    <div className={task.status=="active"?'dot-yellow':"dot-green"}></div>
                                         <h4 className='id'>{task.Taskassociations[0].Car.regio}</h4>
                                         <p className='id-name'>{task.Taskassociations[0].Car.make} {task.Taskassociations[0].Car.model} {task.Taskassociations[0].Car.year}</p>
                                     </div>
@@ -653,10 +721,13 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                     </Col>
                 </Row>
                 <Row style={{fontSize:'14px'}}>
-                    <Col md={7} >
-                        <div className="box mx-2 mt-3 p-4">
-                        <Row>
-                        <Col><input type="checkbox"></input> <span style={{fontSize:'14px', color:'grey'}}>Mark As Completed</span></Col>
+                <Col md={7} >
+                <div className="box mx-2 mt-3 p-4">
+                    <Row>
+                        <Col>
+                            <input type="checkbox" checked={state.selectedService.status=='complete'?true:false} onChange={()=>taskComplete()} />
+                            <span style={{fontSize:'14px', marginLeft:'4px', color:'grey'}}>{state.selectedService.status=='complete'?"Mark As Uncomplete":"Mark As Completed"}</span>
+                        </Col>
                     </Row>
                     <Row className='mt-3'>
                         <h5>{state.selectedService.service}</h5>
@@ -712,67 +783,142 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                     <Row className='mt-4'>
                         <Col md={6}><BsWrench className='mx-2' style={{color:'blue'}} /><span>{state.selectedService.services[0].name}</span></Col>
                         <Col md={6}>
+                            <div>
                             <FiSettings className='mx-2' style={{color:'blue'}} />
                             <span>
                             <OverlayTrigger
-                            placement={'bottom'}
-                            overlay={
-                              <Tooltip id={`tooltip-`} >
-                                {
-                                    state.selectedService.extraParts.map((exParts, index)=>{
-                                        return(<div key={index} style={{fontSize:'13px'}}>{exParts.name}</div>)
-                                    })
+                                placement={'bottom'}
+                                overlay={
+                                <Tooltip id={`tooltip-`} >
+                                    {
+                                        state.selectedService.parts.map((exParts, index)=>{
+                                            return(<div key={index} style={{fontSize:'13px'}}>{getPartsName(exParts.id)}</div>)
+                                        })
+                                    }
+                                </Tooltip>
                                 }
-                              </Tooltip>
-                            }
-                          >
-                            <span variant="secondary" style={{cursor:'pointer'}}>Extra Parts</span>
-                          </OverlayTrigger>
+                            >
+                            <span variant="secondary" style={{cursor:'pointer'}}>Parts</span>
+                            </OverlayTrigger>
                             </span>
+                            </div>
+                        </Col>
+                        <Col md={6} className="mt-3">
+                            {state.selectedService.extraParts[0].name!=''&&
+                            <div>
+                            <FiSettings className='mx-2' style={{color:'blue'}} />
+                            <span>
+                            <OverlayTrigger
+                                placement={'bottom'}
+                                overlay={
+                                <Tooltip id={`tooltip-`} >
+                                    {
+                                        state.selectedService.extraParts.map((exParts, index)=>{
+                                            return(<div key={index} style={{fontSize:'13px'}}>{exParts.name}</div>)
+                                        })
+                                    }
+                                </Tooltip>
+                                }
+                            >
+                            <span variant="secondary" style={{cursor:'pointer'}}>Extra Parts</span>
+                            </OverlayTrigger>
+                            </span>
+                            </div>}
                         </Col>
                     </Row>
                 </div>
-                    <div className="box mx-2 mt-3 p-4">
-                        <Row>
-                            <p><strong>{state.selectedService.regio}</strong></p>
-                            <Col md={4} className="mt-3"><AiFillCar style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.make} {state.selectedService.model}</span></Col>
-                            <Col md={4} className="mt-3"><GiMechanicGarage style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.eng}</span></Col>
-                            <Col md={4} className="mt-3"><BsSpeedometer style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.mileage} </span></Col>
-                        </Row>
-                        <Row className='my-2'></Row>
-                    </div>
-                    </Col>
-                    <Col md={3} className="box mx-2 mt-3 p-3">
-                            <div>Attachements</div>
-                            <div>
-                                <div className='img-upload-two'>
-                                <input type="file" onChange={(e) => setNewImg(e.target.files[0])} ></input>
-                                    <button className='upload-two-btn' onClick={()=>reUploadImage()}>Upload</button>
-                                </div>
+                <div className="box mx-2 mt-3 p-4">
+                    <Row>
+                        <p><strong>{state.selectedService.regio}</strong></p>
+                        <Col md={4} className="mt-3"><AiFillCar style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.make} {state.selectedService.model}</span></Col>
+                        <Col md={4} className="mt-3"><GiMechanicGarage style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.eng}</span></Col>
+                        <Col md={4} className="mt-3"><BsSpeedometer style={{color:'blue'}} /> <span className='mx-2'>{state.selectedService.mileage} </span></Col>
+                    </Row>
+                    <Row className='my-2'></Row>
+                </div>
+                </Col>
+                <Col md={3} className="box mx-2 mt-3 p-3">
+                        <div>Attachements</div>
+                        <div>
+                            <div className='img-upload-two'>
+                            <input type="file" onChange={(e) => setNewImg(e.target.files[0])} ></input>
+                                <button className='upload-two-btn' onClick={()=>reUploadImage()}>Upload</button>
                             </div>
-                            {
-                                state.selectedService.images.map((img, index)=>{
-                                    return(
-                                        <div key={index+'abc'} style={{
-                                            border:"1px solid silver",
-                                            padding:"20px 0px 20px 20px",
-                                            marginTop:"5px"
-                                        }}>
-                                            <span>
-                                                <AiFillFileImage style={{color:'blueviolet'}}/>
+                        </div>
+                        {
+                            state.selectedService.images.map((img, index)=>{
+                                return(
+                                    <div key={index+'abc'} style={{
+                                        border:"1px solid silver",
+                                        padding:"20px 0px 20px 20px",
+                                        marginTop:"5px"
+                                    }}>
+                                        <span>
+                                            <AiFillFileImage style={{color:'blueviolet'}}/>
+                                        </span>
+                                        <span style={{color:'grey', fontSize:'12px', marginLeft:'10px', cursor:'pointer'}} onClick={()=>{window.open(img, '_blank').focus();}}>Click To Download File</span>
+                                    </div>
+                                )
+                            })
+                        }
+                        
+                </Col>
+                </Row>
+                <Row>
+                <Col md={11} style={{width:'86%'}}>
+                    <div className="box mx-2 mt-3 p-4">
+                        <h5>Recent Orders</h5>
+                        <div>
+                        <Table responsive="sm">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Service</th>
+                            <th>Mileage</th>
+                            <th>Assigned To</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {
+                            taskList.filter((x)=>{
+                                return x.id!=taskId
+                            }).map((task, index)=>{
+                            return(
+                            <tr key={index} style={{fontSize:'14px', color:'grey'}} >
+                                <td>{index+1}</td>
+                                <td>{task.service}</td>
+                                <td>{task.mileage}</td>
+                                <td style={{maxWidth:'150px'}}>
+                                {
+                                    task.Taskassociations.map((employee, indexTwo)=>{
+                                        return(
+                                            <span key={indexTwo}>
+                                            {indexTwo!=0 && <span>{", "}</span>}
+                                                <img src={getImage(employee.UserId)} height={22} width={22} style={{borderRadius:'50%'}} />
+                                                <span className='mx-1'>{getName(employee.UserId)}</span>
                                             </span>
-                                            <span style={{color:'grey', fontSize:'12px', marginLeft:'10px', cursor:'pointer'}} onClick={()=>{window.open(img, '_blank').focus();}}>Click To Download File</span>
-                                        </div>
-                                    )
-                                })
-                            }
-                            
-                    </Col>
+                                        )
+                                    })
+                                }
+                                </td>
+                                <td>{task.status}</td>
+                                <td>{task.createdAt.slice(0,10)}</td>
+                            </tr>
+                            )
+                            })
+                        }
+                        </tbody>
+                        </Table>
+                        </div>
+                    </div>
+                </Col>
                 </Row>
                 <Row>
                     <Col md={7}>
                         <div className="box mx-2 mt-3 p-3">
-                            <h5>Comments</h5>
+                            <h5 className='my-2'>Comments</h5>
                             <hr/>
                             <Row>
                             {
