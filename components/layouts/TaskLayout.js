@@ -778,7 +778,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             {
                                 commentList.map((comment, index)=>{
                                     return(
-                                        <Row className='mt-2'>
+                                        <Row key={comment.id} className='mt-2'>
                                         <Col md={1}><img src={comment.User.profile_pic} height={32} width={32} className="comment-pic" /></Col>
                                         <Col md={8}>
                                             <div className='comment-name'>{comment.User.f_name} {comment.User.l_name}</div>
