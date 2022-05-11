@@ -1,3 +1,199 @@
-.dashboard{
-
-}
+.dashboard {
+    height: 88vh;
+    overflow-y: scroll;
+    margin: 0;
+    padding-top: 15px;
+  }
+  
+  .dashboard::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .square-container {
+    height: 100px;
+    display: flex;
+    padding-top: 10px !important;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+  
+  .square {
+    display: flex;
+    height: 100%;
+    width: 240px;
+    justify-content: space-around;
+    align-items: center;
+    border-radius: 12px;
+    padding: 10px;
+    background-color: white;
+    box-shadow: 0 0 12px #888888;
+  }
+  
+  .mini-box {
+    height: 60px;
+    width: 60px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .square-title {
+    font-size: 20px;
+  }
+  
+  .drop-down {
+    display: flex;
+  }
+  
+  .graph-section {
+    height: 600px;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 120px;
+    margin-bottom: 30px !important;
+  }
+  
+  .main-graph {
+    box-shadow: 0 0 12px #888888;
+    background-color: white;
+    border-radius: 12px;
+    padding: 1rem 3rem !important;
+  }
+  .pie-chart {
+    box-shadow: 0 0 12px #888888;
+    background-color: white;
+    border-radius: 12px;
+    padding: 3rem !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    // width: 100%;
+  }
+  
+  .pie-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 12px !important;
+  }
+  
+  .pie-info div {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px !important;
+    justify-content: space-between;
+    padding: 4px 0 !important;
+    border-bottom: 1px solid gray;
+  }
+  
+  .main-graph-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0 !important;
+  }
+  
+  .main-graph h3 {
+    width: 100%;
+    text-align: left;
+    font-size: 20px;
+    padding-top: 8px;
+    padding-bottom: 4px;
+  }
+  
+  .linegraph {
+    margin: 10px;
+  }
+  
+  .sales-analysis {
+    background-color: white;
+    padding: 3rem !important;
+    height: 700px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px #888888;
+  }
+  
+  .barGraph {
+    height: 300px;
+  }
+  
+  .sales-analysis h3 {
+    font-size: 20px;
+  }
+  
+  .orders-table {
+    margin: 100px auto;
+    box-shadow: 0 0 10px #888888;
+    background-color: white;
+    border-radius: 12px;
+  
+    padding: 10px 0 !important;
+  }
+  
+  .orders-table h2 {
+    font-size: 20px;
+    font-weight: bolder;
+    padding: 20px 0;
+    overflow-x: hidden;
+    padding-left: 36px;
+  }
+  
+  .orders-table table {
+    height: 50px;
+    width: 90%;
+    margin: 40px 50px;
+    overflow-y: scroll;
+  }
+  
+  .orders-table table thead tr {
+    font-size: 18px;
+    font-weight: 400;
+    text-align: left;
+    color: black;
+  
+    border-bottom: 2px solid black;
+  }
+  
+  .orders-table table thead tr th {
+    padding-bottom: 12px;
+  }
+  
+  .bodyrow {
+    height: 24px;
+    margin: 8px 0;
+  }
+  
+  .bodyrow td {
+    padding: 8px 0;
+    color: gray;
+    text-align: left;
+    border-bottom: 2px solid gray;
+  }
+  
+  footer {
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    font-size: 14px;
+    color: black;
+  }
+  
+  footer span {
+    color: navy !important;
+    font-family: 600;
+    padding: 0 8px !important;
+  }
+  
+  .actions {
+    font-size: 18px;
+    color: black;
+    display: flex;
+    justify-content: space-evenly;
+    width: 70%;
+    cursor: pointer;
+  }
+  
