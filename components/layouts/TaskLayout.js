@@ -433,6 +433,17 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         console.log(taskId);
         axios.post(process.env.NEXT_PUBLIC_TI_DELETE_TASK,{taskId:taskId}).then((x)=>Router.reload("/tasks"))
     }
+    const getServiceNames = (list) => {
+        let names = ''
+        list.forEach((x, indexz)=>{
+            if(list.length>(indexz+1)){
+                names = names + x.name + ', '
+            }else{
+                names = names + x.name
+            }
+        })
+        return names
+    }
   return (
     <div className='task-styles'>
         {(!taskShow && !taskView) &&
@@ -1001,7 +1012,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             </Col>
                             <Col md={3} style={{marginLeft:'20px'}}>
                             <Form.Group className="">
-                                <Form.Control type="number" placeholder="" value={(totalPrice+extPartPrice).toFixed(2)} />
+                                <Form.Control type="number" placeholder="" value={(totalPrice+extPartPrice)} />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -1011,7 +1022,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             </Col>
                             <Col md={3} style={{marginLeft:'20px'}}>
                             <Form.Group className="">
-                                <Form.Control type="text" placeholder="" value={tax.toFixed(2)} onChange={(e)=>{setTax(e.target.value);}} />
+                                <Form.Control type="text" placeholder="" value={tax} onChange={(e)=>{setTax(e.target.value);}} />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -1021,7 +1032,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             </Col>
                             <Col md={3} style={{marginLeft:'20px'}}>
                             <Form.Group className="">
-                                <Form.Control type="number" placeholder="" value={fPrice.toFixed(2)} />
+                                <Form.Control type="number" placeholder="" value={fPrice} />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -1117,7 +1128,14 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                         </Col>
                     </Row>
                     <Row className='mt-3'>
-                        <h5>{state.selectedService.service}</h5>
+                    <h5>
+                    {
+                        getServiceNames(state.selectedService.services)
+                        // state.selectedService.services.map((name, indexz)=>{
+                        //     return(<span key={indexz}>{name.name}, </span>)
+                        // })
+                    }
+                    </h5>
                     </Row>
                     <Row>
                         <Col md={6} className="mt-3">
