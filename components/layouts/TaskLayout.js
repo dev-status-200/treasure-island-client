@@ -61,9 +61,16 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
     const [editLoad, setEditLoad] = useState(false);
 
     const [show, setShow] = useState(false);
+    const [completeShow, setCompleteShow] = useState(false);
+    const [completeLoad, setCompleteLoad] = useState(false);
+
+    const [suggestion, setSuggestion] = useState('');
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    const handleCompleteClose = () => setCompleteShow(false);
+    const handleCompleteShow = () => setCompleteShow(true);
 
     const [state, setState] = useSetState({
         service:[{
@@ -71,7 +78,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         }],
         selectedService:{
             serviceName:"", date:"", employees:[], customer:{id:"", name:''}, status:'', description:'', parts:[], extraParts:[], services:[],
-            make:"", model:'', eng:'', mileage:'', images:[], createdAt:'', regio:'', carId:''
+            make:"", model:'', eng:'', mileage:'', images:[], createdAt:'', regio:'', carId:'', price:''
         }
     });
     
@@ -97,11 +104,12 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         state.service.forEach((x, index)=>{
             if(x.estimate!=""){
                 Price = Price + parseFloat(x.estimate)
+                console.log(x.estimate)
             }
         })
         Price = Price
         setTotalPrice(Price)
-        setFPrice(Price + parseFloat(tax) + parseFloat(extPartPrice))
+        setFPrice(Price + parseFloat(tax) + parseFloat(extPartPrice.toFixed(2)))
     }, [state.service, tax, extPartPrice])
     const getPartName = (x) => {
         let value = "";
@@ -235,6 +243,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
             dataSet.regio = x.data[0].Taskassociations[0].Car.regio
             dataSet.mileage = x.data[0].mileage
             dataSet.eng = x.data[0].engine_no
+            dataSet.price = x.data[0].finalPrice
             dataSet.service = x.data[0].service
             let imagesTemp = x.data[0].images.split(', ');
             if(imagesTemp[imagesTemp.length-1]==''){
@@ -334,27 +343,18 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
             console.log('function End')
     }
     const taskComplete = async() => {
-        let value = '';
-        if(state.selectedService.status=='active'){
-            value = "complete"
-        }else{
-            value = "active"
-        }
+        setCompleteLoad(true);
+        await axios.post(process.env.NEXT_PUBLIC_TI_GENERATE_INVOICE,{
+            taskId:taskId, customer_name:state.selectedService.customer.name, price:state.selectedService.price, suggestion:suggestion
+        })
         await axios.post(process.env.NEXT_PUBLIC_TI_TASK_COMPLETE,{ 
-            id:taskId, action:value
+            id:taskId, action:'complete'
         }).then(()=>{
             let tempState = [...taskList];
             let tempStateTwo = state.selectedService
-            tempStateTwo.status = value;
+            tempStateTwo.status = 'complete';
             setState({selectedService:tempStateTwo});
-
-            tempState.forEach((x)=>{
-                if(x.id==taskId){
-                    x.status = value
-                }
-            })
-            console.log(tempState);
-            setTaskList(tempState);
+            Router.push('/invoices')
         })
     }
     const getImage = (id) => {
@@ -555,7 +555,6 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                     let serviceTemp = [...selectedCreatedServices]
                                     serviceTemp[indexMain] = e.target.value
                                     setSelectedCreatedServices(serviceTemp)
-                                    //console.log(e.target.name)
                                     let tempState = [...state.service];
                                     services.find((x)=>{
                                     if(x.id==e.target.value){
@@ -620,19 +619,19 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                 <Col md={3} className="">
                                 <Form.Group className="mb-3" controlId="formBasicEmail">
                                     <Form.Label>Parts Cost</Form.Label>
-                                    <Form.Control type="text" placeholder="" value={ser.partsCost?ser.partsCost.toFixed(2):""} />
+                                    <Form.Control type="text" placeholder="" value={ser.partsCost} />
                                 </Form.Group>
                                 </Col>
                                 <Col md={3} className="">
                                 <Form.Group className="mb-3" controlId="formBasicEmail">
                                     <Form.Label>Labor Cost</Form.Label>
-                                    <Form.Control type="text" placeholder="" value={ser.labourCost?ser.labourCost.toFixed(2):""} />
+                                    <Form.Control type="text" placeholder="" value={ser.labourCost} />
                                 </Form.Group>
                                 </Col>
                                 <Col md={3} className="">
                                 <Form.Group className="mb-3" controlId="formBasicEmail">
                                     <Form.Label>Discount</Form.Label>
-                                    <Form.Control type="text" placeholder="" value={ser.discount?ser.discount:""} />
+                                    <Form.Control type="text" placeholder="" value={ser.discount?ser.discount:0.00} />
                                 </Form.Group>
                                 </Col>
                                 <Col md={3} className="">
@@ -685,7 +684,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                     e.forEach((y)=>{
                                         if(y.value == x.id){
                                             console.log(x.cost)
-                                            partCost = partCost + parseFloat(x.cost)
+                                            partCost = partCost + x.cost
                                         }
                                     })
                                 })
@@ -703,7 +702,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             </Col>
                             <Col md={3} style={{marginLeft:'20px'}}>
                             <Form.Group className="">
-                                <Form.Control type="number" placeholder="" value={(totalPrice+extPartPrice).toFixed(2)} />
+                                <Form.Control type="number" placeholder="" value={`${totalPrice+extPartPrice}`} />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -713,7 +712,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             </Col>
                             <Col md={3} style={{marginLeft:'20px'}}>
                             <Form.Group className="">
-                                <Form.Control type="text" placeholder="" value={tax.toFixed(2)} onChange={(e)=>{setTax(e.target.value);}} />
+                                <Form.Control type="text" placeholder="" value={tax} onChange={(e)=>{setTax(e.target.value);}} />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -723,7 +722,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             </Col>
                             <Col md={3} style={{marginLeft:'20px'}}>
                             <Form.Group className="">
-                                <Form.Control type="number" placeholder="" value={fPrice.toFixed(2)} />
+                                <Form.Control type="number" placeholder="" value={fPrice} />
                             </Form.Group>
                             </Col>
                         </Row>
@@ -1064,8 +1063,8 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                         setTaskView(false);
                         setState({
                             selectedService:{
-                                serviceName:"", date:"", employees:[], customer:{id:"", name:''}, status:'', description:'', parts:[], extraParts:[], services:[],
-                                make:"", model:'', eng:'', mileage:'', images:[], createdAt:''
+                                serviceName:"", date:"", employees:[], customer:{id:"", name:''}, status:'', description:'',
+                                parts:[], extraParts:[], services:[], make:"", model:'', eng:'', mileage:'', images:[], createdAt:''
                             }
                         })
                     }} className="px-4 mx-2" size="sm">Back</Button>
@@ -1076,25 +1075,45 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                 <div className="box mx-2 mt-3 p-4">
                     <Row>
                         <Col>
-                            <input type="checkbox" checked={state.selectedService.status=='complete'?true:false} onChange={()=>taskComplete()} />
-                            <span style={{fontSize:'14px', marginLeft:'4px', color:'grey'}}>{state.selectedService.status=='complete'?"Mark As Uncomplete":"Mark As Completed"}</span>
+                        <input type="checkbox" checked={state.selectedService.status=='complete'?true:false} onChange={()=>handleCompleteShow()}/>
+                        <span style={{fontSize:'14px', marginLeft:'4px', color:'grey'}}>
+                            {state.selectedService.status=='complete'?"Mark As Uncomplete":"Mark As Completed"}
+                        </span>
                         </Col>
                         <Col>
-                            <div style={{float:'right', cursor:'pointer'}} onMouseEnter={()=>setDropDown(true)} onMouseLeave={()=>setDropDown(false)}>
-                                <BsThreeDots  />
-                                <Dropdown.Menu show={dropDown}>
-                                    <Dropdown.Item eventKey="2" 
-                                    onClick={()=>{
-                                        console.log(taskId);
-                                        fetchTaskDetailsEdit(taskId);
-                                        setTaskView(false);
-                                        setTaskhow(true);
-                                        setEdit(true);
-                                        setDropDown(false);
-                                    }}>Edit</Dropdown.Item>
-                                    <Dropdown.Item eventKey="3" onClick={()=>handleShow(true)}>Delete</Dropdown.Item>
-                                </Dropdown.Menu>
-                            </div>
+                        <div style={{float:'right',cursor:'pointer'}} onMouseEnter={()=>setDropDown(true)} onMouseLeave={()=>setDropDown(false)}>
+                            <BsThreeDots  />
+                            <Dropdown.Menu show={dropDown}>
+                                <Dropdown.Item eventKey="1" 
+                                onClick={()=>{
+                                    console.log(taskId);
+                                    fetchTaskDetailsEdit(taskId);
+                                    setTaskView(false);
+                                    setTaskhow(true);
+                                    setEdit(true);
+                                    setDropDown(false);
+                                }}>Edit</Dropdown.Item>
+                                <Dropdown.Item eventKey="2" onClick={()=>handleShow(true)}>Delete</Dropdown.Item>
+                                <Dropdown.Item eventKey="3" onClick={()=>{
+                                    axios.post(process.env.NEXT_PUBLIC_TI_TASK_COMPLETE,{ 
+                                        id:taskId, action:state.selectedService.status=='active'?'On Hold':'active'
+                                    }).then(()=>{
+                                        let tempState = [...taskList];
+                                        let tempStateTwo = state.selectedService
+                                        tempStateTwo.status = state.selectedService.status=='active'?'On Hold':'active';
+                                        setState({selectedService:tempStateTwo});
+                            
+                                        tempState.forEach((x)=>{
+                                            if(x.id==taskId){
+                                                x.status = state.selectedService.status=='active'?'On Hold':'active'
+                                            }
+                                        })
+                                        console.log(tempState);
+                                        setTaskList(tempState);
+                                    })
+                                }}>{state.selectedService.status=='active'?'On Hold':'In Progress'}</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </div>
                         </Col>
                     </Row>
                     <Row className='mt-3'>
@@ -1322,7 +1341,6 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                         </div>
                     </Col>
                 </Row>
-                
                 </div>
                 }
                 {
@@ -1343,6 +1361,30 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
           <Button variant="danger" onClick={()=>{taskDelete()}}>
             {load?<Spinner className='mx-3' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:"confirm"}
           </Button>
+        </Modal.Footer>
+      </Modal>
+        <Modal show={completeShow} onHide={handleCompleteClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Task Status</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            Mark This Task as Complete?
+            <div>
+            <Form.Group className="mt-4" controlId="exampleForm.ControlInput1">
+                <Form.Control 
+                    value={suggestion} onChange={(e)=>setSuggestion(e.target.value)}
+                    rows={3} placeholder="Add Recommendations for Client" as="textarea"
+                />
+            </Form.Group>
+            </div>
+        </Modal.Body>
+        <Modal.Footer>
+        <Button variant="success" size="sm" className='' onClick={taskComplete}>
+            {completeLoad==true?<Spinner className='mx-4' as="span" animation="border" size="sm" role="status" aria-hidden="true"/>:"Generate Invoice"}
+        </Button>
+        <Button variant="danger" size="sm" onClick={handleCompleteClose}>
+            cancel
+        </Button>
         </Modal.Footer>
       </Modal>
     </div>
