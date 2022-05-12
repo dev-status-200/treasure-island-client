@@ -9,7 +9,7 @@ import Router, { useRouter } from 'next/router';
 import moment from 'moment'
 import { BsWrench, BsSpeedometer, BsThreeDots } from "react-icons/bs";
 import { FiSettings } from "react-icons/fi";
-import { AiFillCar, AiFillFileImage } from "react-icons/ai";
+import { AiFillCar, AiFillFileImage, AiFillEye ,AiOutlineSearch, AiFillEyeInvisible } from "react-icons/ai";
 import { GiMechanicGarage } from "react-icons/gi";
 
 const fileTypes = ["JPEG", "PNG", "GIF", "BMP"];
@@ -256,10 +256,12 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                 }
             }
             let tempCreatedService = x.data[0].createdService.split(', ')
+            
             let partsList = []
             services.forEach((x)=>{
                 tempCreatedService.find((y)=>{
                     if(x.id==y){
+                        
                         dataSet.services.push({name:x.name})
                         x.Servicecars.forEach((z)=>{
                             if(z.make.toLowerCase()==dataSet.make.toLowerCase() && z.model.toLowerCase()==dataSet.model.toLowerCase()){
@@ -444,6 +446,38 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
         })
         return names
     }
+    const getServiceNamesTwo = (list) => {
+        let names = ''
+        let tempList = list.split(', ')
+        tempList.forEach((x, indexz)=>{
+            services.forEach((y)=>{
+                if(y.id==x){
+                    if(tempList.length>(indexz+1)){
+                        names = names + y.name + ', '
+                    }else{
+                        names = names + y.name
+                    }
+                }
+                
+            })
+            
+        })
+        return names
+    }
+    const getServiceNamesThree = (list) => {
+        let names = ''
+        console.log(list)
+        //list.forEach((x, indexz)=>{
+            services.forEach((y)=>{
+                if(y.id==list){
+                    names = y.name
+                }
+                
+            })
+            
+        //})
+        return names
+    }
   return (
     <div className='task-styles'>
         {(!taskShow && !taskView) &&
@@ -460,19 +494,27 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                         <p className='id-name'>{task.Taskassociations[0].Car.make} {task.Taskassociations[0].Car.model} {task.Taskassociations[0].Car.year}</p>
                                     </div>
                                     <div className=''>
+                                    <div style={{minHeight:'70px', maxHeight:'70px', paddingTop:'5px'}}>
+                                    {
+                                    task.createdService.split(', ').map((serv, index)=>{
+                                        return(
                                         <div>
                                             <span className='service-left'>Service: </span>
-                                            <span className='service-right'>{task.service}</span>
+                                            <div className='service-right'>{getServiceNamesThree(serv)}</div>
                                         </div>
+                                        )
+                                    })
+                                    }
+                                    </div>
                                         <div className='line'></div>
                                         <div>
                                             <span className='service-left-two'>Cost: </span>
                                             <span className='service-right-two'>$ {parseFloat(task.finalPrice).toFixed(2)}</span>
                                         </div>
-                                        <div className='text-center mt-5'>
-                                        <Button className='mt-5 px-5 shadow' onClick={()=>fetchTaskDetails(task.id)}>See Details</Button>
                                         </div>
-                                    </div>
+                                        <div className='text-center'>
+                                        <Button className='mt-4 px-5 shadow ' onClick={()=>fetchTaskDetails(task.id)}>See Details</Button>
+                                        </div>
                                 </div>
                             </Col>
                         )
@@ -571,7 +613,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                     if(x.id==e.target.value){
                                     let found = false
                                     x.Servicecars.find((y)=>{
-                                        if(y.make.toLowerCase()==carMake.toLowerCase() ){ //&& (y.from<=year && y.to>=year)
+                                        if(y.make.toLowerCase()==carMake.toLowerCase() && y.model.toLowerCase()==model.toLowerCase() ){ //&& (y.from<=year && y.to>=year)
                                             //console.log('Match Found');
                                             found = true
                                             //console.log(y)
@@ -1129,12 +1171,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                     </Row>
                     <Row className='mt-3'>
                     <h5>
-                    {
-                        getServiceNames(state.selectedService.services)
-                        // state.selectedService.services.map((name, indexz)=>{
-                        //     return(<span key={indexz}>{name.name}, </span>)
-                        // })
-                    }
+                    {getServiceNames(state.selectedService.services)}
                     </h5>
                     </Row>
                     <Row>
@@ -1186,7 +1223,10 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                         </div>
                     </Row>
                     <Row className='mt-4'>
-                        <Col md={6}><BsWrench className='mx-2' style={{color:'blue'}} /><span>{state.selectedService.services[0].name}</span></Col>
+                        <Col md={6}>
+                            <BsWrench className='mx-2' style={{color:'blue'}} />
+                                <span>{getServiceNames(state.selectedService.services)}</span>
+                        </Col>
                         <Col md={6}>
                             <div>
                             <FiSettings className='mx-2' style={{color:'blue'}} />
@@ -1283,6 +1323,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             <th>Assigned To</th>
                             <th>Status</th>
                             <th>Date</th>
+                            <th>View</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1293,7 +1334,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             return(
                             <tr key={index} style={{fontSize:'14px', color:'grey'}} >
                                 <td>{index+1}</td>
-                                <td>{task.service}</td>
+                                <td>{getServiceNamesTwo(task.createdService)}</td>
                                 <td>{task.mileage}</td>
                                 <td style={{maxWidth:'150px'}}>
                                 {
@@ -1310,6 +1351,38 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                 </td>
                                 <td>{task.status}</td>
                                 <td>{task.createdAt.slice(0,10)}</td>
+                                <td><AiFillEye className='blue icon-trans' 
+                                onClick={()=>{
+                                    let tempState=state.selectedService
+                                    tempState.employees=[]
+                                    tempState.serviceName=""
+                                    tempState.date=""
+                                    tempState.customer={id:"", name:''}
+                                    tempState.status=''
+                                    tempState.description=''
+                                    tempState.parts=[]
+                                    tempState.extraParts=[]
+                                    tempState.services=[]
+                                    tempState.make=""
+                                    tempState.model=""
+                                    tempState.eng=''
+                                    tempState.mileage=''
+                                    tempState.images=[]
+                                    tempState.createdAt=''
+                                    tempState.regio=''
+                                    tempState.carId=''
+                                    tempState.price=''
+                                    // tempState = {
+                                    //     serviceName:"", date:"", employees:[], customer:{id:"", name:''}, status:'', description:'', parts:[], extraParts:[], services:[],
+                                    //     make:"", model:'', eng:'', mileage:'', images:[], createdAt:'', regio:'', carId:'', price:''
+                                    // }
+                                    setState({selectedService:tempState})
+                                    
+                                    setEdit(false); setTaskView(false); setTaskhow(false);
+                                    setServiceLoad(false);
+                                    fetchTaskDetails(task.id);
+                                }}
+                                /></td>
                             </tr>
                             )
                             })

@@ -66,13 +66,17 @@
         transition: 1s;
     }
     .card{
-        height: 320px;
+        min-height: 350px;
         width: 270px;
         background-color: white;
         box-shadow: 10px 10px 21px -13px rgba(0,0,0,0.75);
         -webkit-box-shadow: 10px 10px 21px -13px rgba(0,0,0,0.75);
         -moz-box-shadow: 10px 10px 21px -13px rgba(0,0,0,0.75);
         border-radius: 10px;
+    }
+    .car-btn{
+        position: relative;
+        bottom: 0px;
     }
     .top{
         background-color: #1A73E8;
@@ -91,15 +95,15 @@
         text-align: center;
     }
     .service-left{
-        margin-left: 20px;
         float: left;
-        margin-top: 20px;
+        margin-left: 20px;
+        margin-top: 5px;
         font-size: 18px;
     }
     .service-right{
         float: right;
+        margin-top: 5px;
         margin-right: 20px;
-        margin-top: 20px;
         font-size: 18px;
     }
     .service-left-two{
@@ -121,6 +125,22 @@
         margin-left: 20px;
         margin-left: 20px;
         background-color: #74747456;
+    }
+    .icon-trans{
+        color: #1466c5;
+        margin-right: 5px;
+        margin-left: 5px;
+        margin-bottom: 3px;
+        font-size: 15px;
+    }
+    .icon-trans:hover{
+        transition-duration: 150ms;
+        cursor: pointer;
+        margin-right: 3px;
+        margin-left: 4px;
+        margin-bottom: 4px;
+        font-size: 18px;
+        margin-bottom: 0px;
     }
     .dot-green{
         background-color: greenyellow;
