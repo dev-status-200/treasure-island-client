@@ -496,9 +496,9 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                                     <div className=''>
                                     <div style={{minHeight:'70px', maxHeight:'70px', paddingTop:'5px'}}>
                                     {
-                                    task.createdService.split(', ').map((serv, index)=>{
+                                    task.createdService.split(', ').map((serv, indexA)=>{
                                         return(
-                                        <div>
+                                        <div key={indexA+'a'}>
                                             <span className='service-left'>Service: </span>
                                             <div className='service-right'>{getServiceNamesThree(serv)}</div>
                                         </div>
