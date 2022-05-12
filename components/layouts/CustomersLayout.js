@@ -44,8 +44,8 @@ const CustomersLayout = ({customers, serviceRequest}) => {
 
     useEffect(() => {
         setMechanicList(customers);
-    }, [])
-
+        console.log(customers)
+    }, []);
     const getMail = async() => {
         let res = await axios.get(process.env.NEXT_PUBLIC_TI_CUSTOMERS_EMAILS).then((x)=>(x.data));
         console.log(res)
@@ -320,6 +320,13 @@ const CustomersLayout = ({customers, serviceRequest}) => {
                     <Row>
                         <Col md={2}>
                             <img src={mech.profile_pic} className="image"/>
+                            {
+                                mech.Cars.filter((x)=>{
+                                    return x.need_service=="yes"
+                                }).map((notify, indexA)=>{
+                                    return(<div key={indexA+'0'} className='notification-blue'></div>)
+                                })
+                            }
                         </Col>
                         <Col md={10}>
                             <div className='name pt-2'>{mech.f_name} {mech.l_name}</div>

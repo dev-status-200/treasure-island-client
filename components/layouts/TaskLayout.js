@@ -489,7 +489,7 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             <Col md={3} className="mx-3 my-3" key={index}>
                                 <div className='card'>
                                     <div className='top'>
-                                    <div className={task.status=="active"?'dot-yellow':"dot-green"}></div>
+                                    <div className={task.status=="active"?'dot-inprogress':task.status=="On Hold"?"dot-hold":"dot-completed"}></div>
                                         <h4 className='id'>{task.Taskassociations[0].Car.regio}</h4>
                                         <p className='id-name'>{task.Taskassociations[0].Car.make} {task.Taskassociations[0].Car.model} {task.Taskassociations[0].Car.year}</p>
                                     </div>

@@ -142,8 +142,8 @@
         font-size: 18px;
         margin-bottom: 0px;
     }
-    .dot-green{
-        background-color: greenyellow;
+    .dot-hold{
+        background-color: #F62323;
         height: 10px;
         width: 10px;
         float: right;
@@ -151,8 +151,8 @@
         margin-top: 10px;
         border-radius: 50%;
     }
-    .dot-red{
-        background-color: red;
+    .dot-completed{
+        background-color: #1AF069;
         height: 10px;
         width: 10px;
         float: right;
@@ -160,8 +160,8 @@
         margin-top: 10px;
         border-radius: 50%;
     }
-    .dot-yellow{
-        background-color: yellow;
+    .dot-inprogress{
+        background-color: #F7D634;
         height: 10px;
         width: 10px;
         float: right;
