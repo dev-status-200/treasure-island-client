@@ -258,7 +258,9 @@ const CustomersLayout = ({customers, serviceRequest}) => {
     }
 
     const deleteServiceRequest = () => {
-        axios.post(process.env.NEXT_PUBLIC_TI_DELETE_SERVICE_REQUEST,{id:id})
+        axios.post(process.env.NEXT_PUBLIC_TI_DELETE_SERVICE_REQUEST,{id:id}).then((x)=>{
+            Router.reload("/customers")
+        })
     }
 
   return (
@@ -538,7 +540,6 @@ const CustomersLayout = ({customers, serviceRequest}) => {
                         <button className='btn btn-primary px-5'
                         onClick={()=>{
                             deleteServiceRequest();
-                            Router.reload("/customers")
                         }}
                         style={{float:'right'}}>Decline</button>
                     </Col>
