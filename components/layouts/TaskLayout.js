@@ -581,13 +581,13 @@ const TaskLayout = ({services, parts, tasks, employees}) => {
                             <Col md={3} className="mx-5">
                             <Form.Group className="mb-3" controlId="formBasicEmail">
                                 <Form.Label>Engine Number</Form.Label>
-                                <Form.Control type="text" placeholder="" value={engineNo} required onChange={(e)=>setEngineNo(e.target.value)} />
+                                <Form.Control type="text" placeholder="" value={engineNo} onChange={(e)=>setEngineNo(e.target.value)} />
                             </Form.Group>
                             </Col>
                             <Col md={3} className="mx-5">
                             <Form.Group className="mb-3" controlId="formBasicEmail">
                                 <Form.Label>Mileage</Form.Label>
-                                <Form.Control type="text" placeholder="" value={mileage} required onChange={(e)=>setMileage(e.target.value)} />
+                                <Form.Control type="text" placeholder="" value={mileage} onChange={(e)=>setMileage(e.target.value)} />
                             </Form.Group>
                             </Col>
                         </Row>

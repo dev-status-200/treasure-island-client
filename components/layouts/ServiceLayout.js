@@ -332,20 +332,20 @@ const ServiceLayout = ({parts, servicesData}) => {
                             tempState[index].labourCost=parseFloat(e.target.value)
                             setState({serviceList:tempState});
                             setPriceChange(!priceChange);
-                          }}  />
+                          }} />
                         </Form.Group>
                         </Col>
                         <Col>
                         <Form.Group className="mb-3" style={{maxWidth:"300px"}} controlId="formBasicEmail">
                           <Form.Label>Discount</Form.Label>
-                          <Form.Control type="text" size="sm" placeholder=""
+                          <Form.Control type="number" size="sm" placeholder=""
                           value={state.serviceList[index].discount} 
                           onChange={(e)=>{
                             let tempState = state.serviceList;
                             tempState[index].discount=parseFloat(e.target.value)
                             setState({serviceList:tempState});
                             setPriceChange(!priceChange);
-                          }}  />
+                          }} />
                         </Form.Group>
                         </Col>
                         <Col>

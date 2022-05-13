@@ -259,7 +259,7 @@ const CustomersLayout = ({customers, serviceRequest}) => {
 
     const deleteServiceRequest = () => {
         axios.post(process.env.NEXT_PUBLIC_TI_DELETE_SERVICE_REQUEST,{id:id}).then((x)=>{
-            Router.reload("/customers")
+            Router.reload("/customers");
         })
     }
 
