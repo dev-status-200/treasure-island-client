@@ -1,87 +1,123 @@
 .iheader {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .invoiceTable1 {
-    background-color: white;
-    padding: 5rem;
-  }
-  
-  .invoiceTable1 tbody tr {
-    padding: 1rem auto !important;
-  }
-  
-  .invoiceSection {
-    background: white;
-    height: 90%;
-    width: 90%;
-    padding: 3rem;
-    margin: auto;
-    box-shadow: 0 0 12px #888888;
-  }
-  
-  .first {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .first img {
-    height: 60px;
-  }
-  
-  .first div p {
-    font-size: 12px;
-  }
-  
-  .invoiceAddress {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0 !important;
-  }
-  
-  .paymentMethod,
-  .recomendation {
-    padding: 10px 0 !important;
-  }
-  
-  .invoiceAddress div h1,
-  .paymentMethod h1,
-  .recomendation h1 {
-    font-size: 14px;
-    font-weight: 600;
-  }
-  
-  .invoiceAddress div p,
-  .paymentMethod p,
-  .recomendation p {
-    font-size: 12px;
-    font-family: 300;
-  }
-  
-  .table2 thead tr th {
-    font-size: 14px;
-    font-family: 400;
-  }
-  .table2 tbody tr td {
-    font-size: 12px;
-    font-family: 300;
-  }
-  
-  .sendInvoice {
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .sendInvoice button {
-    padding: 0.7rem 1rem;
-    border-radius: 8px;
-    background-color: #1733e8;
-    color: white;
-    border: none;
-    margin-top: 4px;
-    margin-right: 60px;
-    font-size: 14px;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.actionButtons {
+  display: flex;
+  padding: 20px 0 !important;
+  // flex-direction: column;
+}
+
+.actionButtons button {
+  border-radius: 6px;
+  margin: 0 4px !important;
+}
+
+.download-table-xls-button {
+  border: none;
+  font-size: 22px;
+  padding: 0 5px;
+}
+
+.excel {
+  display: flex;
+  justify-content: flex-end;
+  width: 95%;
+  margin-top: 12px;
+}
+
+.invoicePage {
+  display: flex;
+  flex-direction: column;
+}
+
+.invoiceTable {
+  padding: 0.5rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 0 12px #888888;
+  margin-top: 2rem !important;
+}
+
+.invoiceTable .invoiceTable1 {
+  background-color: white;
+  padding: 1rem;
+}
+
+.invoiceTable1 tbody tr {
+  padding: 1rem auto !important;
+}
+
+.invoiceSection {
+  background: white;
+  height: 90%;
+  width: 90%;
+  padding: 3rem;
+  margin: auto;
+  box-shadow: 0 0 12px #888888;
+}
+
+.first {
+  display: flex;
+  justify-content: space-between;
+}
+
+.first img {
+  height: 60px;
+}
+
+.first div p {
+  font-size: 12px;
+}
+
+.invoiceAddress {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0 !important;
+}
+
+.paymentMethod,
+.recomendation {
+  padding: 10px 0 !important;
+}
+
+.invoiceAddress div h1,
+.paymentMethod h1,
+.recomendation h1 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.invoiceAddress div p,
+.paymentMethod p,
+.recomendation p {
+  font-size: 12px;
+  font-family: 300;
+}
+
+.table2 thead tr th {
+  font-size: 14px;
+  font-family: 400;
+}
+.table2 tbody tr td {
+  font-size: 12px;
+  font-family: 300;
+}
+
+.sendInvoice {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sendInvoice button {
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  background-color: #1733e8;
+  color: white;
+  border: none;
+  margin-top: 4px;
+  margin-right: 60px;
+  font-size: 14px;
+}

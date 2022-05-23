@@ -1,0 +1,102 @@
+.service {
+  height: 240px;
+  width: 90%;
+  margin: auto;
+  background-color: #fff;
+  margin-top: 40px;
+  border-radius: 12px;
+  border: 0.5px solid #888888;
+}
+
+.service-head {
+  height: 50px;
+  border-bottom: 0.5px solid #888888;
+  display: flex;
+  align-items: center;
+}
+
+.csContainer {
+  height: 85vh;
+  overflow-y: scroll;
+}
+
+.csContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.service-head p {
+  padding: 0 24px;
+  font-weight: bold;
+}
+
+.service-body {
+  display: flex;
+  flex-direction: column;
+  height: 120px;
+  justify-content: center;
+}
+
+.service-body h6 {
+  font-size: 16px;
+  color: #888888;
+  font-weight: 600;
+  padding: 8px 20px;
+}
+
+.lists {
+  display: flex;
+}
+
+.lists div {
+  display: flex;
+  width: 150px;
+  justify-content: space-between;
+  margin: 12px 20px;
+  border: 0.5px solid #888888;
+  border-radius: 100px;
+  padding: 0.3rem 0.8rem;
+}
+
+.lists div p {
+  font-size: 14px;
+}
+
+.service-footer {
+  height: 70px;
+  border-top: 0.5px solid #888888;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.info {
+  display: flex;
+}
+
+.info p,
+.total p {
+  padding: 0 20px;
+}
+
+.info p span,
+.total p span {
+  font-weight: bolder;
+  padding-left: 8px;
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 !important;
+}
+
+.actionButtons div {
+  padding: 0 10px;
+}
+
+.changeHeader {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  margin: auto;
+}
